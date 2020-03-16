@@ -2,6 +2,53 @@
 #include <assert.h>
 #include <list>
 #include <iostream>
+#include <random>
+
+void Graph::splitGraph(int vertex1, int vertex2)
+{
+
+}
+
+void Graph::splitGraph(const int vertex1, const int vertex2, Graph & part1, Graph & part2, std::mt19937* rng)
+{
+	std::random_device dev;
+	std::mt19937 rngg(dev());
+
+	std::vector<int> pathIndices = shortestPath(vertex1, vertex2);
+
+	while (!pathIndices.empty())
+	{
+		std::uniform_int_distribution<std::mt19937::result_type> graphDistribution(0, pathIndices.size() - 2);
+		int deletePathIndex = graphDistribution(rngg);
+		removeEdge(pathIndices[deletePathIndex], pathIndices[deletePathIndex + 1]);
+
+		pathIndices = shortestPath(vertex1, vertex2);
+	}
+}
+
+bool Graph::removeEdge(const int vertexIndex1, const int vertexIndex2)
+{
+	assert((vertexIndex1 > -1) && (vertexIndex1 < vertices.size()));
+	assert((vertexIndex2 > -1) && (vertexIndex2 < vertices.size()));
+
+	vertices[vertexIndex1].neighbours.erase(vertexIndex2);
+	vertices[vertexIndex2].neighbours.erase(vertexIndex1);
+
+	return true;
+}
+
+bool Graph::removeEdgeByName(const int name1, const int name2)
+{
+	bool result1, result2;
+	int vertexIndex1 = findVertexIndex(name1, result1) - vertices.begin();
+	int vertexIndex2 = findVertexIndex(name2, result2) - vertices.begin();
+
+	if (!(result1 && result2))
+		return false;
+
+	vertices[vertexIndex1].neighbours.erase(vertexIndex2);
+	vertices[vertexIndex2].neighbours.erase(vertexIndex1);
+}
 
 std::vector<Vertex>::iterator Graph::findVertexIndex(int val, bool& res)
 {
@@ -106,24 +153,28 @@ bool Graph::BreadthFirstSearch(int src, int dest, int predecessorsList[], int di
 	return false;
 }
 
-void Graph::shortestPath(int src, int dest)
+std::vector<int> Graph::shortestPath(int src, int dest)
 {
 	int *pred = new int[vertices.size()];
 	int *dist = new int[vertices.size()];
 
+	std::vector<int> path;
+	std::vector<int> pathIndices;
+
 	if (!BreadthFirstSearch(src, dest, pred, dist))
 	{
 		std::cout << "Source and dest are not connected!" << std::endl;
-		return;
+		return pathIndices;
 	}
 
-	std::vector<int> path;
 	bool result;
 	int destIndex = findVertexIndex(dest, result) - vertices.begin();
 	int crawl = destIndex;
 	path.push_back(dest);
+	pathIndices.push_back(destIndex);
 	while (pred[crawl] != -1)
 	{
+		pathIndices.push_back(pred[crawl]);
 		path.push_back(vertices[pred[crawl]].data);
 		crawl = pred[crawl];
 	}
@@ -135,6 +186,8 @@ void Graph::shortestPath(int src, int dest)
 		std::cout << path[i] << " ";
 
 	std::cout << std::endl;
+
+	return pathIndices;
 }
 
 void Graph::addEdge(int n1, int n2, bool directed)

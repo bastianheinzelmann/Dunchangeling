@@ -1,9 +1,14 @@
 #include <iostream>
 #include "../Dunchangeling/Graph.h"
 #include <string>
+#include <random>
 
-void main()
+int main()
 {
+	std::random_device dev;
+	std::mt19937* rng = new std::mt19937(dev());
+	//std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 6);
+
 	Graph graph;
 	graph.addEdge(1, 2, false);
 	graph.addEdge(1, 3, false);
@@ -14,6 +19,9 @@ void main()
 	graph.addEdge(6, 7, false);
 	graph.addEdge(5, 7, false);
 
+	Graph part1, part2;
+	graph.splitGraph(3, 4, part1, part2, rng);
+
 	graph.shortestPath(1, 6);
 
 	std::string dot = graph.printAsDot();
@@ -21,4 +29,8 @@ void main()
 	std::cout << dot << std::endl;
 
 	getchar();
+
+	delete(rng);
+
+	return 0;
 }
