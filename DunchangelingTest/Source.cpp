@@ -5,8 +5,8 @@
 
 int main()
 {
-	std::random_device dev;
-	std::mt19937* rng = new std::mt19937(dev());
+	//std::random_device dev;
+	//std::mt19937* rng = new std::mt19937(dev());
 	//std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 6);
 
 	Graph graph;
@@ -20,17 +20,21 @@ int main()
 	graph.addEdge(5, 7, false);
 
 	Graph part1, part2;
-	graph.splitGraph(3, 4, part1, part2, rng);
+	graph.splitGraph(3, 4, part1, part2);
 
 	graph.shortestPath(1, 6);
 
 	std::string dot = graph.printAsDot();
 
+	std::string dotPart1 = part1.printAsDot();
+	std::string dotPart2 = part2.printAsDot();
+
 	std::cout << dot << std::endl;
 
-	getchar();
+	std::cout << "Part1: \n" << dotPart1 << std::endl;
+	std::cout << "Part2: \n" << dotPart2 << std::endl;
 
-	delete(rng);
+	getchar();
 
 	return 0;
 }

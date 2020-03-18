@@ -3,13 +3,14 @@
 #include <list>
 #include <iostream>
 #include <random>
+#include "RNG.h"
 
 void Graph::splitGraph(int vertex1, int vertex2)
 {
 
 }
 
-void Graph::splitGraph(const int vertex1, const int vertex2, Graph & part1, Graph & part2, std::mt19937* rng)
+void Graph::splitGraph(const int vertex1, const int vertex2, Graph & part1, Graph & part2)
 {
 	std::random_device dev;
 	std::mt19937 rngg(dev());
@@ -20,19 +21,27 @@ void Graph::splitGraph(const int vertex1, const int vertex2, Graph & part1, Grap
 	{
 		std::uniform_int_distribution<std::mt19937::result_type> graphDistribution(0, pathIndices.size() - 2);
 		int deletePathIndex = graphDistribution(rngg);
-		removeEdge(pathIndices[deletePathIndex], pathIndices[deletePathIndex + 1]);
+		breakEdge(pathIndices[deletePathIndex], pathIndices[deletePathIndex + 1]);
 
 		pathIndices = shortestPath(vertex1, vertex2);
 	}
+
+	// now the graph is split into two parts
+	// could do a breadth first search and add every node to the new graph 
+	BreadthFirstSearch(vertex1, part1);
+	BreadthFirstSearch(vertex2, part2);
 }
 
-bool Graph::removeEdge(const int vertexIndex1, const int vertexIndex2)
+bool Graph::breakEdge(const int vertexIndex1, const int vertexIndex2)
 {
 	assert((vertexIndex1 > -1) && (vertexIndex1 < vertices.size()));
 	assert((vertexIndex2 > -1) && (vertexIndex2 < vertices.size()));
 
 	vertices[vertexIndex1].neighbours.erase(vertexIndex2);
 	vertices[vertexIndex2].neighbours.erase(vertexIndex1);
+
+	vertices[vertexIndex1].hasBrokenEdge = true;
+	vertices[vertexIndex2].hasBrokenEdge = true;
 
 	return true;
 }
@@ -84,7 +93,14 @@ std::string Graph::printAsDot()
 
 	for (int i = 0; i < vertices.size(); i++)
 	{
+
 		std::string connections = "";
+
+		if (vertices[i].hasBrokenEdge)
+		{
+			connections.append(std::to_string(vertices[i].data));
+			connections.append(" [style=filled, fillcolor=red]\n");
+		}
 
 		for (int j : vertices[i].neighbours)
 		{
@@ -150,7 +166,53 @@ bool Graph::BreadthFirstSearch(int src, int dest, int predecessorsList[], int di
 		}
 	}
 
+	delete[](visited);
+
 	return false;
+}
+
+bool Graph::BreadthFirstSearch(int src, Graph& graph)
+{
+	std::list<int> queue;
+	bool* visited = new bool[vertices.size()];
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		visited[i] = false;
+	}
+
+	//--------------find index shit-----------------------
+
+	bool result;
+	std::vector<Vertex>::iterator index = findVertexIndex(src, result);
+	int sourceIndex;
+	if (result)
+		sourceIndex = index - vertices.begin();
+	else
+	{
+		std::cout << "Could not find vertex index" << std::endl;
+		return false;
+	}
+
+	//---------------------------------------------------
+
+	visited[sourceIndex] = true;
+	queue.push_back(sourceIndex);
+
+	while (!queue.empty())
+	{
+		int u = queue.front();
+		queue.pop_front();
+		for (int v : vertices[u].neighbours)
+		{
+			graph.addEdge(vertices[u].data, vertices[v].data, vertices[u].hasBrokenEdge, vertices[v].hasBrokenEdge, false);
+			if (visited[v] == false)
+			{
+				visited[v] = true;
+				queue.push_back(v);
+			}
+		}
+	}
 }
 
 std::vector<int> Graph::shortestPath(int src, int dest)
@@ -187,7 +249,23 @@ std::vector<int> Graph::shortestPath(int src, int dest)
 
 	std::cout << std::endl;
 
+	delete[](pred);
+	delete[](dist);
+
 	return pathIndices;
+}
+
+bool Graph::empty()
+{
+	if (vertices.size() > 0)
+		return false;
+	else
+		return true;
+}
+
+void Graph::clear()
+{
+	vertices.clear();
 }
 
 void Graph::addEdge(int n1, int n2, bool directed)
@@ -198,11 +276,6 @@ void Graph::addEdge(int n1, int n2, bool directed)
 
 	std::vector<Vertex>::iterator vit1 = findVertexIndex(n1, foundVertex01);
 	std::vector<Vertex>::iterator vit2 = findVertexIndex(n2, foundVertex02);
-
-	//if (!foundVertex01 && !foundVertex02)
-	//{
-	//	return;
-	//}
 
 	int node1Index = -1;
 	int	node2Index = -1;
@@ -231,6 +304,48 @@ void Graph::addEdge(int n1, int n2, bool directed)
 
 	assert((node1Index > -1) && (node1Index < vertices.size()));
 	assert((node2Index > -1) && (node2Index < vertices.size()));
+
+	addEdgeIndices(node1Index, node2Index, directed);
+}
+
+void Graph::addEdge(int n1, int n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed)
+{
+	bool foundVertex01 = false;
+	bool foundVertex02 = false;
+
+	std::vector<Vertex>::iterator vit1 = findVertexIndex(n1, foundVertex01);
+	std::vector<Vertex>::iterator vit2 = findVertexIndex(n2, foundVertex02);
+
+	int node1Index = -1;
+	int	node2Index = -1;
+
+	if (!foundVertex01)
+	{
+		Vertex v1(n1);
+		vertices.push_back(v1);
+		node1Index = vertices.size() - 1;
+	}
+	else
+	{
+		node1Index = vit1 - vertices.begin();
+	}
+
+	if (!foundVertex02)
+	{
+		Vertex v2(n2);
+		vertices.push_back(v2);
+		node2Index = vertices.size() - 1;
+	}
+	else
+	{
+		node2Index = vit2 - vertices.begin();
+	}
+
+	assert((node1Index > -1) && (node1Index < vertices.size()));
+	assert((node2Index > -1) && (node2Index < vertices.size()));
+
+	vertices[node1Index].hasBrokenEdge = n1BrokenEdge;
+	vertices[node2Index].hasBrokenEdge = n2brokenEdge;
 
 	addEdgeIndices(node1Index, node2Index, directed);
 }
