@@ -2,6 +2,9 @@
 #include "../Dunchangeling/Graph.h"
 #include <string>
 #include <random>
+#include "../Dunchangeling/GeneticAlgorithm.h"
+
+using namespace GraphUtils;
 
 int main()
 {
@@ -22,17 +25,19 @@ int main()
 	Graph part1, part2;
 	graph.splitGraph(3, 4, part1, part2);
 
-	graph.shortestPath(1, 6);
-
 	std::string dot = graph.printAsDot();
 
 	std::string dotPart1 = part1.printAsDot();
 	std::string dotPart2 = part2.printAsDot();
 
+	//std::string fusedPart = graph_fuseGraphs(part1, part2).printAsDot();
+	std::string fusedPart = graph_crossover(part1, part2).printAsDot();
+
 	std::cout << dot << std::endl;
 
 	std::cout << "Part1: \n" << dotPart1 << std::endl;
 	std::cout << "Part2: \n" << dotPart2 << std::endl;
+	std::cout << "Fused: \n" << fusedPart << std::endl;
 
 	getchar();
 

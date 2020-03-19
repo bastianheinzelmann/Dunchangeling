@@ -87,6 +87,21 @@ void Graph::addEdgeIndices(int index1, int index2, bool directed)
 	}
 }
 
+std::vector<int> Graph::getAllBrokenEdges() const
+{
+	std::vector<int> brokenEdges;
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		if (vertices[i].hasBrokenEdge)
+		{
+			brokenEdges.push_back(vertices[i].vertexName);
+		}
+	}
+
+	return brokenEdges;
+}
+
 std::string Graph::printAsDot()
 {
 	std::string result = "digraph {\n";
@@ -98,15 +113,15 @@ std::string Graph::printAsDot()
 
 		if (vertices[i].hasBrokenEdge)
 		{
-			connections.append(std::to_string(vertices[i].data));
+			connections.append(std::to_string(vertices[i].vertexName));
 			connections.append(" [style=filled, fillcolor=red]\n");
 		}
 
 		for (int j : vertices[i].neighbours)
 		{
-			connections.append(std::to_string(vertices[i].data));
+			connections.append(std::to_string(vertices[i].vertexName));
 			connections.append(" -> ");
-			connections.append(std::to_string(vertices[j].data));
+			connections.append(std::to_string(vertices[j].vertexName));
 			connections.append("\n");
 		}
 
@@ -160,7 +175,7 @@ bool Graph::BreadthFirstSearch(int src, int dest, int predecessorsList[], int di
 				predecessorsList[v] = u;
 				queue.push_back(v);
 
-				if (vertices[v].data == dest)
+				if (vertices[v].vertexName == dest)
 					return true;
 			}
 		}
@@ -205,7 +220,7 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 		queue.pop_front();
 		for (int v : vertices[u].neighbours)
 		{
-			graph.addEdge(vertices[u].data, vertices[v].data, vertices[u].hasBrokenEdge, vertices[v].hasBrokenEdge, false);
+			graph.addEdge(vertices[u].vertexName, vertices[v].vertexName, vertices[u].hasBrokenEdge, vertices[v].hasBrokenEdge, false);
 			if (visited[v] == false)
 			{
 				visited[v] = true;
@@ -237,7 +252,7 @@ std::vector<int> Graph::shortestPath(int src, int dest)
 	while (pred[crawl] != -1)
 	{
 		pathIndices.push_back(pred[crawl]);
-		path.push_back(vertices[pred[crawl]].data);
+		path.push_back(vertices[pred[crawl]].vertexName);
 		crawl = pred[crawl];
 	}
 

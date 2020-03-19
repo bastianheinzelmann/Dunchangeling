@@ -13,31 +13,38 @@ struct Vertex
 public:
 	std::unordered_set <int> neighbours;
 	bool hasBrokenEdge = false;
-	int data;
+	int vertexName;
 
 public:
-	Vertex(int d): data(d){}
-	Vertex(): data(-1){}
+	Vertex(int d): vertexName(d){}
+	Vertex(): vertexName(-1){}
 
 	bool operator<(const Vertex& ref) const
 	{
-		return (ref.data < data);
+		return (ref.vertexName < vertexName);
 	}
 
 	bool operator==(const Vertex& ref) const
 	{
-		return (ref.data == data);
+		return (ref.vertexName == vertexName);
 	}
 };
 
 class Graph
 {
 private:
-	std::vector<Vertex> vertices;
 
 private:
+
 	void addEdgeIndices(int index1, int index2, bool directed);
 public:
+	std::vector<Vertex> vertices;
+
+	Graph(std::vector<Vertex> vertices){ this->vertices = vertices;}
+	Graph() {};
+
+	DLLExport std::vector<int> getAllBrokenEdges() const;
+
 	void splitGraph(const int vertex1, const int vertex2);
 	DLLExport void splitGraph(const int vertex1, const int vertex2, Graph& part1, Graph& part2);
 
