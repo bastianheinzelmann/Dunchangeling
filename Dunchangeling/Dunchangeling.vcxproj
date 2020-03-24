@@ -118,6 +118,7 @@
   <ItemGroup>
     <ClCompile Include="GeneticAlgorithm.cpp" />
     <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="RNG.cpp" />
     <ClCompile Include="TestDLL.cpp" />
     <ClCompile Include="TreeNode.cpp" />
   </ItemGroup>

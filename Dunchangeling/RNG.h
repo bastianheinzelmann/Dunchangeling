@@ -1,22 +1,34 @@
 #pragma once
 #include <random>
 
+#define DLLExport __declspec(dllexport)
+
 class RNG
 {
-private:
-	static std::random_device dev;
-	static std::mt19937 rng;
-	std::uniform_int_distribution<std::mt19937::result_type> distribution;
 public:
-	RNG(int min, int max)
+	DLLExport static RNG& getInstance()
 	{
-		distribution = std::uniform_int_distribution<std::mt19937::result_type>(min, max);
+		static RNG instance;
+		return instance;
 	}
 
-	static void init()
+	DLLExport void setDistribution(int min, int max);
+	DLLExport int operator() ()
 	{
-		rng = std::mt19937(dev());
+		return distribution(engine);
 	}
 
-	int generate() { return distribution(rng); };
+private:
+	RNG() 
+	{
+		engine = std::mt19937(dev());
+	}
+
+	std::random_device dev;
+	std::mt19937 engine;
+	std::uniform_int_distribution<std::mt19937::result_type> distribution;
+
+public:
+	RNG(RNG const&) = delete;
+	void operator=(RNG const&) = delete;
 };

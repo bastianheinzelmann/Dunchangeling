@@ -10,7 +10,7 @@ void Graph::splitGraph(int vertex1, int vertex2)
 
 }
 
-void Graph::splitGraph(const int vertex1, const int vertex2, Graph & part1, Graph & part2)
+void Graph::splitGraph( int vertex1,  int vertex2, Graph & part1, Graph & part2)
 {
 	std::random_device dev;
 	std::mt19937 rngg(dev());
@@ -30,6 +30,16 @@ void Graph::splitGraph(const int vertex1, const int vertex2, Graph & part1, Grap
 	// could do a breadth first search and add every node to the new graph 
 	BreadthFirstSearch(vertex1, part1);
 	BreadthFirstSearch(vertex2, part2);
+
+	assert(!part1.empty() && !part2.empty());
+}
+
+void Graph::clearBrokenEdges()
+{
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		vertices[i].hasBrokenEdge = false;
+	}
 }
 
 bool Graph::breakEdge(const int vertexIndex1, const int vertexIndex2)
@@ -104,7 +114,7 @@ std::vector<int> Graph::getAllBrokenEdges() const
 
 std::string Graph::printAsDot()
 {
-	std::string result = "digraph {\n";
+	std::string result = "digraph {\n concentrate=true \n";
 
 	for (int i = 0; i < vertices.size(); i++)
 	{
@@ -129,6 +139,66 @@ std::string Graph::printAsDot()
 			connections.append("\n");
 		result.append(connections);
 	}
+
+	result.append("}");
+	return result;
+}
+
+std::string Graph::printAsDotPlus()
+{
+	std::list<int> queue;
+	bool* visited = new bool[vertices.size()];
+
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		visited[i] = false;
+	}
+
+	// starting point of breadth first search
+	visited[0] = true;
+	queue.push_back(0);
+
+	std::string result = "digraph {\n";
+
+	while (!queue.empty())
+	{
+		int u = queue.front();
+		queue.pop_front();
+
+		// mark broken edges
+		if (vertices[u].hasBrokenEdge)
+		{
+			result.append(std::to_string(vertices[u].vertexName));
+			result.append(" [style=filled, fillcolor=red]\n");
+		}
+
+		for (int v : vertices[u].neighbours)
+		{
+			if (visited[v] == false)
+			{
+				visited[v] = true;
+				queue.push_back(v);
+
+				if (vertices[v].neighbours.end() != vertices[v].neighbours.find(u))
+				{
+					result.append(std::to_string(vertices[u].vertexName));
+					result.append("->");
+					result.append(std::to_string(vertices[v].vertexName));
+					result.append(" [dir=both]\n");
+				}
+				else
+				{
+					// ist nicht bidrection
+					result.append(std::to_string(vertices[u].vertexName));
+					result.append("->");
+					result.append(std::to_string(vertices[v].vertexName));
+					result.append("\n");
+				}
+			}
+		}
+	}
+
+	delete[](visited);
 
 	result.append("}");
 	return result;
@@ -228,6 +298,19 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 			}
 		}
 	}
+
+	if (graph.vertices.empty())
+	{
+		Vertex poorVertex(src);
+		poorVertex.hasBrokenEdge = true;
+		graph.vertices.push_back(poorVertex);
+	}
+
+	delete[](visited);
+
+	assert(!graph.empty());
+
+	return true;
 }
 
 std::vector<int> Graph::shortestPath(int src, int dest)
@@ -270,7 +353,7 @@ std::vector<int> Graph::shortestPath(int src, int dest)
 	return pathIndices;
 }
 
-bool Graph::empty()
+bool Graph::empty() const
 {
 	if (vertices.size() > 0)
 		return false;
@@ -285,7 +368,6 @@ void Graph::clear()
 
 void Graph::addEdge(int n1, int n2, bool directed)
 {
-
 	bool foundVertex01 = false;
 	bool foundVertex02 = false;
 
