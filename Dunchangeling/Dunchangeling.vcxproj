@@ -123,6 +123,7 @@
     <ClCompile Include="TreeNode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="GeneticAlgorithm.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="RNG.h" />

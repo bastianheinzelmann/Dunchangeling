@@ -5,19 +5,28 @@
 #include <unordered_set>
 #include <string>
 #include <random>
+#include "Constants.h"
 
-#define DLLExport __declspec(dllexport)
+struct VertexAttributes
+{
+	bool isEntry = false;
+	bool isEndRoom = false;
+};
 
 struct Vertex
 {
 public:
 	std::unordered_set <int> neighbours;
 	bool hasBrokenEdge = false;
-	int vertexName;
+	PopId vertexName;
+	VertexAttributes attributes;
 
 public:
+	Vertex(int d, VertexAttributes attr): vertexName(d), attributes(attr) {}
 	Vertex(int d): vertexName(d){}
 	Vertex(): vertexName(-1){}
+
+	unsigned int getNameWithoutGeneration() { return vertexName & (1 << ID_BITS - 1); }
 
 	bool operator<(const Vertex& ref) const
 	{
@@ -34,7 +43,8 @@ class Graph
 {
 private:
 
-	void addEdgeIndices(int index1, int index2, bool directed);
+	void addEdgeIndices(unsigned int index1, unsigned int index2, bool directed);
+	void removeVertex();
 public:
 	std::vector<Vertex> vertices;
 
@@ -43,23 +53,25 @@ public:
 
 	DLLExport std::vector<int> getAllBrokenEdges() const;
 
-	void splitGraph(const int vertex1, const int vertex2);
-	DLLExport void splitGraph(int vertex1, int vertex2, Graph& part1, Graph& part2) ;
+	void splitGraph(PopId vertex1, PopId vertex2);
+	DLLExport void splitGraph(PopId vertex1, PopId vertex2, Graph& part1, Graph& part2) ;
 
 	DLLExport void clearBrokenEdges();
 
 	bool breakEdge(const int vertexIndex1, const int vertexIndex2);
-	DLLExport bool removeEdgeByName(const int name1, const int name2);
+	DLLExport bool removeEdgeByName(const PopId name1, const PopId name2);
 
 	DLLExport std::vector<Vertex>::iterator findVertexIndex(int val, bool &res);
-	DLLExport void addEdge(int n1, int n2, bool directed);
-	DLLExport void addEdge(int n1, int n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed);
-	DLLExport std::string printAsDot();
+	DLLExport void addEdge(PopId n1, PopId n2, bool directed);
+	DLLExport void addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed);
+	DLLExport std::string printAsDot() const;
 	DLLExport std::string printAsDotPlus();
 	DLLExport bool BreadthFirstSearch(int src, int dest, int predecessorsList[], int distanceList[]);
 	bool BreadthFirstSearch(int src, Graph& graph);
-	DLLExport std::vector<int> shortestPath(int src, int dest);
+	DLLExport std::vector<int> shortestPath(PopId src, PopId dest);
 
 	DLLExport bool empty() const;
 	DLLExport void clear();
 };
+
+DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph);

@@ -5,13 +5,8 @@
 #include <random>
 #include <iostream>
 #include <assert.h>
-
-#define DLLExport __declspec(dllexport)
-
-typedef unsigned int PopId;
-
-const int GENERATION_BITS = 10;
-const int ID_BITS = 32 - GENERATION_BITS;
+#include "Constants.h"
+#include <chrono>
 
 class GeneticAlgorithm
 {
@@ -26,6 +21,14 @@ private:
 
 namespace GraphUtils
 {
+	DLLExport int randomNumber(int min, int max)
+	{
+		static std::default_random_engine re{};
+		re.seed(std::chrono::system_clock::now().time_since_epoch().count());
+		using Dist = std::uniform_int_distribution<int>;
+		static Dist uid{};
+		return uid(re, Dist::param_type{ min, max });
+	}
 
 	DLLExport Graph graph_fuseGraphs(const Graph& graph1, const Graph& graph2)
 	{
@@ -119,14 +122,82 @@ namespace GraphUtils
 		assert(!graph1.empty() && !graph2.empty(), "One graph is empty after split");
 	}
 
-	DLLExport void graph_crossover(Graph& parent1, Graph& parent2)
+	DLLExport Graph graph_crossover(Graph& parent1, Graph& parent2)
 	{
 		Graph parent1part1, parent1part2, parent2part1, parent2part2;
 
 		graph_splitGraph(parent1, parent1part1, parent1part2);
 		graph_splitGraph(parent2, parent2part1, parent2part2);
 
-		graph_mate(parent1part1, parent1part2);
+		return graph_mate(parent1part1, parent1part2);
+	}
+
+	DLLExport void graph_addRandomEdges(Graph& graph, int edgeNum)
+	{
+		for (int i = 0; i < edgeNum; i++)
+		{
+			int randVertexIndex1 = randomNumber(0, graph.vertices.size() - 1);
+			
+			int randVertexIndex2;
+
+			do
+			{
+				randVertexIndex2 = randomNumber(0, graph.vertices.size() - 1);
+			} while (randVertexIndex1 == randVertexIndex2);
+
+			graph.addEdge(graph.vertices[randVertexIndex1].vertexName, graph.vertices[randVertexIndex2].vertexName, false);
+		}
+	}
+
+	DLLExport Graph graph_generateRandomGraphWilson(int verticesNum, int edgesNum, GeneticAlgorithm& ga)
+	{
+		assert(edgesNum >= verticesNum - 1);
+
+		std::unordered_set<PopId> leftVertices;
+		std::vector<PopId> allVertices;
+		std::unordered_set<int> visitedVertices;  // already visited vertices by name?
+
+		for (int i = 0; i < verticesNum; i++)
+		{
+			PopId newVertexId = ga.requestId();
+			allVertices.push_back(newVertexId);
+			leftVertices.insert(newVertexId);
+		}
+
+		Graph graph;
+
+		//// get first random vertex
+		//auto rng = std::default_random_engine{};
+		//std::shuffle(std::begin(leftVertices), std::end(leftVertices), rng);
+
+		PopId current_vertex = allVertices[randomNumber(0, verticesNum - 1)];
+		visitedVertices.insert(current_vertex);
+		leftVertices.erase(current_vertex);
+
+		while (!leftVertices.empty())
+		{
+			PopId neighbour = allVertices[randomNumber(0, verticesNum - 1)];
+
+			if (visitedVertices.find(neighbour) == visitedVertices.end())
+			{
+				graph.addEdge(current_vertex, neighbour, false);
+				leftVertices.erase(neighbour);
+				visitedVertices.insert(neighbour);
+			}
+
+			current_vertex = neighbour;
+
+			//current_vertex = visitedVertices.back();
+			//PopId neighbour = leftVertices.back();
+			//leftVertices.pop_back(); // remove visited vertex
+			//visitedVertices.push_back(neighbour),
+
+			//graph.addEdge(current_vertex, neighbour, false);
+		}
+
+		graph_addRandomEdges(graph, edgesNum - verticesNum);
+
+		return graph;
 	}
 
 	DLLExport Graph graph_generateRandomGraph(int verticesNum, GeneticAlgorithm& ga)
@@ -146,8 +217,8 @@ namespace GraphUtils
 			std::vector<Vertex> setOfVertices = graph.vertices;
 			std::shuffle(std::begin(setOfVertices), std::end(setOfVertices), rng);
 
-			RNG::getInstance().setDistribution(1, (setOfVertices.size() * 0.2) + 1);
-			int edges = RNG::getInstance()();
+			int edges = randomNumber(1, (setOfVertices.size() * 0.2) + 1);
+			std::cout << "Edges " << edges << " Edges2 " << edges << std::endl;
 
 			if (edges > setOfVertices.size())
 			{
@@ -163,5 +234,77 @@ namespace GraphUtils
 		}
 
 		return graph;
+	}
+
+	DLLExport void graph_removeEdgeMutation(Graph& graph, Vertex& vertex)
+	{
+		if (vertex.neighbours.size() > 1)
+		{
+			RNG::getInstance().setDistribution(0, vertex.neighbours.size() - 1);
+			int neighbourIndex = RNG::getInstance()();
+			int edgeToRemoveIndex;
+			int i = 0;
+			for (auto n : vertex.neighbours)
+			{
+				if (i == neighbourIndex)
+					edgeToRemoveIndex = n;
+
+				i++;
+			}
+
+			graph.removeEdgeByName(vertex.vertexName, graph.vertices[edgeToRemoveIndex].vertexName);
+
+			std::cout << "Remove edge " << graph.vertices[edgeToRemoveIndex].vertexName << " from " << vertex.vertexName << std::endl;
+		}
+	}
+
+	DLLExport void graph_addEdgeMutation(Graph& graph, Vertex& vertex)
+	{
+		RNG::getInstance().setDistribution(0, graph.vertices.size() - 1);
+		int newEdge;
+
+		do
+		{
+			newEdge = graph.vertices[RNG::getInstance()()].vertexName;
+		} while (newEdge == vertex.vertexName);
+
+		graph.addEdge(vertex.vertexName, newEdge, false);
+
+		std::cout << "Add edge " << newEdge << " from " << vertex.vertexName << std::endl;
+	}
+
+	DLLExport void graph_addVertexMutation(Graph& graph, Vertex& vertex, GeneticAlgorithm& ga)
+	{
+		Vertex newVertex(ga.requestId());
+		graph.addEdge(vertex.vertexName, newVertex.vertexName, false);
+
+		std::cout << "Add new Vertex " << newVertex.vertexName << std::endl;
+	}
+
+	// TODO mutation rate should not be magic values
+	DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga)
+	{
+		std::random_device dev;
+		std::mt19937 rng(dev());
+		std::uniform_int_distribution<std::mt19937::result_type> percentDist;
+		percentDist = std::uniform_int_distribution<std::mt19937::result_type>(0, 100);
+
+		for (int i = 0; i < graph.vertices.size(); i++)
+		{
+			int p = percentDist(rng);
+			std::cout << "P: " << p << std::endl;
+			if (p < 7)
+			{
+				graph_removeEdgeMutation(graph, graph.vertices[i]);
+			}
+			else if (p < 14)
+			{
+				graph_addEdgeMutation(graph, graph.vertices[i]);
+			}
+			else if (p < 21)
+			{
+				graph_addVertexMutation(graph, graph.vertices[i], ga);
+			}
+		}
 	}
 }

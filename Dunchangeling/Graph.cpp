@@ -5,12 +5,12 @@
 #include <random>
 #include "RNG.h"
 
-void Graph::splitGraph(int vertex1, int vertex2)
+void Graph::splitGraph(PopId vertex1, PopId vertex2)
 {
 
 }
 
-void Graph::splitGraph( int vertex1,  int vertex2, Graph & part1, Graph & part2)
+void Graph::splitGraph( PopId vertex1, PopId vertex2, Graph & part1, Graph & part2)
 {
 	std::random_device dev;
 	std::mt19937 rngg(dev());
@@ -56,7 +56,7 @@ bool Graph::breakEdge(const int vertexIndex1, const int vertexIndex2)
 	return true;
 }
 
-bool Graph::removeEdgeByName(const int name1, const int name2)
+bool Graph::removeEdgeByName(const PopId name1, const PopId name2)
 {
 	bool result1, result2;
 	int vertexIndex1 = findVertexIndex(name1, result1) - vertices.begin();
@@ -86,7 +86,7 @@ std::vector<Vertex>::iterator Graph::findVertexIndex(int val, bool& res)
 	}
 }
 
-void Graph::addEdgeIndices(int index1, int index2, bool directed)
+void Graph::addEdgeIndices(unsigned int index1, unsigned int index2, bool directed)
 {
 	if(directed)
 		vertices[index1].neighbours.insert(index2);
@@ -95,6 +95,11 @@ void Graph::addEdgeIndices(int index1, int index2, bool directed)
 		vertices[index1].neighbours.insert(index2);
 		vertices[index2].neighbours.insert(index1);
 	}
+}
+
+void Graph::removeVertex()
+{
+	// TODO
 }
 
 std::vector<int> Graph::getAllBrokenEdges() const
@@ -112,7 +117,7 @@ std::vector<int> Graph::getAllBrokenEdges() const
 	return brokenEdges;
 }
 
-std::string Graph::printAsDot()
+std::string Graph::printAsDot() const
 {
 	std::string result = "digraph {\n concentrate=true \n";
 
@@ -313,7 +318,7 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 	return true;
 }
 
-std::vector<int> Graph::shortestPath(int src, int dest)
+std::vector<int> Graph::shortestPath(PopId src, PopId dest)
 {
 	int *pred = new int[vertices.size()];
 	int *dist = new int[vertices.size()];
@@ -366,7 +371,7 @@ void Graph::clear()
 	vertices.clear();
 }
 
-void Graph::addEdge(int n1, int n2, bool directed)
+void Graph::addEdge(PopId n1, PopId n2, bool directed)
 {
 	bool foundVertex01 = false;
 	bool foundVertex02 = false;
@@ -405,7 +410,7 @@ void Graph::addEdge(int n1, int n2, bool directed)
 	addEdgeIndices(node1Index, node2Index, directed);
 }
 
-void Graph::addEdge(int n1, int n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed)
+void Graph::addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed)
 {
 	bool foundVertex01 = false;
 	bool foundVertex02 = false;
@@ -445,4 +450,10 @@ void Graph::addEdge(int n1, int n2, bool n1BrokenEdge, bool n2brokenEdge, bool d
 	vertices[node2Index].hasBrokenEdge = n2brokenEdge;
 
 	addEdgeIndices(node1Index, node2Index, directed);
+}
+
+DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph)
+{
+	out << graph.printAsDot();
+	return out;
 }
