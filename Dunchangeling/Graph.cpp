@@ -4,6 +4,8 @@
 #include <iostream>
 #include <random>
 #include "RNG.h"
+#include <Windows.h>
+#include "Utils.h"
 
 void Graph::splitGraph(PopId vertex1, PopId vertex2)
 {
@@ -86,6 +88,23 @@ std::vector<Vertex>::iterator Graph::findVertexIndex(int val, bool& res)
 	}
 }
 
+int Graph::findVertexIndexInt(int val, bool& res)
+{
+	std::vector<Vertex>::iterator it;
+	Vertex v(val);
+	it = std::find(vertices.begin(), vertices.end(), v);
+	if (it != vertices.end())
+	{
+		res = true;
+		return it - vertices.begin();
+	}
+	else
+	{
+		res = false;
+		return -1;
+	}
+}
+
 void Graph::addEdgeIndices(unsigned int index1, unsigned int index2, bool directed)
 {
 	if(directed)
@@ -125,6 +144,18 @@ std::string Graph::printAsDot() const
 	{
 
 		std::string connections = "";
+
+		if (vertices[i].attributes.isEntry)
+		{
+			connections.append(std::to_string(vertices[i].vertexName));
+			connections.append(" [style=filled, fillcolor=green]\n");
+		}
+
+		if (vertices[i].attributes.isEndRoom)
+		{
+			connections.append(std::to_string(vertices[i].vertexName));
+			connections.append(" [style=filled, fillcolor=yellow]\n");
+		}
 
 		if (vertices[i].hasBrokenEdge)
 		{
@@ -311,6 +342,21 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 		graph.vertices.push_back(poorVertex);
 	}
 
+	// check if new graph contains entry or end room
+	int entryIndex = graph.findVertexIndexInt(this->vertices[attributes.entryIndex].vertexName, result);
+	if (result)
+	{
+		graph.attributes.entryIndex = entryIndex;
+		graph.vertices[entryIndex].attributes.isEntry = true;
+	}
+
+	int endIndex = graph.findVertexIndexInt(this->vertices[attributes.endIndex].vertexName, result);
+	if (result)
+	{
+		graph.attributes.endIndex = endIndex;
+		graph.vertices[endIndex].attributes.isEndRoom = true;
+	}
+
 	delete[](visited);
 
 	assert(!graph.empty());
@@ -369,6 +415,57 @@ bool Graph::empty() const
 void Graph::clear()
 {
 	vertices.clear();
+}
+
+bool Graph::generateGraphImage()
+{
+	LPCTSTR graphViz = "C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/packages/Graphviz.2.38.0.2/dot.exe";
+	std::string str = "Tpng O test.dt";
+	char* commandline = new char[str.size() + 1];
+	char currentDirectory[] = "C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/packages/Graphviz.2.38.0.2";
+	std::copy(str.begin(), str.end(), commandline);
+	commandline[str.size()] = '\0';
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+
+	//PVOID OldValue = nullptr;
+	//Wow64DisableWow64FsRedirection(&OldValue);
+	//ShellExecute(NULL, TEXT("open"), graphViz, commandline, NULL, SW_RESTORE);
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+	bool success = CreateProcess(graphViz,
+		commandline,        // Command line
+		NULL,           // Process handle not inheritable
+		NULL,           // Thread handle not inheritable
+		FALSE,          // Set handle inheritance to FALSE
+		0,              // No creation flags
+		NULL,           // Use parent's environment block
+		currentDirectory,           // Use parent's starting directory 
+		&si,            // Pointer to STARTUPINFO structure
+		&pi);
+
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	delete[](commandline);
+
+	std::cout << "Process: " << success << std::endl;
+
+	return true;
+}
+
+bool Graph::writeToFile(const char* file)
+{
+	std::string text = this->printAsDot();
+
+	if (!WriteAsync(file, text.c_str(), text.size()))
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void Graph::addEdge(PopId n1, PopId n2, bool directed)

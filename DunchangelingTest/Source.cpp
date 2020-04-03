@@ -96,14 +96,21 @@ void testRandomGraph2()
 
 int main()
 {
-	GeneticAlgorithm ga;
+	GeneticAlgorithm ga(10);
+	ga.generateInitialPopulation(8, 9, 3);
+	ga.currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff");
 
-	Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
-	Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
+	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
+	//Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
 
-	Graph matedGraph = graph_crossover(graph1, graph2);
+	//std::cout << graph1 << std::endl;
 
-	std::cout << "Rand2: \n" << matedGraph << std::endl;
+	//Graph matedGraph = graph_crossover(graph1, graph2);
+	//matedGraph.generateGraphImage();
+
+	//matedGraph.writeToFile();
+
+	//std::cout << "Rand2: \n" << matedGraph << std::endl;
 
 	getchar();
 	return 0;

@@ -13,6 +13,12 @@ struct VertexAttributes
 	bool isEndRoom = false;
 };
 
+struct GraphAttributes
+{
+	int entryIndex = -1;
+	int endIndex = -1;
+};
+
 struct Vertex
 {
 public:
@@ -46,6 +52,7 @@ private:
 	void addEdgeIndices(unsigned int index1, unsigned int index2, bool directed);
 	void removeVertex();
 public:
+	GraphAttributes attributes;
 	std::vector<Vertex> vertices;
 
 	Graph(std::vector<Vertex> vertices){ this->vertices = vertices;}
@@ -62,6 +69,7 @@ public:
 	DLLExport bool removeEdgeByName(const PopId name1, const PopId name2);
 
 	DLLExport std::vector<Vertex>::iterator findVertexIndex(int val, bool &res);
+	DLLExport int findVertexIndexInt(int val, bool& res);
 	DLLExport void addEdge(PopId n1, PopId n2, bool directed);
 	DLLExport void addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed);
 	DLLExport std::string printAsDot() const;
@@ -72,6 +80,9 @@ public:
 
 	DLLExport bool empty() const;
 	DLLExport void clear();
+
+	DLLExport bool generateGraphImage();
+	DLLExport bool writeToFile(const char* file);
 };
 
 DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph);
