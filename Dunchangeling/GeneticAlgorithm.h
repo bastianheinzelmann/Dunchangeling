@@ -13,17 +13,25 @@ class GeneticAlgorithm
 public:
 	DLLExport PopId requestId();
 	GeneticAlgorithm() {};
-	DLLExport GeneticAlgorithm(unsigned int popSize);
+	DLLExport GeneticAlgorithm(unsigned int popSize, unsigned int maxGens);
 
-	std::vector<Graph> Population;
+	std::vector<Graph>* CurrentPopBuffer;
 
+	std::vector<Graph> PopBuffer1;
+	std::vector<Graph> PopBuffer2;
 
 	DLLExport void generateInitialPopulation(unsigned int verticesNum, unsigned int edgesNum, unsigned int edgesTolerance);
 	DLLExport void currentGenerationToFile(const char* directory);
 
+	DLLExport void nextGeneration();
+	DLLExport void run();
+
 private:
 	
 	unsigned int populationSize = 0;
+	unsigned int maxGenerations;
+	unsigned int elitismRate = 10;
+	unsigned int crossoverRate = 90;
 
 	std::vector<Graph> BrokenPopulation;
 

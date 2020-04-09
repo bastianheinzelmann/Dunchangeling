@@ -135,6 +135,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="GeneticAlgorithm.h" />
     <ClInclude Include="Graph.h" />
+    <ClInclude Include="Individual.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="TestDLL.h" />
     <ClInclude Include="TreeNode.h" />

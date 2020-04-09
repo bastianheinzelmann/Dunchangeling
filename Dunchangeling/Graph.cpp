@@ -554,3 +554,8 @@ DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph)
 	out << graph.printAsDot();
 	return out;
 }
+
+DLLExport bool operator<(const Graph &graph1, const Graph &graph2)
+{
+	return graph1.fitness < graph2.fitness;
+}

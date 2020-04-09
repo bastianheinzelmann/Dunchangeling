@@ -51,9 +51,12 @@ private:
 
 	void addEdgeIndices(unsigned int index1, unsigned int index2, bool directed);
 	void removeVertex();
+
 public:
+
 	GraphAttributes attributes;
 	std::vector<Vertex> vertices;
+	unsigned int fitness;
 
 	Graph(std::vector<Vertex> vertices){ this->vertices = vertices;}
 	Graph() {};
