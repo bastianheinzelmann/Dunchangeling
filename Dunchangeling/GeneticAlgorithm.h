@@ -28,6 +28,8 @@ public:
 
 private:
 	
+	Graph& TournamentSelection(int k);
+
 	unsigned int populationSize = 0;
 	unsigned int maxGenerations;
 	unsigned int elitismRate = 10;

@@ -88,4 +88,5 @@ public:
 	DLLExport bool writeToFile(const char* file);
 };
 
+DLLExport bool operator<(const Graph &graph1, const Graph &graph2);
 DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph);

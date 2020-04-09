@@ -62,6 +62,23 @@ void GeneticAlgorithm::nextGeneration()
 
 }
 
+Graph & GeneticAlgorithm::TournamentSelection(int k)
+{
+	std::vector<Graph> & popBuffer = (*CurrentPopBuffer);
+	Graph& best = popBuffer[randomNumber(0, populationSize - 1)];
+
+	for (int i = 1; i < k; i++)
+	{
+		Graph& graph = popBuffer[randomNumber(0, populationSize - 1)];
+		if (best < graph)
+		{
+			best = graph;
+		}
+	}
+
+	return best;
+}
+
 void GeneticAlgorithm::run()
 {
 	while (currentGeneration < maxGenerations)
@@ -84,17 +101,44 @@ void GeneticAlgorithm::run()
 		}
 
 		int crossoverRatio = (crossoverRate * populationSize) / 100;
-		for (int i = 0; i < crossoverRatio; i++)
+		for (int i = elitismRatio; i < crossoverRatio + elitismRatio; i++)
 		{
-			// Tournament selection and mating
-			// random(0, k best chromos)
+			Graph & parent1 = TournamentSelection(3);
+			Graph & parent2 = TournamentSelection(3);
+
+			Graph matedGraph = graph_mate(parent1, parent2);
+			if (currentGeneration & 1 == 1)
+			{
+				// odd number
+				PopBuffer1[i] = parent1;
+			}
+			else
+			{
+				// even number
+				PopBuffer2[i] = parent1;
+			}
+		}
+
+		for (int i = elitismRatio + crossoverRatio; i < populationSize; i++)
+		{
+			// fill in with random graph??? nah thats stupid
+			assert(false);
 		}
 
 
 
-		for (int i = 0; i < populationSize; i++)
+		for (int i = elitismRatio; i < populationSize; i++)
 		{
-			// mutation
+			if (currentGeneration & 1 == 1)
+			{
+				// odd number
+				graph_mutate(PopBuffer1[i], *this);
+			}
+			else
+			{
+				// even number
+				graph_mutate(PopBuffer2[i], *this);
+			}
 		}
 
 
