@@ -17,7 +17,7 @@ void Graph::splitGraph( PopId vertex1, PopId vertex2, Graph & part1, Graph & par
 	std::random_device dev;
 	std::mt19937 rngg(dev());
 
-	std::vector<int> pathIndices = shortestPath(vertex1, vertex2);
+	std::vector<unsigned int> pathIndices = shortestPath(vertex1, vertex2);
 
 	while (!pathIndices.empty())
 	{
@@ -129,7 +129,7 @@ std::vector<int> Graph::getAllBrokenEdges() const
 	{
 		if (vertices[i].hasBrokenEdge)
 		{
-			brokenEdges.push_back(vertices[i].vertexName);
+			brokenEdges.push_back(vertices[i].vertexID);
 		}
 	}
 
@@ -147,27 +147,27 @@ std::string Graph::printAsDot() const
 
 		if (vertices[i].attributes.isEntry)
 		{
-			connections.append(std::to_string(vertices[i].vertexName));
+			connections.append(std::to_string(vertices[i].vertexID));
 			connections.append(" [style=filled, fillcolor=green]\n");
 		}
 
 		if (vertices[i].attributes.isEndRoom)
 		{
-			connections.append(std::to_string(vertices[i].vertexName));
+			connections.append(std::to_string(vertices[i].vertexID));
 			connections.append(" [style=filled, fillcolor=yellow]\n");
 		}
 
 		if (vertices[i].hasBrokenEdge)
 		{
-			connections.append(std::to_string(vertices[i].vertexName));
+			connections.append(std::to_string(vertices[i].vertexID));
 			connections.append(" [style=filled, fillcolor=red]\n");
 		}
 
 		for (int j : vertices[i].neighbours)
 		{
-			connections.append(std::to_string(vertices[i].vertexName));
+			connections.append(std::to_string(vertices[i].vertexID));
 			connections.append(" -> ");
-			connections.append(std::to_string(vertices[j].vertexName));
+			connections.append(std::to_string(vertices[j].vertexID));
 			connections.append("\n");
 		}
 
@@ -204,7 +204,7 @@ std::string Graph::printAsDotPlus()
 		// mark broken edges
 		if (vertices[u].hasBrokenEdge)
 		{
-			result.append(std::to_string(vertices[u].vertexName));
+			result.append(std::to_string(vertices[u].vertexID));
 			result.append(" [style=filled, fillcolor=red]\n");
 		}
 
@@ -217,17 +217,17 @@ std::string Graph::printAsDotPlus()
 
 				if (vertices[v].neighbours.end() != vertices[v].neighbours.find(u))
 				{
-					result.append(std::to_string(vertices[u].vertexName));
+					result.append(std::to_string(vertices[u].vertexID));
 					result.append("->");
-					result.append(std::to_string(vertices[v].vertexName));
+					result.append(std::to_string(vertices[v].vertexID));
 					result.append(" [dir=both]\n");
 				}
 				else
 				{
 					// ist nicht bidrection
-					result.append(std::to_string(vertices[u].vertexName));
+					result.append(std::to_string(vertices[u].vertexID));
 					result.append("->");
-					result.append(std::to_string(vertices[v].vertexName));
+					result.append(std::to_string(vertices[v].vertexID));
 					result.append("\n");
 				}
 			}
@@ -281,7 +281,7 @@ bool Graph::BreadthFirstSearch(int src, int dest, int predecessorsList[], int di
 				predecessorsList[v] = u;
 				queue.push_back(v);
 
-				if (vertices[v].vertexName == dest)
+				if (vertices[v].vertexID == dest)
 					return true;
 			}
 		}
@@ -326,7 +326,7 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 		queue.pop_front();
 		for (int v : vertices[u].neighbours)
 		{
-			graph.addEdge(vertices[u].vertexName, vertices[v].vertexName, vertices[u].hasBrokenEdge, vertices[v].hasBrokenEdge, false);
+			graph.addEdge(vertices[u].vertexID, vertices[v].vertexID, vertices[u].hasBrokenEdge, vertices[v].hasBrokenEdge, false);
 			if (visited[v] == false)
 			{
 				visited[v] = true;
@@ -343,14 +343,14 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 	}
 
 	// check if new graph contains entry or end room
-	int entryIndex = graph.findVertexIndexInt(this->vertices[attributes.entryIndex].vertexName, result);
+	int entryIndex = graph.findVertexIndexInt(this->vertices[attributes.entryIndex].vertexID, result);
 	if (result)
 	{
 		graph.attributes.entryIndex = entryIndex;
 		graph.vertices[entryIndex].attributes.isEntry = true;
 	}
 
-	int endIndex = graph.findVertexIndexInt(this->vertices[attributes.endIndex].vertexName, result);
+	int endIndex = graph.findVertexIndexInt(this->vertices[attributes.endIndex].vertexID, result);
 	if (result)
 	{
 		graph.attributes.endIndex = endIndex;
@@ -364,13 +364,13 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 	return true;
 }
 
-std::vector<int> Graph::shortestPath(PopId src, PopId dest)
+std::vector<unsigned int> Graph::shortestPath(PopId src, PopId dest)
 {
 	int *pred = new int[vertices.size()];
 	int *dist = new int[vertices.size()];
 
-	std::vector<int> path;
-	std::vector<int> pathIndices;
+	std::vector<PopId> path;
+	std::vector<unsigned int> pathIndices;
 
 	if (!BreadthFirstSearch(src, dest, pred, dist))
 	{
@@ -386,17 +386,17 @@ std::vector<int> Graph::shortestPath(PopId src, PopId dest)
 	while (pred[crawl] != -1)
 	{
 		pathIndices.push_back(pred[crawl]);
-		path.push_back(vertices[pred[crawl]].vertexName);
+		path.push_back(vertices[pred[crawl]].vertexID);
 		crawl = pred[crawl];
 	}
 
-	std::cout << "Shortest path length is: " << dist[destIndex];
+	//std::cout << "Shortest path length is: " << dist[destIndex];
 
-	std::cout << "\nPath is: \n";
-	for (int i = path.size() - 1; i >= 0; i--)
-		std::cout << path[i] << " ";
+	//std::cout << "\nPath is: \n";
+	//for (int i = path.size() - 1; i >= 0; i--)
+	//	std::cout << path[i] << " ";
 
-	std::cout << std::endl;
+	//std::cout << std::endl;
 
 	delete[](pred);
 	delete[](dist);
@@ -417,45 +417,6 @@ void Graph::clear()
 	vertices.clear();
 }
 
-bool Graph::generateGraphImage()
-{
-	LPCTSTR graphViz = "C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/packages/Graphviz.2.38.0.2/dot.exe";
-	std::string str = "Tpng O test.dt";
-	char* commandline = new char[str.size() + 1];
-	char currentDirectory[] = "C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/packages/Graphviz.2.38.0.2";
-	std::copy(str.begin(), str.end(), commandline);
-	commandline[str.size()] = '\0';
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-
-	//PVOID OldValue = nullptr;
-	//Wow64DisableWow64FsRedirection(&OldValue);
-	//ShellExecute(NULL, TEXT("open"), graphViz, commandline, NULL, SW_RESTORE);
-
-	ZeroMemory(&si, sizeof(si));
-	si.cb = sizeof(si);
-	ZeroMemory(&pi, sizeof(pi));
-
-	bool success = CreateProcess(graphViz,
-		commandline,        // Command line
-		NULL,           // Process handle not inheritable
-		NULL,           // Thread handle not inheritable
-		FALSE,          // Set handle inheritance to FALSE
-		0,              // No creation flags
-		NULL,           // Use parent's environment block
-		currentDirectory,           // Use parent's starting directory 
-		&si,            // Pointer to STARTUPINFO structure
-		&pi);
-
-	CloseHandle(pi.hProcess);
-	CloseHandle(pi.hThread);
-	delete[](commandline);
-
-	std::cout << "Process: " << success << std::endl;
-
-	return true;
-}
-
 bool Graph::writeToFile(const char* file)
 {
 	std::string text = this->printAsDot();
@@ -466,6 +427,12 @@ bool Graph::writeToFile(const char* file)
 	}
 
 	return true;
+}
+
+void Graph::calculateFitness()
+{
+	std::vector<unsigned int> path = shortestPath(vertices[attributes.entryIndex].vertexID, vertices[attributes.endIndex].vertexID);
+	fitness = ((float)path.size() / (float)vertices.size()) * 10;
 }
 
 void Graph::addEdge(PopId n1, PopId n2, bool directed)
@@ -558,4 +525,9 @@ DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph)
 DLLExport bool operator<(const Graph &graph1, const Graph &graph2)
 {
 	return graph1.fitness < graph2.fitness;
+}
+
+DLLExport bool operator>(const Graph & graph1, const Graph & graph2)
+{
+	return graph1.fitness > graph2.fitness;
 }

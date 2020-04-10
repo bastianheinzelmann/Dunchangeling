@@ -24,24 +24,25 @@ struct Vertex
 public:
 	std::unordered_set <int> neighbours;
 	bool hasBrokenEdge = false;
-	PopId vertexName;
+	PopId vertexID;
+
 	VertexAttributes attributes;
 
 public:
-	Vertex(int d, VertexAttributes attr): vertexName(d), attributes(attr) {}
-	Vertex(int d): vertexName(d){}
-	Vertex(): vertexName(-1){}
+	Vertex(int d, VertexAttributes attr): vertexID(d), attributes(attr) {}
+	Vertex(int d): vertexID(d){}
+	Vertex(): vertexID(-1){}
 
-	unsigned int getNameWithoutGeneration() { return vertexName & (1 << ID_BITS - 1); }
+	unsigned int getNameWithoutGeneration() { return vertexID & (1 << ID_BITS - 1); }
 
 	bool operator<(const Vertex& ref) const
 	{
-		return (ref.vertexName < vertexName);
+		return (ref.vertexID < vertexID);
 	}
 
 	bool operator==(const Vertex& ref) const
 	{
-		return (ref.vertexName == vertexName);
+		return (ref.vertexID == vertexID);
 	}
 };
 
@@ -54,9 +55,10 @@ private:
 
 public:
 
+	float fitness;
+
 	GraphAttributes attributes;
 	std::vector<Vertex> vertices;
-	unsigned int fitness;
 
 	Graph(std::vector<Vertex> vertices){ this->vertices = vertices;}
 	Graph() {};
@@ -79,14 +81,18 @@ public:
 	DLLExport std::string printAsDotPlus();
 	DLLExport bool BreadthFirstSearch(int src, int dest, int predecessorsList[], int distanceList[]);
 	bool BreadthFirstSearch(int src, Graph& graph);
-	DLLExport std::vector<int> shortestPath(PopId src, PopId dest);
+	DLLExport std::vector<unsigned int> shortestPath(PopId src, PopId dest);
 
 	DLLExport bool empty() const;
 	DLLExport void clear();
 
 	DLLExport bool generateGraphImage();
 	DLLExport bool writeToFile(const char* file);
+
+	//Fitness
+	DLLExport void calculateFitness();
 };
 
 DLLExport bool operator<(const Graph &graph1, const Graph &graph2);
+DLLExport bool operator>(const Graph &graph1, const Graph &graph2);
 DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph);

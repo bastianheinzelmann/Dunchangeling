@@ -2,12 +2,13 @@
 #include "GeneticAlgorithm.h"
 #include <assert.h>
 #include <algorithm>
+#include <bitset>
 
 using namespace GraphUtils;
 
 PopId GeneticAlgorithm::requestId()
 {
-	unsigned int currentId = currentPopId & (1 << generationBits - 1);
+	unsigned int currentId = currentPopId & ((1 << ID_BITS) - 1);
 	currentId += 1;
 
 	if (currentId > (1 << ID_BITS) - 1)
@@ -18,7 +19,27 @@ PopId GeneticAlgorithm::requestId()
 
 	assert(currentId < (1 << ID_BITS - 1));
 
-	return ++currentPopId;
+	PopId generationPart = currentGeneration << ID_BITS;
+	currentId += generationPart;
+
+	currentPopId = currentId;
+
+	//std::bitset<32> bits(currentId);
+	//std::cout << "As binary: " << (bits) << std::endl;
+	//std::cout << "Current popid: " << (currentPopId & (1u << ID_BITS) - 1) << std::endl;
+
+	return currentPopId;
+	//return ++currentPopId;
+}
+
+VertexName GeneticAlgorithm::requestVertexName()
+{
+	if (currentVertexName == UINT_MAX)
+	{
+		std::cout << "Vertexnames are all given" << std::endl;
+	}
+
+	return currentVertexName++;
 }
 
 GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens)
@@ -43,6 +64,10 @@ void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsig
 	}
 
 	CurrentPopBuffer = &PopBuffer1;
+	calculateFitness();
+	sort(PopBuffer1.begin(), PopBuffer1.end(), std::greater<Graph>());
+
+	std::cout << "Initial Best fitness: " << PopBuffer1[0].fitness << std::endl;
 }
 
 void GeneticAlgorithm::currentGenerationToFile(const char * directory)
@@ -79,12 +104,18 @@ Graph & GeneticAlgorithm::TournamentSelection(int k)
 	return best;
 }
 
+void GeneticAlgorithm::calculateFitness()
+{
+	for (int i = 0; i < CurrentPopBuffer->size(); i++)
+	{
+		(*CurrentPopBuffer)[i].calculateFitness();
+	}
+}
+
 void GeneticAlgorithm::run()
 {
 	while (currentGeneration < maxGenerations)
 	{
-		sort(PopBuffer1.begin(), PopBuffer1.end());
-
 		int elitismRatio = (elitismRate * populationSize) / 100;
 		for (int i = 0; i < elitismRatio; i++)
 		{
@@ -106,7 +137,7 @@ void GeneticAlgorithm::run()
 			Graph & parent1 = TournamentSelection(3);
 			Graph & parent2 = TournamentSelection(3);
 
-			Graph matedGraph = graph_mate(parent1, parent2);
+			Graph matedGraph = graph_mate(parent1, parent2, *this);
 			if (currentGeneration & 1 == 1)
 			{
 				// odd number
@@ -141,6 +172,23 @@ void GeneticAlgorithm::run()
 			}
 		}
 
+		currentGeneration++;
+		currentPopId = 0;
+		
+		if (currentGeneration & 1 == 1)
+		{
+			sort(PopBuffer1.begin(), PopBuffer1.end(), std::greater<Graph>());
+			CurrentPopBuffer = &PopBuffer1;
+		}
+		else
+		{
+			sort(PopBuffer2.begin(), PopBuffer2.end(), std::greater<Graph>());
+			// even number
+			CurrentPopBuffer = &PopBuffer2;
+		}
 
+		calculateFitness();
+		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << std::endl;
+		//currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");
 	}
 }

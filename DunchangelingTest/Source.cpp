@@ -69,7 +69,7 @@ void testGraphSplit()
 	std::string dotPart3 = part3.printAsDot();
 	std::string dotPart4 = part4.printAsDot();
 
-	Graph fusedGraph = graph_mate(part1, part4);
+	Graph fusedGraph = graph_mate(part1, part4, ga);
 	std::string fusedGraphDot = fusedGraph.printAsDot();
 
 	std::cout << "Part1: \n" << dotPart1 << std::endl;
@@ -96,9 +96,10 @@ void testRandomGraph2()
 
 int main()
 {
-	GeneticAlgorithm ga(10);
+	GeneticAlgorithm ga(10, 30);
 	ga.generateInitialPopulation(8, 9, 3);
-	ga.currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff");
+	ga.run();
+	//ga.currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff");
 
 	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
 	//Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
