@@ -89,6 +89,8 @@ public:
 	DLLExport bool generateGraphImage();
 	DLLExport bool writeToFile(const char* file);
 
+	DLLExport bool IsPlanar();
+
 	//Fitness
 	DLLExport void calculateFitness();
 };

@@ -55,6 +55,47 @@ void generateTestGraphs(Graph& graph1, Graph& graph2, GeneticAlgorithm& ga)
 	graph2 = mother;
 }
 
+void generateNonPlanarGraph(Graph& graph, GeneticAlgorithm& ga)
+{
+	PopId id0 = ga.requestId();
+	PopId id1 = ga.requestId();
+	PopId id2 = ga.requestId();
+	PopId id3 = ga.requestId();
+	PopId id4 = ga.requestId();
+
+	graph.addEdge(id0, id1, false);
+	graph.addEdge(id0, id2, false);
+	graph.addEdge(id0, id3, false);
+	graph.addEdge(id0, id4, false);
+	graph.addEdge(id1, id2, false);
+	graph.addEdge(id1, id3, false);
+	graph.addEdge(id1, id4, false);
+	graph.addEdge(id2, id3, false);
+	graph.addEdge(id2, id4, false);
+	graph.addEdge(id3, id4, false);
+
+	std::cout << graph << std::endl;
+}
+
+void PlanarityCheck()
+{
+	GeneticAlgorithm ga;
+	Graph graph1, graph2;
+	generateNonPlanarGraph(graph1, ga);
+
+
+	bool test = graph1.IsPlanar();
+
+	if (test)
+	{
+		std::cout << "This is planar.\n";
+	}
+	else
+	{
+		std::cout << "Not planar.\n";
+	}
+}
+
 void testGraphSplit()
 {
 	GeneticAlgorithm ga;
@@ -93,12 +134,14 @@ void testRandomGraph2()
 	std::cout << "Rand2: \n" << randdot << std::endl;
 }
 
-
 int main()
 {
-	GeneticAlgorithm ga(10, 30);
-	ga.generateInitialPopulation(8, 9, 3);
-	ga.run();
+	PlanarityCheck();
+
+	//GeneticAlgorithm ga(10, 100);
+	//ga.generateInitialPopulation(8, 9, 3);
+	//ga.run();
+
 	//ga.currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff");
 
 	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);

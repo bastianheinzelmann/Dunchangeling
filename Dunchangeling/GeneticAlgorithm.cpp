@@ -66,6 +66,7 @@ void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsig
 	CurrentPopBuffer = &PopBuffer1;
 	calculateFitness();
 	sort(PopBuffer1.begin(), PopBuffer1.end(), std::greater<Graph>());
+	highestFitness = PopBuffer1[0].fitness;
 
 	std::cout << "Initial Best fitness: " << PopBuffer1[0].fitness << std::endl;
 }
@@ -94,7 +95,7 @@ Graph & GeneticAlgorithm::TournamentSelection(int k)
 
 	for (int i = 1; i < k; i++)
 	{
-		Graph& graph = popBuffer[randomNumber(0, populationSize - 1)];
+		Graph& graph = popBuffer[randomNumber(0, populationSize / 2)];
 		if (best < graph)
 		{
 			best = graph;
@@ -114,7 +115,7 @@ void GeneticAlgorithm::calculateFitness()
 
 void GeneticAlgorithm::run()
 {
-	while (currentGeneration < maxGenerations)
+	while (currentGeneration < maxGenerations && nothingChangedCount < convergenceBorder)
 	{
 		int elitismRatio = (elitismRate * populationSize) / 100;
 		for (int i = 0; i < elitismRatio; i++)
@@ -153,7 +154,7 @@ void GeneticAlgorithm::run()
 		for (int i = elitismRatio + crossoverRatio; i < populationSize; i++)
 		{
 			// fill in with random graph??? nah thats stupid
-			assert(false);
+			//assert(false);
 		}
 
 
@@ -188,7 +189,18 @@ void GeneticAlgorithm::run()
 		}
 
 		calculateFitness();
-		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << std::endl;
+
+		if (highestFitness < (*CurrentPopBuffer)[0].fitness)
+		{
+			highestFitness = (*CurrentPopBuffer)[0].fitness;
+			nothingChangedCount = 0;
+		}
+		else
+		{
+			++nothingChangedCount;
+		}
+
+		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << " Gen: " << currentGeneration << std::endl;
 		//currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");
 	}
 }

@@ -6,6 +6,8 @@
 #include "RNG.h"
 #include <Windows.h>
 #include "Utils.h"
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/boyer_myrvold_planar_test.hpp>
 
 void Graph::splitGraph(PopId vertex1, PopId vertex2)
 {
@@ -514,6 +516,33 @@ void Graph::addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bo
 	vertices[node2Index].hasBrokenEdge = n2brokenEdge;
 
 	addEdgeIndices(node1Index, node2Index, directed);
+}
+
+bool Graph::IsPlanar()
+{
+	boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::property<boost::vertex_index_t, int>> boostGraph(this->vertices.size());
+
+	for (auto i : vertices)
+	{
+		for (auto j : i.neighbours)
+		{
+			boost::add_edge(i.vertexID, vertices[j].vertexID, boostGraph);
+		}
+	}
+
+	boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::property<boost::vertex_index_t, int>> K_5(5);
+
+	add_edge(0, 1, K_5);
+	add_edge(0, 2, K_5);
+	add_edge(0, 3, K_5);
+	add_edge(0, 4, K_5);
+	add_edge(1, 2, K_5);
+	add_edge(1, 3, K_5);
+	add_edge(1, 4, K_5);
+	add_edge(2, 3, K_5);
+	add_edge(2, 4, K_5);
+
+	return boost::boyer_myrvold_planarity_test(boostGraph);
 }
 
 DLLExport std::ostream& operator<<(std::ostream& out, const Graph& graph)

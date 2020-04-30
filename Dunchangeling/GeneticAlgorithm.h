@@ -39,6 +39,10 @@ private:
 	unsigned int elitismRate = 10;
 	unsigned int crossoverRate = 90;
 
+	float highestFitness;
+	unsigned int nothingChangedCount = 0;
+	unsigned int convergenceBorder = 100;
+
 	std::vector<Graph> BrokenPopulation;
 
 	const unsigned int generationBits = GENERATION_BITS;
@@ -445,20 +449,40 @@ namespace GraphUtils
 
 	DLLExport void graph_swapEntryMutation(Graph& graph, GeneticAlgorithm& ga)
 	{
-		//TODO
+		graph.vertices[graph.attributes.entryIndex].attributes.isEntry = false;
+
+		unsigned int newEntry;
+
+		do
+		{
+			newEntry = randomNumber(0, graph.vertices.size() - 1);
+		} while (newEntry == graph.attributes.endIndex);
+
+		graph.attributes.entryIndex = newEntry;
+		graph.vertices[newEntry].attributes.isEntry = true;
+	}
+
+	DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
+	{
+		graph.vertices[graph.attributes.endIndex].attributes.isEndRoom = false;
+
+		unsigned int newEnd;
+
+		do
+		{
+			newEnd = randomNumber(0, graph.vertices.size() - 1);
+		} while (newEnd == graph.attributes.endIndex);
+
+		graph.attributes.entryIndex = newEnd;
+		graph.vertices[newEnd].attributes.isEndRoom = true;
 	}
 
 	// TODO mutation rate should not be magic values
 	DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga)
 	{
-		std::random_device dev;
-		std::mt19937 rng(dev());
-		std::uniform_int_distribution<std::mt19937::result_type> percentDist;
-		percentDist = std::uniform_int_distribution<std::mt19937::result_type>(0, 100);
-
 		for (int i = 0; i < graph.vertices.size(); i++)
 		{
-			int p = percentDist(rng);
+			int p = randomNumber(0, 100);
 			//std::cout << "P: " << p << std::endl;
 			if (p < 7)
 			{
@@ -471,6 +495,14 @@ namespace GraphUtils
 			else if (p < 21)
 			{
 				graph_addVertexMutation(graph, graph.vertices[i], ga);
+			}
+			else if (p < 28)
+			{
+				graph_swapEndMutation(graph, ga);
+			}
+			else if (p < 35)
+			{
+				graph_swapEntryMutation(graph, ga);
 			}
 		}
 	}
