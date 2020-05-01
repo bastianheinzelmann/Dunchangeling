@@ -3,6 +3,9 @@
 #include <string>
 #include <random>
 #include "../Dunchangeling/GeneticAlgorithm.h" 
+#include "../Dunchangeling/Room.h"
+#include "../Dunchangeling/Grid.h"
+#include "../Dunchangeling/Constants.h"
 
 using namespace GraphUtils;
 
@@ -136,7 +139,31 @@ void testRandomGraph2()
 
 int main()
 {
-	PlanarityCheck();
+	unsigned int room[] = 
+	{ 
+		0, 0, 1, 1,
+		0, 0, 1, 1,
+		1, 1, 1, 1,
+		1, 1, 1, 1
+	};
+
+	unsigned int room2[] = 
+	{
+		1, 1,
+		1, 1
+	};
+
+	Grid grid(4, 4, room);
+	Grid grid2(2, 2, room2);
+
+	Room actualRoom(grid);
+	Room squareRoom(grid2);
+
+	std::cout << grid;
+	std::cout << actualRoom.RoomHull << "\n";
+	std::cout << squareRoom.RoomHull << "\n";
+
+	//PlanarityCheck();
 
 	//GeneticAlgorithm ga(10, 100);
 	//ga.generateInitialPopulation(8, 9, 3);
