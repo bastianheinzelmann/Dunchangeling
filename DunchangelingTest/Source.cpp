@@ -7,6 +7,10 @@
 #include "../Dunchangeling/Grid.h"
 #include "../Dunchangeling/Constants.h"
 
+#include <SFML/Graphics.hpp>
+
+//#include <SFML/Graphics.hpp>
+
 using namespace GraphUtils;
 
 void generateTestGraphs(Graph& graph1, Graph& graph2, GeneticAlgorithm& ga)
@@ -161,7 +165,28 @@ int main()
 
 	std::cout << grid;
 	std::cout << actualRoom.RoomHull << "\n";
-	std::cout << squareRoom.RoomHull << "\n";
+	std::cout << squareRoom.RoomHull << "hihi\n";
+
+	std::cout << "Hello \n" << actualRoom.CalculateConfigGrid(squareRoom);
+	std::cout << "Hello \n" << squareRoom.CalculateConfigGrid(actualRoom);
+
+	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+	sf::CircleShape shape(100.f);
+	shape.setFillColor(sf::Color::Green);
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+
+		window.clear();
+		window.draw(shape);
+		window.display();
+	}
 
 	//PlanarityCheck();
 

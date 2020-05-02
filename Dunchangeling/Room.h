@@ -9,7 +9,7 @@ class Room
 public:
 	DLLExport Room(Grid grid);
 
-	void CalculateConfigGrid(Room& otherRoom);
+	DLLExport Grid CalculateConfigGrid(Room& otherRoom);
 	Grid CalculateHull();
 
 	Grid RoomGrid;

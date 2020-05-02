@@ -17,8 +17,8 @@ public:
 	unsigned int XSize;
 	unsigned int YSize;
 
-private:
 	unsigned int* gridArray;
+private:
 };
 
 DLLExport std::ostream& operator<<(std::ostream& out, const Grid& grid);
