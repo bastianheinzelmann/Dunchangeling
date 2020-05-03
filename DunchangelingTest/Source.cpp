@@ -7,6 +7,8 @@
 #include "../Dunchangeling/Grid.h"
 #include "../Dunchangeling/Constants.h"
 
+#include "DrawGrid.h"
+
 #include <SFML/Graphics.hpp>
 
 //#include <SFML/Graphics.hpp>
@@ -141,6 +143,37 @@ void testRandomGraph2()
 	std::cout << "Rand2: \n" << randdot << std::endl;
 }
 
+void drawRoomWithConfigSpace(Room room, sf::RenderWindow window)
+{
+
+}
+
+RoomShape createRoomShape(Room& room)
+{
+	int ySize = room.RoomGrid.YSize;
+	int xSize = room.RoomGrid.XSize;
+
+	RoomShape roomShape;
+
+	for (int y = 0; y < ySize; y++)
+	{
+		for (int x = 0; x < xSize; x++)
+		{
+			int val = room.RoomGrid.Get(x, y);
+			if (val == GRID_FILLED_NORMAL)
+			{
+				roomShape.tiles.push_back(Tile(x, y, COLOR_FILLED));
+			}
+			else if(val == GRID_CONFIG_SPACE)
+			{
+				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_SPACE));
+			}
+		}
+	}
+
+	return roomShape;
+}
+
 int main()
 {
 	unsigned int room[] = 
@@ -170,9 +203,11 @@ int main()
 	std::cout << "Hello \n" << actualRoom.CalculateConfigGrid(squareRoom);
 	std::cout << "Hello \n" << squareRoom.CalculateConfigGrid(actualRoom);
 
-	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
+	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
+
+	RoomShape roomShape = createRoomShape(squareRoom);
+	roomShape.tileSize = 32;
+	roomShape.position = 100;
 
 	while (window.isOpen())
 	{
@@ -184,7 +219,7 @@ int main()
 		}
 
 		window.clear();
-		window.draw(shape);
+		roomShape.DrawRoomShape(window);
 		window.display();
 	}
 
