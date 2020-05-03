@@ -3,6 +3,7 @@
 #include "Grid.h"
 #include "Constants.h"
 #include <iostream>
+#include <vector>
 
 class Room
 {
@@ -10,10 +11,8 @@ public:
 	DLLExport Room(Grid grid);
 
 	DLLExport Grid CalculateConfigGrid(Room& otherRoom);
-	Grid CalculateHull();
 
 	Grid RoomGrid;
-	Grid RoomHull;
-	Grid* ConfigGrids;
+	std::vector<Grid> ConfigGrids;
 };
 

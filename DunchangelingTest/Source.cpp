@@ -148,10 +148,10 @@ void drawRoomWithConfigSpace(Room room, sf::RenderWindow window)
 
 }
 
-RoomShape createRoomShape(Room& room)
+RoomShape createRoomShape(Grid& grid)
 {
-	int ySize = room.RoomGrid.YSize;
-	int xSize = room.RoomGrid.XSize;
+	int ySize = grid.YSize;
+	int xSize = grid.XSize;
 
 	RoomShape roomShape;
 
@@ -159,7 +159,7 @@ RoomShape createRoomShape(Room& room)
 	{
 		for (int x = 0; x < xSize; x++)
 		{
-			int val = room.RoomGrid.Get(x, y);
+			int val = grid.Get(x, y);
 			if (val == GRID_FILLED_NORMAL)
 			{
 				roomShape.tiles.push_back(Tile(x, y, COLOR_FILLED));
@@ -167,6 +167,10 @@ RoomShape createRoomShape(Room& room)
 			else if(val == GRID_CONFIG_SPACE)
 			{
 				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_SPACE));
+			}
+			else if (val == (GRID_CONFIG_SPACE | GRID_FILLED_NORMAL))
+			{
+				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_FILLED));
 			}
 		}
 	}
@@ -197,15 +201,13 @@ int main()
 	Room squareRoom(grid2);
 
 	std::cout << grid;
-	std::cout << actualRoom.RoomHull << "\n";
-	std::cout << squareRoom.RoomHull << "hihi\n";
 
 	std::cout << "Hello \n" << actualRoom.CalculateConfigGrid(squareRoom);
 	std::cout << "Hello \n" << squareRoom.CalculateConfigGrid(actualRoom);
 
 	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
 
-	RoomShape roomShape = createRoomShape(squareRoom);
+	RoomShape roomShape = createRoomShape(squareRoom.ConfigGrids[0]);
 	roomShape.tileSize = 32;
 	roomShape.position = 100;
 
