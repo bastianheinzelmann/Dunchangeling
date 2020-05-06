@@ -127,6 +127,7 @@
     <ClCompile Include="GeneticAlgorithm.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphToMap.cpp" />
+    <ClCompile Include="GraphUtils.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="Room.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="GeneticAlgorithm.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="GraphToMap.h" />
+    <ClInclude Include="GraphUtils.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Individual.h" />
     <ClInclude Include="RNG.h" />
@@ -147,6 +149,7 @@
     <ClInclude Include="TestDLL.h" />
     <ClInclude Include="TreeNode.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="VertexAttributes.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

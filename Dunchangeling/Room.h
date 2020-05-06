@@ -12,6 +12,9 @@ public:
 
 	DLLExport Grid CalculateConfigGrid(Room& otherRoom);
 
+	// important for looking up in array
+	int RoomID;
+
 	Grid RoomGrid;
 	std::vector<Grid> ConfigGrids;
 };

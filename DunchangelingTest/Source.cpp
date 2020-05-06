@@ -6,9 +6,9 @@
 #include "../Dunchangeling/Room.h"
 #include "../Dunchangeling/Grid.h"
 #include "../Dunchangeling/Constants.h"
+#include "../Dunchangeling/GraphUtils.cpp"
 
 #include "DrawGrid.h"
-
 #include <SFML/Graphics.hpp>
 
 //#include <SFML/Graphics.hpp>
@@ -143,11 +143,6 @@ void testRandomGraph2()
 	std::cout << "Rand2: \n" << randdot << std::endl;
 }
 
-void drawRoomWithConfigSpace(Room room, sf::RenderWindow window)
-{
-
-}
-
 RoomShape createRoomShape(Grid& grid)
 {
 	int ySize = grid.YSize;
@@ -180,50 +175,62 @@ RoomShape createRoomShape(Grid& grid)
 
 int main()
 {
-	unsigned int room[] = 
-	{ 
-		0, 0, 1, 1,
-		0, 0, 1, 1,
-		1, 1, 1, 1,
-		1, 1, 1, 1
-	};
+	Graph g1, g2;
+	GeneticAlgorithm ga;
 
-	unsigned int room2[] = 
-	{
-		1, 1,
-		1, 1
-	};
+	generateTestGraphs(g1, g2, ga);
 
-	Grid grid(4, 4, room);
-	Grid grid2(2, 2, room2);
+	BoostGraph bg = GraphUtils::ConvertToBoostGraph(g1);
 
-	Room actualRoom(grid);
-	Room squareRoom(grid2);
+	GraphUtils::GraphToDot(bg);
+	GraphUtils::GetGraphFaces(bg);
 
-	std::cout << grid;
+	//unsigned int room[] = 
+	//{ 
+	//	0, 0, 1, 1,
+	//	0, 0, 1, 1,
+	//	1, 1, 1, 1,
+	//	1, 1, 1, 1
+	//};
 
-	std::cout << "Hello \n" << actualRoom.CalculateConfigGrid(squareRoom);
-	std::cout << "Hello \n" << squareRoom.CalculateConfigGrid(actualRoom);
+	//unsigned int room2[] = 
+	//{
+	//	1, 1,
+	//	1, 1
+	//};
 
-	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
+	//Grid grid(4, 4, room);
+	//Grid grid2(2, 2, room2);
 
-	RoomShape roomShape = createRoomShape(squareRoom.ConfigGrids[0]);
-	roomShape.tileSize = 32;
-	roomShape.position = 100;
+	//Room actualRoom(grid);
+	//Room squareRoom(grid2);
 
-	while (window.isOpen())
-	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
+	//std::cout << grid;
 
-		window.clear();
-		roomShape.DrawRoomShape(window);
-		window.display();
-	}
+	//std::cout << "Hello \n" << actualRoom.CalculateConfigGrid(squareRoom);
+	//std::cout << "Hello \n" << squareRoom.CalculateConfigGrid(actualRoom);
+
+	
+
+	//sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
+
+	//RoomShape roomShape = createRoomShape(squareRoom.ConfigGrids[0]);
+	//roomShape.tileSize = 32;
+	//roomShape.position = 100;
+
+	//while (window.isOpen())
+	//{
+	//	sf::Event event;
+	//	while (window.pollEvent(event))
+	//	{
+	//		if (event.type == sf::Event::Closed)
+	//			window.close();
+	//	}
+
+	//	window.clear();
+	//	roomShape.DrawRoomShape(window);
+	//	window.display();
+	//}
 
 	//PlanarityCheck();
 

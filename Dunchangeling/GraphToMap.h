@@ -2,15 +2,16 @@
 
 #include "Room.h"
 #include "Constants.h"
+#include <vector>
 
 struct RoomCollection{
-	DLLExport RoomCollection(unsigned int roomNum, Room rooms[]);
+	DLLExport RoomCollection(std::vector<Room> rooms);
+	DLLExport RoomCollection() {};
 
-	int roomNum;
-	Room* rooms;
+	std::vector<Room> Rooms;
 
-	Room& operator[](std::size_t idx) { return rooms[idx]; }
-	const Room& operator[](std::size_t idx) const { return rooms[idx]; }
+	Room& operator[](std::size_t idx) { return Rooms[idx]; }
+	const Room& operator[](std::size_t idx) const { return Rooms[idx]; }
 };
 
 void calculateConfigSpaces(RoomCollection& roomCollection);

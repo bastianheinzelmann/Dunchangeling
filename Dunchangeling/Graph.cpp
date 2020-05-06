@@ -3,7 +3,6 @@
 #include <list>
 #include <iostream>
 #include <random>
-#include "RNG.h"
 #include <Windows.h>
 #include "Utils.h"
 #include <boost/graph/adjacency_list.hpp>
@@ -531,16 +530,6 @@ bool Graph::IsPlanar()
 	}
 
 	boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS, boost::property<boost::vertex_index_t, int>> K_5(5);
-
-	add_edge(0, 1, K_5);
-	add_edge(0, 2, K_5);
-	add_edge(0, 3, K_5);
-	add_edge(0, 4, K_5);
-	add_edge(1, 2, K_5);
-	add_edge(1, 3, K_5);
-	add_edge(1, 4, K_5);
-	add_edge(2, 3, K_5);
-	add_edge(2, 4, K_5);
 
 	return boost::boyer_myrvold_planarity_test(boostGraph);
 }

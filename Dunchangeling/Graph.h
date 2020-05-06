@@ -1,23 +1,19 @@
 #pragma once
 
 #include <vector>
-#include <set>
 #include <unordered_set>
 #include <string>
 #include <random>
 #include "Constants.h"
+#include "VertexAttributes.h"
 
-struct VertexAttributes
-{
-	bool isEntry = false;
-	bool isEndRoom = false;
-};
 
 struct GraphAttributes
 {
 	int entryIndex = -1;
 	int endIndex = -1;
 };
+
 
 struct Vertex
 {
@@ -90,6 +86,8 @@ public:
 	DLLExport bool writeToFile(const char* file);
 
 	DLLExport bool IsPlanar();
+
+	DLLExport void GetBoostGraph();
 
 	//Fitness
 	DLLExport void calculateFitness();

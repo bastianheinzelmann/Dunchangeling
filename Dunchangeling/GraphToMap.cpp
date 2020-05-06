@@ -1,19 +1,21 @@
 #include "GraphToMap.h"
 
-RoomCollection::RoomCollection(unsigned int roomNum, Room rooms[])
+RoomCollection::RoomCollection(std::vector<Room> rooms)
 {
-	this->rooms = rooms;
-	this->roomNum = roomNum;
+	this->Rooms = rooms;
 }
 
+// should make sure all ConfigGrids in rooms are empty before so that ids are correct
 void calculateConfigSpaces(RoomCollection& roomCollection)
 {
-	for (int i = 0; i < roomCollection.roomNum; i++)
+	for (int i = 0; i < roomCollection.Rooms.size(); i++)
 	{
 		Room& currentRoom = roomCollection[i];
-		for (int j = 0; i < roomCollection.roomNum; j++)
+		currentRoom.RoomID = i;
+		for (int j = 0; i < roomCollection.Rooms.size(); j++)
 		{
-			
+			Room& otherRoom = roomCollection[i];
+			currentRoom.CalculateConfigGrid(otherRoom);
 		}
 	}
 }
