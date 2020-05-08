@@ -86,6 +86,39 @@ void generateNonPlanarGraph(Graph& graph, GeneticAlgorithm& ga)
 	std::cout << graph << std::endl;
 }
 
+void generateDecompTestGraph(Graph& graph, GeneticAlgorithm& ga)
+{
+	PopId id1 = ga.requestId();
+	PopId id2 = ga.requestId();
+	PopId id3 = ga.requestId();
+	PopId id4 = ga.requestId();
+	PopId id5 = ga.requestId();
+	PopId id6 = ga.requestId();
+	PopId id7 = ga.requestId();
+	PopId id8 = ga.requestId();
+	PopId id9 = ga.requestId();
+	PopId id10 = ga.requestId();
+	PopId id11 = ga.requestId();
+	PopId id12 = ga.requestId();
+	PopId id13 = ga.requestId();
+
+	graph.addEdge(id1, id2, false);
+	graph.addEdge(id2, id3, false);
+	graph.addEdge(id2, id10, false);
+	graph.addEdge(id3, id4, false);
+	graph.addEdge(id3, id7, false);
+	graph.addEdge(id4, id5, false);
+	graph.addEdge(id4, id5, false);
+	graph.addEdge(id5, id6, false);
+	graph.addEdge(id6, id7, false);
+	graph.addEdge(id7, id8, false);
+	graph.addEdge(id8, id9, false);
+	graph.addEdge(id9, id10, false);
+	graph.addEdge(id9, id11, false);
+	graph.addEdge(id11, id12, false);
+	graph.addEdge(id11, id13, false);
+}
+
 void PlanarityCheck()
 {
 	GeneticAlgorithm ga;
@@ -175,15 +208,20 @@ RoomShape createRoomShape(Grid& grid)
 
 int main()
 {
-	Graph g1, g2;
+	Graph g1;
 	GeneticAlgorithm ga;
 
-	generateTestGraphs(g1, g2, ga);
+	generateDecompTestGraph(g1, ga);
+
+	std::cout << g1 << "\n";
 
 	BoostGraph bg = GraphUtils::ConvertToBoostGraph(g1);
 
-	GraphUtils::GraphToDot(bg);
+	//GraphUtils::GraphToDot(bg);
 	GraphUtils::GetGraphFaces(bg);
+	Chains chains = GraphUtils::ChainDecomposition(bg);
+
+	GraphUtils::GraphChainsDot(bg, chains);
 
 	//unsigned int room[] = 
 	//{ 

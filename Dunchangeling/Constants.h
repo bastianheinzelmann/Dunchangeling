@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #define DLLExport __declspec(dllexport)
 
 typedef unsigned int PopId;
@@ -17,3 +19,6 @@ const unsigned int GRID_FILLED_BOSS = 2;
 const unsigned int GRID_FILLED_START = 4;
 const unsigned int GRID_CONFIG_SPACE = 8;
 const unsigned int GRID_DOOR = 16;
+
+const int NUMCOLORS = 10;
+const std::string NODECOLORLIST[]{ "#0000FF", "#008000", "#00FF00", "#800000", "#800080", "#0000FF", "#00FFFF", "#808000", "#CD5C5C", "#1ABC9C" };
