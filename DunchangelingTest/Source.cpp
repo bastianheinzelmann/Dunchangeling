@@ -7,13 +7,14 @@
 #include "../Dunchangeling/Grid.h"
 #include "../Dunchangeling/Constants.h"
 #include "../Dunchangeling/GraphUtils.cpp"
+#include "../Dunchangeling/GeneticAlgorithmUtils.h"
 
 #include "DrawGrid.h"
 #include <SFML/Graphics.hpp>
 
 //#include <SFML/Graphics.hpp>
 
-using namespace GraphUtils;
+using namespace GeneticAlgorithmUtils;
 
 void generateTestGraphs(Graph& graph1, Graph& graph2, GeneticAlgorithm& ga)
 {
@@ -208,20 +209,21 @@ RoomShape createRoomShape(Grid& grid)
 
 int main()
 {
-	Graph g1;
+	Graph g1, g2, g3;
 	GeneticAlgorithm ga;
 
 	generateDecompTestGraph(g1, ga);
+	generateTestGraphs(g2, g3, ga);
 
 	std::cout << g1 << "\n";
 
-	BoostGraph bg = GraphUtils::ConvertToBoostGraph(g1);
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g2);
 
 	//GraphUtils::GraphToDot(bg);
-	GraphUtils::GetGraphFaces(bg);
-	Chains chains = GraphUtils::ChainDecomposition(bg);
+	GeneticAlgorithmUtils::GetGraphFaces(bg);
+	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 
-	GraphUtils::GraphChainsDot(bg, chains);
+	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
 
 	//unsigned int room[] = 
 	//{ 

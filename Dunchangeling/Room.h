@@ -12,6 +12,8 @@ public:
 
 	DLLExport Grid CalculateConfigGrid(Room& otherRoom);
 
+	Room() {};
+
 	// important for looking up in array
 	int RoomID;
 

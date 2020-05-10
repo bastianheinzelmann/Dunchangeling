@@ -2,10 +2,13 @@
 #include <iostream>
 #include <string>
 
-Grid::Grid(unsigned int xSize, unsigned int ySize)
+Grid::Grid(unsigned int xSize, unsigned int ySize, int pivotX, int pivotY)
 {
 	XSize = xSize;
 	YSize = ySize;
+
+	PivotX = pivotX;
+	PivotY = pivotY;
 
 	gridArray = new unsigned int[ySize * xSize];
 
@@ -15,10 +18,13 @@ Grid::Grid(unsigned int xSize, unsigned int ySize)
 	}
 }
 
-Grid::Grid(unsigned int xSize, unsigned int ySize, unsigned int grid[])
+Grid::Grid(unsigned int xSize, unsigned int ySize, unsigned int grid[], int pivotX, int pivotY)
 {
 	XSize = xSize;
 	YSize = ySize;
+
+	PivotX = pivotX;
+	PivotY = pivotY;
 
 	gridArray = grid;
 }

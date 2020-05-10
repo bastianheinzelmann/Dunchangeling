@@ -12,7 +12,7 @@ typedef boost::graph_traits<BoostGraph>::vertex_descriptor vertex_t;
 typedef std::vector<std::vector<int>> Chains;
 typedef std::vector<int> Chain;
 
-namespace GraphUtils
+namespace GeneticAlgorithmUtils
 {
 	DLLExport BoostGraph ConvertToBoostGraph(Graph& graph);
 	DLLExport void GraphToDot(BoostGraph& graph);
@@ -21,6 +21,4 @@ namespace GraphUtils
 	DLLExport Chain GetNeighbourCycle(BoostGraph& graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices);
 	DLLExport Chain GetNeighbourPath(BoostGraph& graph, std::vector<bool>& usedVertices);
 	DLLExport void GraphChainsDot(BoostGraph& graph, Chains chains);
-
-
 }

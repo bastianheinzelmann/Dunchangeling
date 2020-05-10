@@ -7,8 +7,8 @@ class Grid
 {
 public:
 	Grid() { gridArray = nullptr; }
-	DLLExport Grid(unsigned int xSize, unsigned int ySize);
-	DLLExport Grid(unsigned int xSize, unsigned int ySize, unsigned int grid[]);
+	DLLExport Grid(unsigned int xSize, unsigned int ySize, int pivotX = 0, int pivotY = 0);
+	DLLExport Grid(unsigned int xSize, unsigned int ySize, unsigned int grid[], int pivotX = 0, int pivotY = 0);
 	DLLExport ~Grid();
 
 	DLLExport unsigned int Get(unsigned int x, unsigned int y) const;
@@ -16,6 +16,9 @@ public:
 
 	unsigned int XSize;
 	unsigned int YSize;
+
+	int PivotX;
+	int PivotY;
 
 	unsigned int* gridArray;
 private:

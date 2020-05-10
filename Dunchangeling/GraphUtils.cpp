@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <assert.h>
 
-BoostGraph GraphUtils::ConvertToBoostGraph(Graph & graph)
+BoostGraph GeneticAlgorithmUtils::ConvertToBoostGraph(Graph & graph)
 {
 	BoostGraph boostGraph;	
 
@@ -30,7 +30,7 @@ BoostGraph GraphUtils::ConvertToBoostGraph(Graph & graph)
 	return boostGraph;
 }
 
-void GraphUtils::GraphToDot(BoostGraph & graph)
+void GeneticAlgorithmUtils::GraphToDot(BoostGraph & graph)
 {
 	boost::write_graphviz(std::cout, graph);
 }
@@ -57,7 +57,7 @@ struct vertex_output_visitor : public boost::planar_face_traversal_visitor
 	}
 };
 
-std::vector<std::vector<int>> GraphUtils::GetGraphFaces(BoostGraph & graph)
+std::vector<std::vector<int>> GeneticAlgorithmUtils::GetGraphFaces(BoostGraph & graph)
 {
 	boost::property_map< BoostGraph, boost::edge_index_t >::type e_index = get(boost::edge_index, graph);
 	boost::graph_traits< BoostGraph >::edges_size_type edge_count = 0;
@@ -81,7 +81,7 @@ std::vector<std::vector<int>> GraphUtils::GetGraphFaces(BoostGraph & graph)
 	return vVis.faces;
 }
 
-Chains GraphUtils::ChainDecomposition(BoostGraph & graph)
+Chains GeneticAlgorithmUtils::ChainDecomposition(BoostGraph & graph)
 {
 	Chains chains;
 	int numVertices = boost::num_vertices(graph);
@@ -147,7 +147,7 @@ Chains GraphUtils::ChainDecomposition(BoostGraph & graph)
 	return chains;
 }
 
-Chain GraphUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices)
+Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices)
 {
 	int smallestFaceIndex = -1;
 	int smallestFaceSize = INT_MAX;
@@ -212,12 +212,10 @@ Chain GraphUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<std::vector<
 		chain.push_back(vertexIndex);
 	}
 
-
-
 	return chain;
 }
 
-Chain GraphUtils::GetNeighbourPath(BoostGraph & graph, std::vector<bool>& usedVertices)
+Chain GeneticAlgorithmUtils::GetNeighbourPath(BoostGraph & graph, std::vector<bool>& usedVertices)
 {
 	bool foundOne = false;
 	Chain chain;
@@ -320,7 +318,8 @@ struct VertexDecompWriter
 	Chains Chains;
 };
 
-void GraphUtils::GraphChainsDot(BoostGraph& graph, Chains chains)
+void GeneticAlgorithmUtils::GraphChainsDot(BoostGraph& graph, Chains chains)
 {
 	boost::write_graphviz(std::cout, graph, VertexDecompWriter(graph, chains));
 }
+

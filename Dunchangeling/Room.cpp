@@ -10,9 +10,11 @@ Room::Room(Grid grid)
 Grid Room::CalculateConfigGrid(Room & otherRoom)
 {
 	Grid configSpaceGrid(this->RoomGrid.XSize + (2 * otherRoom.RoomGrid.XSize), this->RoomGrid.YSize + (2*otherRoom.RoomGrid.YSize));
-	Grid configSpaceResult(this->RoomGrid.XSize + (2 * otherRoom.RoomGrid.XSize), this->RoomGrid.YSize + (2 * otherRoom.RoomGrid.YSize));
 	int offsetX = otherRoom.RoomGrid.XSize;
 	int offsetY = otherRoom.RoomGrid.YSize;
+
+	configSpaceGrid.PivotX = offsetX;
+	configSpaceGrid.PivotY = offsetY;
 
 	// pivot point is always [0, 0]
 
@@ -96,13 +98,12 @@ Grid Room::CalculateConfigGrid(Room & otherRoom)
 
 			if (isConfigSpace && !isIntersecting)
 			{
-				configSpaceResult.Set(configSpaceX, configSpaceY, GRID_CONFIG_SPACE);
 				configSpaceGrid.Set(configSpaceX, configSpaceY, GRID_CONFIG_SPACE | configSpaceGrid.Get(configSpaceX, configSpaceY));
 			}
 		}
 	}
 
-	this->ConfigGrids.push_back(configSpaceGrid);
+	//this->ConfigGrids.push_back(configSpaceGrid);
 
 	return configSpaceGrid;
 }

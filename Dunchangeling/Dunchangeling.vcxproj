@@ -125,10 +125,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GeneticAlgorithm.cpp" />
+    <ClCompile Include="GeneticAlgorithmUtils.cpp" />
     <ClCompile Include="Graph.cpp" />
     <ClCompile Include="GraphToMap.cpp" />
     <ClCompile Include="GraphUtils.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="Layout.cpp" />
     <ClCompile Include="RNG.cpp" />
     <ClCompile Include="Room.cpp" />
     <ClCompile Include="TestDLL.cpp" />
@@ -139,11 +141,14 @@
     <ClInclude Include="ConfigSpace.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="GeneticAlgorithm.h" />
+    <ClInclude Include="GeneticAlgorithmUtils.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="GraphToMap.h" />
     <ClInclude Include="GraphUtils.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Individual.h" />
+    <ClInclude Include="Layout.h" />
+    <ClInclude Include="LayoutRoom.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="Room.h" />
     <ClInclude Include="TestDLL.h" />

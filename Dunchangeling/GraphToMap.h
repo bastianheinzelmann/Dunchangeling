@@ -3,15 +3,33 @@
 #include "Room.h"
 #include "Constants.h"
 #include <vector>
+#include "Layout.h"
+#include "GraphUtils.h"
 
-struct RoomCollection{
-	DLLExport RoomCollection(std::vector<Room> rooms);
-	DLLExport RoomCollection() {};
+namespace GraphToMap
+{
+	struct RoomCollection
+	{
+		DLLExport RoomCollection(std::vector<Room> rooms);
+		DLLExport RoomCollection() {};
 
-	std::vector<Room> Rooms;
+		std::vector<Room> Rooms;
 
-	Room& operator[](std::size_t idx) { return Rooms[idx]; }
-	const Room& operator[](std::size_t idx) const { return Rooms[idx]; }
-};
+		Room& operator[](std::size_t idx) { return Rooms[idx]; }
+		const Room& operator[](std::size_t idx) const { return Rooms[idx]; }
+	};
 
-void calculateConfigSpaces(RoomCollection& roomCollection);
+	class MapGenerator
+	{
+	public:
+		DLLExport MapGenerator(RoomCollection roomCollection, BoostGraph graph);
+		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph);
+		void PlaceRoom(Layout& layout, LayoutRoom layoutRoom);
+		void AddChain();
+
+		RoomCollection Rooms;
+		BoostGraph Graph;
+	};
+
+	void calculateConfigSpaces(RoomCollection& roomCollection);
+}

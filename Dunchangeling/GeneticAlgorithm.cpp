@@ -3,8 +3,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <bitset>
-
-using namespace GraphUtils;
+#include "GeneticAlgorithmUtils.h"
 
 PopId GeneticAlgorithm::requestId()
 {
