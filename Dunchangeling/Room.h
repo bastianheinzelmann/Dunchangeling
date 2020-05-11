@@ -11,6 +11,7 @@ public:
 	DLLExport Room(Grid grid);
 
 	DLLExport Grid CalculateConfigGrid(Room& otherRoom);
+	int GetRoomArea();
 
 	Room() {};
 
@@ -19,5 +20,7 @@ public:
 
 	Grid RoomGrid;
 	std::vector<Grid> ConfigGrids;
+private:
+	int RoomArea = -1;
 };
 

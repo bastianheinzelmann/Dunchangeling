@@ -107,3 +107,30 @@ Grid Room::CalculateConfigGrid(Room & otherRoom)
 
 	return configSpaceGrid;
 }
+
+int Room::GetRoomArea()
+{
+	if (RoomArea != -1)
+	{
+		return RoomArea;
+	}
+	else
+	{
+		int area = 0;
+
+		for (int y = 0; y < RoomGrid.YSize; y++)
+		{
+			for (int x = 0; x < RoomGrid.XSize; x++)
+			{
+				if (RoomGrid.Get(x, y) >= GRID_FILLED_NORMAL)
+				{
+					++area;
+				}
+			}
+
+		}
+
+		RoomArea = area;
+		return RoomArea;
+	}
+}

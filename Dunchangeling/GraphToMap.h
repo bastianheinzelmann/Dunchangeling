@@ -24,12 +24,13 @@ namespace GraphToMap
 	public:
 		DLLExport MapGenerator(RoomCollection roomCollection, BoostGraph graph);
 		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph);
-		void PlaceRoom(Layout& layout, LayoutRoom layoutRoom);
+		void PlaceRoom(Layout& layout, LayoutRoom newRoom);
 		void AddChain();
 
 		RoomCollection Rooms;
 		BoostGraph Graph;
 	};
 
+	std::vector<std::pair<int, int>> getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom& room);
 	void calculateConfigSpaces(RoomCollection& roomCollection);
 }
