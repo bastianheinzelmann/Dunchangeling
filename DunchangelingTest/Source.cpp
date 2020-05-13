@@ -8,6 +8,7 @@
 #include "../Dunchangeling/Constants.h"
 #include "../Dunchangeling/GraphUtils.cpp"
 #include "../Dunchangeling/GeneticAlgorithmUtils.h"
+#include "../Dunchangeling/GraphToMap.h"
 
 #include "DrawGrid.h"
 #include <SFML/Graphics.hpp>
@@ -225,32 +226,28 @@ int main()
 
 	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
 
-	//unsigned int room[] = 
-	//{ 
-	//	0, 0, 1, 1,
-	//	0, 0, 1, 1,
-	//	1, 1, 1, 1,
-	//	1, 1, 1, 1
-	//};
+	unsigned int room[] = 
+	{ 
+		0, 0, 1, 1,
+		0, 0, 1, 1,
+		1, 1, 1, 1,
+		1, 1, 1, 1
+	};
 
-	//unsigned int room2[] = 
-	//{
-	//	1, 1,
-	//	1, 1
-	//};
+	unsigned int room2[] = 
+	{
+		1, 1,
+		1, 1
+	};
 
-	//Grid grid(4, 4, room);
-	//Grid grid2(2, 2, room2);
+	Grid grid(4, 4, room);
+	Grid grid2(2, 2, room2);
 
-	//Room actualRoom(grid);
-	//Room squareRoom(grid2);
+	std::vector<Room> rooms = { Room(grid), Room(grid2) };
 
-	//std::cout << grid;
+	GraphToMap::RoomCollection roomCollection(rooms);
 
-	//std::cout << "Hello \n" << actualRoom.CalculateConfigGrid(squareRoom);
-	//std::cout << "Hello \n" << squareRoom.CalculateConfigGrid(actualRoom);
-
-	
+	GraphToMap::MapGenerator(roomCollection, chains, bg);
 
 	//sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
 

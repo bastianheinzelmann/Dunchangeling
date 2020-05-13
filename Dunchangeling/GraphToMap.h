@@ -22,7 +22,7 @@ namespace GraphToMap
 	class MapGenerator
 	{
 	public:
-		DLLExport MapGenerator(RoomCollection roomCollection, BoostGraph graph);
+		DLLExport MapGenerator(RoomCollection roomCollection, Chains chains, BoostGraph graph);
 		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph);
 		void PlaceRoom(Layout& layout, LayoutRoom newRoom);
 		void AddChain();

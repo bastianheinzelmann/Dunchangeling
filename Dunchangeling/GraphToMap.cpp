@@ -8,8 +8,19 @@ GraphToMap::RoomCollection::RoomCollection(std::vector<Room> rooms)
 	this->Rooms = rooms;
 	for (int i = 0; i < rooms.size(); i++)
 	{
-		rooms[i].RoomID = i;
+		this->Rooms[i].RoomID = i;
+		this->Rooms[i].ConfigGrids = std::vector<Grid>(rooms.size());
 	}
+	calculateConfigSpaces(*this);
+}
+
+GraphToMap::MapGenerator::MapGenerator(RoomCollection roomCollection, Chains chains, BoostGraph graph)
+{
+	Layout layout(boost::num_vertices(graph));
+	this->Graph = graph;
+	this->Rooms = roomCollection;
+
+	GetInitialLayout(layout, chains[0], graph);
 }
 
 // should make sure all ConfigGrids in rooms are empty before so that ids are correct
@@ -18,11 +29,11 @@ void GraphToMap::calculateConfigSpaces(RoomCollection& roomCollection)
 	for (int i = 0; i < roomCollection.Rooms.size(); i++)
 	{
 		Room& currentRoom = roomCollection[i];
-		for (int j = 0; i < roomCollection.Rooms.size(); j++)
+		for (int j = 0; j < roomCollection.Rooms.size(); j++)
 		{
-			Room& otherRoom = roomCollection[i];
+			Room& otherRoom = roomCollection[j];
 			Grid configGrid = currentRoom.CalculateConfigGrid(otherRoom);
-			currentRoom.ConfigGrids.push_back(configGrid);
+			currentRoom.ConfigGrids[j] = configGrid;
 		}
 	}
 }
@@ -34,7 +45,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 	int firstIndex = -1;
 
 	// first lay out all vertices that have already placed neighbours
-	if (layout.Rooms.size() > 0)
+	if (std::any_of(layout.LaidOutVertices.begin(), layout.LaidOutVertices.end(), [](bool v) { return v; }))
 	{
 		for (int i = 0; i < chain.size(); i++)
 		{
@@ -61,7 +72,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 		queue.pop_front();
 		// create layout room
 		LayoutRoom layoutRoom;
-		layoutRoom.Room = this->Rooms[randomNumber(0, Rooms.Rooms.size())];
+		layoutRoom.Room = this->Rooms[randomNumber(0, Rooms.Rooms.size() - 1)];
 		layoutRoom.VertexID = u;
 
 		// add adjacent rooms to room and add them to the queue on the way
@@ -88,13 +99,14 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 void GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 {
 	assert(layout.Rooms[newRoom.VertexID].VertexID == -1);
+	assert(!layout.LaidOutVertices[newRoom.VertexID]);
 
-	if (!layout.Rooms.empty())
+	if (std::any_of(layout.LaidOutVertices.begin(), layout.LaidOutVertices.end(), [](bool v) { return v; }))
 	{
 		// first get neighbours?
 		// Check for intersection could be a interface function for room designs
 		std::vector<LayoutRoom> adjacentRooms;
-		for (int i = 0; newRoom.Neighbours.size(); i++)
+		for (int i = 0; i < newRoom.Neighbours.size(); i++)
 		{
 			int neighbouringIndex = newRoom.Neighbours[i];
 			if (layout.LaidOutVertices[neighbouringIndex])
@@ -155,7 +167,7 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 	{
 		for (int x = 0; x < firstConfigGrid.XSize; x++)
 		{
-			if (GRID_CONFIG_SPACE & firstConfigGrid.Get(x, y) == GRID_CONFIG_SPACE)
+			if ((GRID_CONFIG_SPACE & firstConfigGrid.Get(x, y)) == GRID_CONFIG_SPACE)
 			{
 				int worldX = x + pivotWorldX;
 				int worldY = y + pivotWorldY;
@@ -170,8 +182,11 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 					int pY = adjacentRooms[i].PosY - currentGrid.PivotY;
 					int localX = worldX - pX;
 					int localY = worldY - pY;
-
-					if (!(currentGrid.Get(localX, localY) & GRID_CONFIG_SPACE == GRID_CONFIG_SPACE))
+					if (localX < 0 || localY < 0)
+					{
+						isIntersecting = false;
+					}
+					else if (!((currentGrid.Get(localX, localY) & GRID_CONFIG_SPACE) == GRID_CONFIG_SPACE))
 					{
 						isIntersecting = false;
 					}

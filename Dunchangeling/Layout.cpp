@@ -45,19 +45,22 @@ int Layout::GetDistances()
 	std::vector<bool> distancesCalculated(this->Rooms.size(), false);
 	int distanceSum = 0;
 
-	for (auto i : Rooms)
+	for (int i = 0; i < Rooms.size(); i++)
 	{
-		for (auto j : i.Neighbours)
+		if (LaidOutVertices[i])
 		{
-			if (!distancesCalculated[j] && Rooms[j].VertexID != -1)
+			for (auto j : Rooms[i].Neighbours)
 			{
-				LayoutRoom& otherRoom = Rooms[j];
-				int distance = std::pow(otherRoom.PosX - i.PosX, 2) + std::pow(otherRoom.PosY - i.PosY, 2);
-				distanceSum += distance;
+				if (!distancesCalculated[j] && Rooms[j].VertexID != -1)
+				{
+					LayoutRoom& otherRoom = Rooms[j];
+					int distance = std::pow(otherRoom.PosX - Rooms[i].PosX, 2) + std::pow(otherRoom.PosY - Rooms[i].PosY, 2);
+					distanceSum += distance;
+				}
 			}
-		}
 
-		distancesCalculated[i.VertexID] = true;
+			distancesCalculated[i] = true;
+		}
 	}
 
 	return distanceSum;
