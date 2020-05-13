@@ -38,6 +38,121 @@ void GraphToMap::calculateConfigSpaces(RoomCollection& roomCollection)
 	}
 }
 
+std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain chain, BoostGraph & graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature)
+{
+	assert(startTemperature > endTemperature);
+
+	Layout currentLayout = GetInitialLayout(layout, chain, graph);
+	std::vector<Layout> generatedLayouts;
+
+	float currentTemperature = startTemperature;
+	float averageDeltaEnergy = 0;
+	int acceptedLayouts = 0;
+
+	for (int i = 0; i < cycles; i++)
+	{
+		if (generatedLayouts.size() == maxLayouts)
+		{
+			break;
+		}
+
+		for (int j = 0; j < trials; j++)
+		{
+			Layout newLayout = PerturbLayout(currentLayout, chain);
+
+			if (IsLayoutValid(newLayout))
+			{
+				if (IsDifferent(newLayout, generatedLayouts))
+				{
+					generatedLayouts.push_back(newLayout);
+				}
+			}
+
+			float energyDelta = newLayout.GetEnergy() - currentLayout.GetEnergy();
+			averageDeltaEnergy = ((acceptedLayouts) * averageDeltaEnergy + std::abs(energyDelta)) / acceptedLayouts + 1;
+
+			if (energyDelta < 0)
+			{
+				currentLayout = newLayout;
+				++acceptedLayouts;
+			}
+			else if (randomFloatNumber(0.0f, 1.0f) < std::exp(-energyDelta / (averageDeltaEnergy * currentTemperature)));
+			{
+				currentLayout = newLayout;
+				++acceptedLayouts;
+			}
+		}
+
+		currentTemperature -= (startTemperature - endTemperature) / cycles;
+	}
+}
+
+bool GraphToMap::MapGenerator::IsDifferent(Layout & newLayout, std::vector<Layout>& otherLayouts)
+{
+	return false;
+}
+
+Layout GraphToMap::MapGenerator::PerturbLayout(Layout & layout, Chain & chain)
+{
+	Layout newLayout = layout;
+
+	if (randomFloatNumber(0.0f, 1.0f) < this->ShapePerturbChance)
+	{
+		PerturbShape(newLayout, chain);
+	}
+	else
+	{
+		PerturbPosition(newLayout, chain);
+	}
+
+	return newLayout;
+}
+
+void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
+{
+	// we need to check if it can be replaced by a room regarding intersections and doors bros
+
+	// get random element from chain
+	int randChainIndex = randomNumber(0, chain.size() - 1);
+	int randVertexIndex = chain[randChainIndex];
+	Room randRoom = Rooms[randomNumber(0, Rooms.Rooms.size() - 1)];
+
+	layout.Rooms[randVertexIndex].Room = randRoom;
+}
+
+void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain)
+{
+	int randChainIndex = randomNumber(0, chain.size() - 1);
+	int randVertexIndex = chain[randChainIndex];
+
+	LayoutRoom& room = layout.Rooms[randVertexIndex];
+
+	std::vector<LayoutRoom> adjacentRooms;
+
+
+	for (int i = 0; i < room.Neighbours.size(); i++)
+	{
+		int neighbouringIndex = room.Neighbours[i];
+		if (layout.LaidOutVertices[neighbouringIndex])
+		{
+			adjacentRooms.push_back(layout.Rooms[neighbouringIndex]);
+		}
+	}
+
+	auto intersectionPositions = getIntersections(adjacentRooms, room);
+
+	assert(intersectionPositions.size() > 0);
+
+	auto intersection = intersectionPositions[randomNumber(0, intersectionPositions.size() - 1)];
+	room.PosX = intersection.first;
+	room.PosY = intersection.second;
+}
+
+bool GraphToMap::MapGenerator::IsLayoutValid(Layout & layout)
+{
+	return false;
+}
+
 Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, BoostGraph& graph)
 {
 	std::list<int> queue;

@@ -25,7 +25,17 @@ namespace GraphToMap
 		DLLExport MapGenerator(RoomCollection roomCollection, Chains chains, BoostGraph graph);
 		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph);
 		void PlaceRoom(Layout& layout, LayoutRoom newRoom);
-		void AddChain();
+		std::vector<Layout> AddChain(Layout& layout, Chain chain, BoostGraph& graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature);
+
+		Layout PerturbLayout(Layout& layout, Chain & chain);
+		void PerturbShape(Layout& layout, Chain & chain);
+		void PerturbPosition(Layout& layout, Chain & chain);
+
+		bool IsLayoutValid(Layout& layout);
+		bool IsDifferent(Layout& newLayout, std::vector<Layout>& otherLayouts);
+
+		float ShapePerturbChance = 0.4f;
+		float PositionPerturChance = 0.8f;
 
 		RoomCollection Rooms;
 		BoostGraph Graph;

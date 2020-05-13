@@ -14,6 +14,15 @@ DLLExport int randomNumber(int min, int max)
 	return uid(re, Dist::param_type{ min, max });
 }
 
+DLLExport int randomFloatNumber(float min, float max)
+{
+	static std::default_random_engine re{};
+	re.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	using Dist = std::uniform_real_distribution<float>;
+	static Dist uid{};
+	return uid(re, Dist::param_type{ min, max });
+}
+
 DLLExport Graph graph_fuseGraphs(const Graph& graph1, const Graph& graph2, GeneticAlgorithm & ga)
 {
 	std::vector<Vertex> vertices(graph1.vertices);

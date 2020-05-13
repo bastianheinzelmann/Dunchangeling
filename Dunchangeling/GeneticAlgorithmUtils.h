@@ -7,6 +7,7 @@
 #include "GeneticAlgorithm.h"
 
 DLLExport int randomNumber(int min, int max);
+DLLExport int randomFloatNumber(float min, float max);
 DLLExport Graph graph_fuseGraphs(const Graph& graph1, const Graph& graph2, GeneticAlgorithm & ga);
 DLLExport Graph graph_mate(Graph& graph1, Graph& graph2, GeneticAlgorithm & ga);
 DLLExport void graph_splitGraph(Graph& graph, Graph& graph1, Graph& graph2);

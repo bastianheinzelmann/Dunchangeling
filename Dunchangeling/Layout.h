@@ -7,6 +7,7 @@ class Layout
 {
 public:
 	Layout(int NumRooms);
+	Layout() {};
 
 	// name of vertex is index of vector!
 	std::vector<LayoutRoom> Rooms;
