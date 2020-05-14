@@ -148,6 +148,7 @@
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Individual.h" />
     <ClInclude Include="Layout.h" />
+    <ClInclude Include="LayoutFunctions.h" />
     <ClInclude Include="LayoutRoom.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="Room.h" />

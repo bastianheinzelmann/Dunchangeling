@@ -32,10 +32,16 @@ namespace GraphToMap
 		void PerturbPosition(Layout& layout, Chain & chain);
 
 		bool IsLayoutValid(Layout& layout);
-		bool IsDifferent(Layout& newLayout, std::vector<Layout>& otherLayouts);
+		bool IsDifferent(Layout& newLayout, std::vector<Layout>& otherLayouts, Chain& chain);
+		bool IsDifferent(Layout& layout1, Layout& layout2, Chain& chain);
+
+		std::vector<Room> GetValidRooms(int vertexIndex, Layout& layout);
 
 		float ShapePerturbChance = 0.4f;
 		float PositionPerturChance = 0.8f;
+
+		float allowedRoomOverlapping = 0.25f;
+		float DifferenceScale = 0.4f;
 
 		RoomCollection Rooms;
 		BoostGraph Graph;
@@ -43,4 +49,6 @@ namespace GraphToMap
 
 	std::vector<std::pair<int, int>> getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom& room);
 	void calculateConfigSpaces(RoomCollection& roomCollection);
+	void GetAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& adjacentRooms);
+	void GetNonAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& nonAdjacentRooms);
 }

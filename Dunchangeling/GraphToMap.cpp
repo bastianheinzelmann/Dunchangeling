@@ -62,7 +62,7 @@ std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain ch
 
 			if (IsLayoutValid(newLayout))
 			{
-				if (IsDifferent(newLayout, generatedLayouts))
+				if (IsDifferent(newLayout, generatedLayouts, chain))
 				{
 					generatedLayouts.push_back(newLayout);
 				}
@@ -85,18 +85,45 @@ std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain ch
 
 		currentTemperature -= (startTemperature - endTemperature) / cycles;
 	}
+
+	return generatedLayouts;
 }
 
-bool GraphToMap::MapGenerator::IsDifferent(Layout & newLayout, std::vector<Layout>& otherLayouts)
+bool GraphToMap::MapGenerator::IsDifferent(Layout & newLayout, std::vector<Layout>& otherLayouts, Chain& chain)
 {
-	return false;
+	for (auto i : otherLayouts)
+	{
+		if (!IsDifferent(newLayout, i, chain))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool GraphToMap::MapGenerator::IsDifferent(Layout & layout1, Layout & layout2, Chain& chain)
+{
+	int difference = 0;
+
+	for (int i = 0; i < layout1.Rooms.size(); i++)
+	{
+		assert(layout1.LaidOutVertices[i] == layout2.LaidOutVertices[i]);
+		
+		if (layout1.LaidOutVertices[i])
+		{
+			difference += std::pow(layout1.Rooms[i].PosX - layout2.Rooms[i].PosX, 2) + std::pow(layout1.Rooms[i].PosY - layout2.Rooms[i].PosY, 2);
+		}
+	}
+
+	return DifferenceScale * ((float)difference / chain.size()) >= 1;
 }
 
 Layout GraphToMap::MapGenerator::PerturbLayout(Layout & layout, Chain & chain)
 {
 	Layout newLayout = layout;
 
-	if (randomFloatNumber(0.0f, 1.0f) < this->ShapePerturbChance)
+	if (randomFloatNumber(0.0f, 1.0f) < ShapePerturbChance)
 	{
 		PerturbShape(newLayout, chain);
 	}
@@ -115,9 +142,15 @@ void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
 	// get random element from chain
 	int randChainIndex = randomNumber(0, chain.size() - 1);
 	int randVertexIndex = chain[randChainIndex];
-	Room randRoom = Rooms[randomNumber(0, Rooms.Rooms.size() - 1)];
 
-	layout.Rooms[randVertexIndex].Room = randRoom;
+	std::vector<Room> validRooms = GetValidRooms(randVertexIndex, layout);
+
+	if (validRooms.size() > 0)
+	{
+		std::cout << "Actually found a roomshape that fits! \n";
+		Room randRoom = validRooms[randomNumber(0, validRooms.size() - 1)];
+		layout.Rooms[randVertexIndex].Room = randRoom;
+	}
 }
 
 void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain)
@@ -150,7 +183,135 @@ void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain)
 
 bool GraphToMap::MapGenerator::IsLayoutValid(Layout & layout)
 {
-	return false;
+	bool isValid = true;
+
+	// go through every laid out room
+	for (int i = 0; i < layout.Rooms.size(); i++)
+	{
+		if (layout.LaidOutVertices[i])
+		{
+			LayoutRoom& currentRoom = layout.Rooms[i];
+			std::vector<LayoutRoom> nonAdjacentRooms;
+			GetNonAdjacentRooms(currentRoom, layout, nonAdjacentRooms);
+
+			int pivotX = currentRoom.PosX - currentRoom.Room.RoomGrid.PivotX;
+			int pivotY = currentRoom.PosY - currentRoom.Room.RoomGrid.PivotY;
+
+			// go through each adjacent room
+			for (int j = 0; j < nonAdjacentRooms.size(); j++)
+			{
+				int intersectionAreaSize = 0;
+
+				// check for area intersection
+				for (int y = 0; y < currentRoom.Room.RoomGrid.YSize; y++)
+				{
+					for (int x = 0; x < currentRoom.Room.RoomGrid.XSize; x++)
+					{
+						if (currentRoom.Room.RoomGrid.Get(x, y) >= GRID_FILLED_NORMAL)
+						{
+							int worldX = pivotX + x;
+							int worldY = pivotY + y;
+
+							int pivotOtherX = nonAdjacentRooms[j].PosX - nonAdjacentRooms[j].Room.RoomGrid.PivotX;
+							int pivotOtherY = nonAdjacentRooms[j].PosY - nonAdjacentRooms[j].Room.RoomGrid.PivotY;
+
+							int localX = worldX - pivotOtherX;
+							int localY = worldY - pivotOtherY;
+
+							if (localX >= 0 && localX < nonAdjacentRooms[i].Room.RoomGrid.XSize && localY >= 0 && localY < nonAdjacentRooms[i].Room.RoomGrid.YSize)
+							{
+								if (nonAdjacentRooms[i].Room.RoomGrid.Get(localX, localY) >= GRID_FILLED_NORMAL)
+								{
+									++intersectionAreaSize;
+								}
+							}
+						}
+					}
+				}
+
+				float areaRatio = (float)intersectionAreaSize / currentRoom.Room.GetRoomArea();
+				if (areaRatio > this->allowedRoomOverlapping)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	return isValid;
+}
+
+std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layout & layout)
+{
+	std::vector<Room> validRooms;
+	LayoutRoom& lroom = layout.Rooms[vertexIndex];
+	int currentRoomID = lroom.Room.RoomID;
+	std::vector<LayoutRoom> adjacentRooms;
+
+	int worldX = lroom.PosX;
+	int worldY = lroom.PosY;
+
+	GetAdjacentRooms(lroom, layout, adjacentRooms);
+
+	for (int i = 0; i < Rooms.Rooms.size(); i++)
+	{
+		bool isValid = false;
+		Room currentRoom = Rooms[i];
+
+		if (i != currentRoomID)
+		{
+			isValid = true;
+
+			for (int j = 0; j < adjacentRooms.size(); j++)
+			{
+				Grid& configGrid = adjacentRooms[i].Room.ConfigGrids[currentRoom.RoomID];
+				int worldPivotX = adjacentRooms[i].PosX - configGrid.PivotX;
+				int worldPivotY = adjacentRooms[i].PosY - configGrid.PivotY;
+
+				int localX = worldX - worldPivotX;
+				int localY = worldY - worldPivotY;
+
+				if (localX >= 0 && localX < configGrid.XSize && localY >= 0 && configGrid.YSize)
+				{
+					if (!((configGrid.Get(localX, localY) & GRID_CONFIG_SPACE) == GRID_CONFIG_SPACE))
+					{
+						isValid = false;
+						break;
+					}
+				}
+			}
+		}
+
+		if (isValid)
+		{
+			validRooms.push_back(currentRoom);
+		}
+	}
+
+	return validRooms;
+}
+
+void GraphToMap::GetAdjacentRooms(LayoutRoom & layoutRoom, Layout & layout, std::vector<LayoutRoom>& adjacentRooms)
+{
+	for (int i = 0; i < layoutRoom.Neighbours.size(); i++)
+	{
+		int neighbouringIndex = layoutRoom.Neighbours[i];
+		if (layout.LaidOutVertices[neighbouringIndex])
+		{
+			adjacentRooms.push_back(layout.Rooms[neighbouringIndex]);
+		}
+	}
+}
+
+void GraphToMap::GetNonAdjacentRooms(LayoutRoom & layoutRoom, Layout & layout, std::vector<LayoutRoom>& nonAdjacentRooms)
+{
+	for (int i = 0; i < layout.Rooms.size(); i++)
+	{
+		if (layout.LaidOutVertices[i] && std::find(layoutRoom.Neighbours.begin(), layoutRoom.Neighbours.end(), i) == layoutRoom.Neighbours.end())
+		{
+			nonAdjacentRooms.push_back(layout.Rooms[i]);
+		}
+	}
 }
 
 Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, BoostGraph& graph)
@@ -297,7 +458,7 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 					int pY = adjacentRooms[i].PosY - currentGrid.PivotY;
 					int localX = worldX - pX;
 					int localY = worldY - pY;
-					if (localX < 0 || localY < 0)
+					if (localX < 0 || localY < 0 || localX > currentGrid.XSize || localY > currentGrid.YSize)
 					{
 						isIntersecting = false;
 					}
