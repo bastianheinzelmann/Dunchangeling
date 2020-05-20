@@ -2,6 +2,7 @@
 #include "LayoutRoom.h"
 #include "GeneticAlgorithmUtils.h"
 #include <list>
+#include <limits>
 
 GraphToMap::RoomCollection::RoomCollection(std::vector<Room> rooms)
 {
@@ -20,7 +21,8 @@ GraphToMap::MapGenerator::MapGenerator(RoomCollection roomCollection, Chains cha
 	this->Graph = graph;
 	this->Rooms = roomCollection;
 
-	GetInitialLayout(layout, chains[0], graph);
+	//GetInitialLayout(layout, chains[0], graph);
+	//AddChain(layout, chains[0], graph, 5, 50, 4, 0.6f, 0.2f);
 }
 
 // should make sure all ConfigGrids in rooms are empty before so that ids are correct
@@ -38,12 +40,14 @@ void GraphToMap::calculateConfigSpaces(RoomCollection& roomCollection)
 	}
 }
 
-std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain chain, BoostGraph & graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature)
+std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain chain, BoostGraph & graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature, std::vector<std::pair<Layout, std::string>> & debugLayouts)
 {
 	assert(startTemperature > endTemperature);
 
 	Layout currentLayout = GetInitialLayout(layout, chain, graph);
 	std::vector<Layout> generatedLayouts;
+
+	debugLayouts.push_back(std::pair<Layout, std::string>(currentLayout, "InitialLayout"));
 
 	float currentTemperature = startTemperature;
 	float averageDeltaEnergy = 0;
@@ -58,7 +62,8 @@ std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain ch
 
 		for (int j = 0; j < trials; j++)
 		{
-			Layout newLayout = PerturbLayout(currentLayout, chain);
+			std::string action = "";
+			Layout newLayout = PerturbLayout(currentLayout, chain, action);
 
 			if (IsLayoutValid(newLayout))
 			{
@@ -69,17 +74,24 @@ std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain ch
 			}
 
 			float energyDelta = newLayout.GetEnergy() - currentLayout.GetEnergy();
-			averageDeltaEnergy = ((acceptedLayouts) * averageDeltaEnergy + std::abs(energyDelta)) / acceptedLayouts + 1;
+			float energyDeltaAbs = std::abs(energyDelta);
+			averageDeltaEnergy = ((acceptedLayouts * averageDeltaEnergy) + energyDeltaAbs) / (acceptedLayouts + 1);
+
+			//std::cout << "Weird stuff: " << -energyDelta / (averageDeltaEnergy * currentTemperature) << "\n";
 
 			if (energyDelta < 0)
 			{
 				currentLayout = newLayout;
 				++acceptedLayouts;
+				debugLayouts.push_back(std::pair<Layout, std::string>(currentLayout, action));
+				//std::cout << "Current Energy: " << currentLayout.GetEnergy() << "\n";
 			}
-			else if (randomFloatNumber(0.0f, 1.0f) < std::exp(-energyDelta / (averageDeltaEnergy * currentTemperature)));
+			else if (randomFloatNumber(0.0f, 1.0f) < std::exp(-energyDeltaAbs / (averageDeltaEnergy * currentTemperature)))
 			{
 				currentLayout = newLayout;
 				++acceptedLayouts;
+				debugLayouts.push_back(std::pair<Layout, std::string>(currentLayout, action));
+				//std::cout << "Current Energy lucky: " << currentLayout.GetEnergy() << "\n";
 			}
 		}
 
@@ -119,17 +131,17 @@ bool GraphToMap::MapGenerator::IsDifferent(Layout & layout1, Layout & layout2, C
 	return DifferenceScale * ((float)difference / chain.size()) >= 1;
 }
 
-Layout GraphToMap::MapGenerator::PerturbLayout(Layout & layout, Chain & chain)
+Layout GraphToMap::MapGenerator::PerturbLayout(Layout & layout, Chain & chain, std::string & action)
 {
 	Layout newLayout = layout;
 
-	if (randomFloatNumber(0.0f, 1.0f) < ShapePerturbChance)
+	if (randomFloatNumber(0.0f, 1.0f) <= ShapePerturbChance)
 	{
 		PerturbShape(newLayout, chain);
 	}
 	else
 	{
-		PerturbPosition(newLayout, chain);
+		PerturbPosition(newLayout, chain, action);
 	}
 
 	return newLayout;
@@ -147,13 +159,17 @@ void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
 
 	if (validRooms.size() > 0)
 	{
-		std::cout << "Actually found a roomshape that fits! \n";
+		//std::cout << "Actually found a roomshape that fits! Vertex: " << randVertexIndex << "\n";
 		Room randRoom = validRooms[randomNumber(0, validRooms.size() - 1)];
 		layout.Rooms[randVertexIndex].Room = randRoom;
 	}
+	else
+	{
+		//std::cout << "No suitable shape found \n";
+	}
 }
 
-void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain)
+void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain, std::string & action)
 {
 	int randChainIndex = randomNumber(0, chain.size() - 1);
 	int randVertexIndex = chain[randChainIndex];
@@ -174,11 +190,20 @@ void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain)
 
 	auto intersectionPositions = getIntersections(adjacentRooms, room);
 
-	assert(intersectionPositions.size() > 0);
+	int randomIntersection = -1;
 
-	auto intersection = intersectionPositions[randomNumber(0, intersectionPositions.size() - 1)];
-	room.PosX = intersection.first;
-	room.PosY = intersection.second;
+	//assert(intersectionPositions.size() > 0);
+	if (intersectionPositions.size() > 0)
+	{
+		randomIntersection = randomNumber(0, intersectionPositions.size() - 1);
+		auto intersection = intersectionPositions[randomIntersection];
+		room.PosX = intersection.first;
+		room.PosY = intersection.second;
+	}
+
+	action.append("Vertex: ").append(std::to_string(randVertexIndex)).append(" Intersection Index ").append(std::to_string(randomIntersection));
+
+	//std::cout << "Perturbed position of vertex: " << randVertexIndex << " \n";
 }
 
 bool GraphToMap::MapGenerator::IsLayoutValid(Layout & layout)
@@ -218,9 +243,9 @@ bool GraphToMap::MapGenerator::IsLayoutValid(Layout & layout)
 							int localX = worldX - pivotOtherX;
 							int localY = worldY - pivotOtherY;
 
-							if (localX >= 0 && localX < nonAdjacentRooms[i].Room.RoomGrid.XSize && localY >= 0 && localY < nonAdjacentRooms[i].Room.RoomGrid.YSize)
+							if (localX >= 0 && localX < nonAdjacentRooms[j].Room.RoomGrid.XSize && localY >= 0 && localY < nonAdjacentRooms[j].Room.RoomGrid.YSize)
 							{
-								if (nonAdjacentRooms[i].Room.RoomGrid.Get(localX, localY) >= GRID_FILLED_NORMAL)
+								if (nonAdjacentRooms[j].Room.RoomGrid.Get(localX, localY) >= GRID_FILLED_NORMAL)
 								{
 									++intersectionAreaSize;
 								}
@@ -271,7 +296,7 @@ std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layou
 				int localX = worldX - worldPivotX;
 				int localY = worldY - worldPivotY;
 
-				if (localX >= 0 && localX < configGrid.XSize && localY >= 0 && configGrid.YSize)
+				if (localX >= 0 && localX < configGrid.XSize && localY >= 0 && localY < configGrid.YSize)
 				{
 					if (!((configGrid.Get(localX, localY) & GRID_CONFIG_SPACE) == GRID_CONFIG_SPACE))
 					{
@@ -307,7 +332,7 @@ void GraphToMap::GetNonAdjacentRooms(LayoutRoom & layoutRoom, Layout & layout, s
 {
 	for (int i = 0; i < layout.Rooms.size(); i++)
 	{
-		if (layout.LaidOutVertices[i] && std::find(layoutRoom.Neighbours.begin(), layoutRoom.Neighbours.end(), i) == layoutRoom.Neighbours.end())
+		if (layout.LaidOutVertices[i] && i != layoutRoom.VertexID && std::find(layoutRoom.Neighbours.begin(), layoutRoom.Neighbours.end(), i) == layoutRoom.Neighbours.end())
 		{
 			nonAdjacentRooms.push_back(layout.Rooms[i]);
 		}
@@ -394,7 +419,7 @@ void GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 		auto intersectionPositions = getIntersections(adjacentRooms, newRoom);
 		// search for the position with best energy
 		int bestEnergyIndex = -1;
-		float lowestEnergy = INT_MAX;
+		float lowestEnergy = std::numeric_limits<float>::max();
 
 		for (int i = 0; i < intersectionPositions.size(); i++)
 		{
@@ -458,7 +483,7 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 					int pY = adjacentRooms[i].PosY - currentGrid.PivotY;
 					int localX = worldX - pX;
 					int localY = worldY - pY;
-					if (localX < 0 || localY < 0 || localX > currentGrid.XSize || localY > currentGrid.YSize)
+					if (localX < 0 || localY < 0 || localX >= currentGrid.XSize || localY >= currentGrid.YSize)
 					{
 						isIntersecting = false;
 					}

@@ -25,20 +25,20 @@ namespace GraphToMap
 		DLLExport MapGenerator(RoomCollection roomCollection, Chains chains, BoostGraph graph);
 		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph);
 		void PlaceRoom(Layout& layout, LayoutRoom newRoom);
-		std::vector<Layout> AddChain(Layout& layout, Chain chain, BoostGraph& graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature);
+		DLLExport std::vector<Layout> AddChain(Layout& layout, Chain chain, BoostGraph& graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature, std::vector<std::pair<Layout, std::string>> & debugLayouts);
 
-		Layout PerturbLayout(Layout& layout, Chain & chain);
+		Layout PerturbLayout(Layout& layout, Chain & chain, std::string & action);
 		void PerturbShape(Layout& layout, Chain & chain);
-		void PerturbPosition(Layout& layout, Chain & chain);
+		DLLExport void PerturbPosition(Layout& layout, Chain & chain, std::string & action);
 
-		bool IsLayoutValid(Layout& layout);
+		DLLExport bool IsLayoutValid(Layout& layout);
 		bool IsDifferent(Layout& newLayout, std::vector<Layout>& otherLayouts, Chain& chain);
 		bool IsDifferent(Layout& layout1, Layout& layout2, Chain& chain);
 
 		std::vector<Room> GetValidRooms(int vertexIndex, Layout& layout);
 
 		float ShapePerturbChance = 0.4f;
-		float PositionPerturChance = 0.8f;
+		float PositionPerturbChance = 0.8f;
 
 		float allowedRoomOverlapping = 0.25f;
 		float DifferenceScale = 0.4f;

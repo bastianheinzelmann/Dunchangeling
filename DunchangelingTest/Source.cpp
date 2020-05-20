@@ -178,35 +178,35 @@ void testRandomGraph2()
 	std::cout << "Rand2: \n" << randdot << std::endl;
 }
 
-RoomShape createRoomShape(Grid& grid)
-{
-	int ySize = grid.YSize;
-	int xSize = grid.XSize;
-
-	RoomShape roomShape;
-
-	for (int y = 0; y < ySize; y++)
-	{
-		for (int x = 0; x < xSize; x++)
-		{
-			int val = grid.Get(x, y);
-			if (val == GRID_FILLED_NORMAL)
-			{
-				roomShape.tiles.push_back(Tile(x, y, COLOR_FILLED));
-			}
-			else if(val == GRID_CONFIG_SPACE)
-			{
-				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_SPACE));
-			}
-			else if (val == (GRID_CONFIG_SPACE | GRID_FILLED_NORMAL))
-			{
-				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_FILLED));
-			}
-		}
-	}
-
-	return roomShape;
-}
+//RoomShape createRoomShape(Grid& grid)
+//{
+//	int ySize = grid.YSize;
+//	int xSize = grid.XSize;
+//
+//	RoomShape roomShape;
+//
+//	for (int y = 0; y < ySize; y++)
+//	{
+//		for (int x = 0; x < xSize; x++)
+//		{
+//			int val = grid.Get(x, y);
+//			if (val == GRID_FILLED_NORMAL)
+//			{
+//				roomShape.tiles.push_back(Tile(x, y, COLOR_FILLED));
+//			}
+//			else if(val == GRID_CONFIG_SPACE)
+//			{
+//				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_SPACE));
+//			}
+//			else if (val == (GRID_CONFIG_SPACE | GRID_FILLED_NORMAL))
+//			{
+//				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_FILLED));
+//			}
+//		}
+//	}
+//
+//	return roomShape;
+//}
 
 int main()
 {
@@ -247,27 +247,57 @@ int main()
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
-	GraphToMap::MapGenerator(roomCollection, chains, bg);
+	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
+	Layout lcool(boost::num_vertices(bg));
+	std::vector<std::pair<Layout, std::string>> debugLayout;
+	auto layouties = mg.AddChain(lcool, chains[0], bg, 5, 50, 4, 0.6f, 0.2f, debugLayout);
 
-	//sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
+	Layout layout(7);
+	layout.LaidOutVertices = { true, true, true, true, false , false, false };
 
-	//RoomShape roomShape = createRoomShape(squareRoom.ConfigGrids[0]);
-	//roomShape.tileSize = 32;
-	//roomShape.position = 100;
+	layout.Rooms[0].Room = roomCollection[1];
+	layout.Rooms[0].VertexID = 0;
+	layout.Rooms[0].PosX = 6;
+	layout.Rooms[0].PosY = 0;
+	layout.Rooms[0].Neighbours = { 1, 2 };
 
-	//while (window.isOpen())
-	//{
-	//	sf::Event event;
-	//	while (window.pollEvent(event))
-	//	{
-	//		if (event.type == sf::Event::Closed)
-	//			window.close();
-	//	}
+	layout.Rooms[1].Room = roomCollection[1];
+	layout.Rooms[1].VertexID = 1;
+	layout.Rooms[1].PosX = 8;
+	layout.Rooms[1].PosY = 1;
+	layout.Rooms[1].Neighbours = { 0, 3 };
 
-	//	window.clear();
-	//	roomShape.DrawRoomShape(window);
-	//	window.display();
-	//}
+	layout.Rooms[2].Room = roomCollection[0];
+	layout.Rooms[2].VertexID = 2;
+	layout.Rooms[2].PosX = 5;
+	layout.Rooms[2].PosY = -4;
+	layout.Rooms[2].Neighbours = { 0, 3};
+
+	layout.Rooms[3].Room = roomCollection[1];
+	layout.Rooms[3].VertexID = 3;
+	layout.Rooms[3].PosX = 9;
+	layout.Rooms[3].PosY = -1;
+	layout.Rooms[3].Neighbours = { 1, 2 };
+
+	//std::cout << mg.IsLayoutValid(layout);
+
+	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
+
+	LayoutShape lShape(layouties[0], 10, 10, 16);
+
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+
+		window.clear();
+		lShape.DrawLayoutShape(window);
+		window.display();
+	}
 
 	//PlanarityCheck();
 
