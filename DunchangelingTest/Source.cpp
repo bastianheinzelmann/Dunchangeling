@@ -250,6 +250,8 @@ int main()
 	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
 	Layout lcool(boost::num_vertices(bg));
 	std::vector<std::pair<Layout, std::string>> debugLayout;
+
+	Layout finalLayout = mg.GenerateLayout(bg);
 	auto layouties = mg.AddChain(lcool, chains[0], bg, 5, 50, 4, 0.6f, 0.2f, debugLayout);
 
 	Layout layout(7);
@@ -283,7 +285,7 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
 
-	LayoutShape lShape(layouties[0], 10, 10, 16);
+	LayoutShape lShape(finalLayout, 10, 10, 16);
 
 	while (window.isOpen())
 	{

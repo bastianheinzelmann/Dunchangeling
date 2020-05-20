@@ -40,6 +40,46 @@ void GraphToMap::calculateConfigSpaces(RoomCollection& roomCollection)
 	}
 }
 
+Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
+{
+	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(graph);
+	std::list<Chain> chainList;
+	std::copy(chains.begin(), chains.end(), std::back_inserter(chainList));
+
+	Layout startLayout = Layout(boost::num_vertices(graph));
+	std::list<Layout> stack;
+	stack.push_back(startLayout);
+
+	int chainIndex = 0;
+
+	while (!stack.empty())
+	{
+		Layout layout = stack.back();
+		stack.pop_back();
+
+		Chain chain = chains[chainIndex];
+
+		std::vector<std::pair<Layout, std::string>> debugLayout;
+
+		std::vector<Layout> partialLayouts = AddChain(layout, chain, graph, 5, 50, 4, 0.6f, 0.2f, debugLayout);
+
+		if (partialLayouts.size() > 0)
+		{
+			if (partialLayouts[0].isComplete())
+			{
+				return partialLayouts[0];
+			}
+			else
+			{
+				stack.insert(stack.end(), partialLayouts.begin(), partialLayouts.end());
+				++chainIndex;
+			}
+		}
+	}
+
+	return Layout();
+}
+
 std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain chain, BoostGraph & graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature, std::vector<std::pair<Layout, std::string>> & debugLayouts)
 {
 	assert(startTemperature > endTemperature);
@@ -155,7 +195,7 @@ void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
 	int randChainIndex = randomNumber(0, chain.size() - 1);
 	int randVertexIndex = chain[randChainIndex];
 
-	std::vector<Room> validRooms = GetValidRooms(randVertexIndex, layout);
+	std::vector<Room> validRooms = GetValidRooms(2, layout);
 
 	if (validRooms.size() > 0)
 	{
@@ -289,9 +329,9 @@ std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layou
 
 			for (int j = 0; j < adjacentRooms.size(); j++)
 			{
-				Grid& configGrid = adjacentRooms[i].Room.ConfigGrids[currentRoom.RoomID];
-				int worldPivotX = adjacentRooms[i].PosX - configGrid.PivotX;
-				int worldPivotY = adjacentRooms[i].PosY - configGrid.PivotY;
+				Grid& configGrid = adjacentRooms[j].Room.ConfigGrids[currentRoom.RoomID];
+				int worldPivotX = adjacentRooms[j].PosX - configGrid.PivotX;
+				int worldPivotY = adjacentRooms[j].PosY - configGrid.PivotY;
 
 				int localX = worldX - worldPivotX;
 				int localY = worldY - worldPivotY;
@@ -303,6 +343,11 @@ std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layou
 						isValid = false;
 						break;
 					}
+				}
+				else
+				{
+					isValid = false;
+					break;
 				}
 			}
 		}
@@ -356,6 +401,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 			if (std::any_of(neighbours.first, neighbours.second, [layout](int v) { return layout.LaidOutVertices[v];}))
 			{
 				queue.push_back(chainVertexIndex);
+				chain.erase(chain.begin() + i);
 			}
 		}
 	}

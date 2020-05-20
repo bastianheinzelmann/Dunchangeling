@@ -20,8 +20,12 @@ float Layout::GetEnergy()
 	float distances = GetDistances();
 	float omega = GetAverageRoomArea();
 
-	//return std::exp(intersectionArea / omega) * std::exp(distances / omega) - 1;
-	return std::exp(intersectionArea / omega) - 1;
+	return std::exp(intersectionArea / omega) * std::exp(distances / omega) - 1;
+}
+
+bool Layout::isComplete()
+{
+	return std::all_of(LaidOutVertices.begin(), LaidOutVertices.end(), [](bool x) { return x; });
 }
 
 float Layout::GetAverageRoomArea()

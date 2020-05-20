@@ -15,6 +15,7 @@ public:
 	std::vector<bool> LaidOutVertices;
 	DLLExport float GetEnergy();
 	DLLExport int GetIntersectionArea();
+	DLLExport bool isComplete();
 	int GetDistances();
 	float GetAverageRoomArea();
 };
