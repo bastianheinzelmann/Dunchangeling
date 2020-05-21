@@ -218,7 +218,7 @@ int main()
 
 	std::cout << g1 << "\n";
 
-	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g2);
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g1);
 
 	//GraphUtils::GraphToDot(bg);
 	GeneticAlgorithmUtils::GetGraphFaces(bg);
@@ -240,21 +240,39 @@ int main()
 		1, 1
 	};
 
+	unsigned int room3[] =
+	{
+		1, 1, 1,
+		1, 1, 1,
+		1, 1, 1,
+		1, 1, 1,
+		1, 1, 1
+	};
+
+	unsigned int room4[] = 
+	{
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1,
+		1, 1, 1, 1, 1
+	};
+
 	Grid grid(4, 4, room);
 	Grid grid2(2, 2, room2);
+	Grid grid3(3, 5, room3);
+	Grid grid4(5, 3, room4);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2) };
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4) };
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
 	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
-	Layout lcool(boost::num_vertices(bg));
+	Layout lcool(boost::num_vertices(bg), 0);
 	std::vector<std::pair<Layout, std::string>> debugLayout;
 
 	Layout finalLayout = mg.GenerateLayout(bg);
 	auto layouties = mg.AddChain(lcool, chains[0], bg, 5, 50, 4, 0.6f, 0.2f, debugLayout);
 
-	Layout layout(7);
+	Layout layout(7, 0);
 	layout.LaidOutVertices = { true, true, true, true, false , false, false };
 
 	layout.Rooms[0].Room = roomCollection[1];

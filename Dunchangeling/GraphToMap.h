@@ -26,8 +26,8 @@ namespace GraphToMap
 
 		DLLExport Layout GenerateLayout(BoostGraph & graph);
 
-		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph);
-		void PlaceRoom(Layout& layout, LayoutRoom newRoom);
+		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph, bool & success);
+		bool PlaceRoom(Layout& layout, LayoutRoom newRoom);
 		DLLExport std::vector<Layout> AddChain(Layout& layout, Chain chain, BoostGraph& graph, int cycles, int trials, int maxLayouts, float startTemperature, float endTemperature, std::vector<std::pair<Layout, std::string>> & debugLayouts);
 
 		Layout PerturbLayout(Layout& layout, Chain & chain, std::string & action);

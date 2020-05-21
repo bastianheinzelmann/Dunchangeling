@@ -17,7 +17,7 @@ GraphToMap::RoomCollection::RoomCollection(std::vector<Room> rooms)
 
 GraphToMap::MapGenerator::MapGenerator(RoomCollection roomCollection, Chains chains, BoostGraph graph)
 {
-	Layout layout(boost::num_vertices(graph));
+	Layout layout(boost::num_vertices(graph), 0);
 	this->Graph = graph;
 	this->Rooms = roomCollection;
 
@@ -46,7 +46,7 @@ Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
 	std::list<Chain> chainList;
 	std::copy(chains.begin(), chains.end(), std::back_inserter(chainList));
 
-	Layout startLayout = Layout(boost::num_vertices(graph));
+	Layout startLayout = Layout(boost::num_vertices(graph), 0);
 	std::list<Layout> stack;
 	stack.push_back(startLayout);
 
@@ -57,7 +57,7 @@ Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
 		Layout layout = stack.back();
 		stack.pop_back();
 
-		Chain chain = chains[chainIndex];
+		Chain chain = chains[layout.NextChainIndex];
 
 		std::vector<std::pair<Layout, std::string>> debugLayout;
 
@@ -84,8 +84,18 @@ std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain ch
 {
 	assert(startTemperature > endTemperature);
 
-	Layout currentLayout = GetInitialLayout(layout, chain, graph);
 	std::vector<Layout> generatedLayouts;
+	bool initialLayoutSuccess;
+
+	Layout currentLayout = GetInitialLayout(layout, chain, graph, initialLayoutSuccess);
+	if (!initialLayoutSuccess)
+	{
+		return generatedLayouts;
+	}
+	else
+	{
+		++currentLayout.NextChainIndex;
+	}
 
 	debugLayouts.push_back(std::pair<Layout, std::string>(currentLayout, "InitialLayout"));
 
@@ -384,11 +394,12 @@ void GraphToMap::GetNonAdjacentRooms(LayoutRoom & layoutRoom, Layout & layout, s
 	}
 }
 
-Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, BoostGraph& graph)
+Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, BoostGraph& graph, bool & success)
 {
 	std::list<int> queue;
 
 	int firstIndex = -1;
+	success = true;
 
 	// first lay out all vertices that have already placed neighbours
 	if (std::any_of(layout.LaidOutVertices.begin(), layout.LaidOutVertices.end(), [](bool v) { return v; }))
@@ -437,13 +448,17 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 			}
 		}
 	
-		PlaceRoom(layout, layoutRoom);
+		if (!PlaceRoom(layout, layoutRoom))
+		{
+			success = false;
+			break;
+		}
 	}
 
 	return layout;
 }
 
-void GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
+bool GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 {
 	assert(layout.Rooms[newRoom.VertexID].VertexID == -1);
 	assert(!layout.LaidOutVertices[newRoom.VertexID]);
@@ -482,7 +497,11 @@ void GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 			}
 		}
 
-		assert(bestEnergyIndex != -1);
+		//assert(bestEnergyIndex != -1);
+		if (bestEnergyIndex == -1)
+		{
+			return false;
+		}
 
 		newRoom.PosX = intersectionPositions[bestEnergyIndex].first;
 		newRoom.PosY = intersectionPositions[bestEnergyIndex].second;
@@ -497,6 +516,8 @@ void GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 		layout.Rooms[newRoom.VertexID] = newRoom;
 		layout.LaidOutVertices[newRoom.VertexID] = true;
 	}
+
+	return true;
 }
 
 std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom & room)

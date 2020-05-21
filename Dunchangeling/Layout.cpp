@@ -3,10 +3,11 @@
 #include <math.h>
 #include <boost/functional/hash.hpp>
 
-Layout::Layout(int NumRooms)
+Layout::Layout(int NumRooms, int nextChainIndex)
 {
 	Rooms = std::vector<LayoutRoom>(NumRooms);
 	LaidOutVertices = std::vector<bool>(NumRooms, false);
+	NextChainIndex = nextChainIndex;
 
 	for (int i = 0; i < Rooms.size(); i++)
 	{
