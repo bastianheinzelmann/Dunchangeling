@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="ConfigSpace.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="GeneticAlgorithm.h" />
     <ClInclude Include="GeneticAlgorithmUtils.h" />
     <ClInclude Include="Graph.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="TestDLL.h" />
     <ClInclude Include="TreeNode.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="Vector2.h" />
     <ClInclude Include="VertexAttributes.h" />
   </ItemGroup>
   <ItemGroup>

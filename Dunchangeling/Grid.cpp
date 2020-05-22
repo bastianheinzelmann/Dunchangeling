@@ -1,6 +1,7 @@
 #include "Grid.h"
 #include <iostream>
 #include <string>
+#include <assert.h>
 
 Grid::Grid(unsigned int xSize, unsigned int ySize, int pivotX, int pivotY)
 {
@@ -35,11 +36,13 @@ Grid::~Grid()
 
 unsigned int Grid::Get(unsigned int x, unsigned int y) const
 {
+	assert(x >= 0 && x < XSize && y >= 0 && y < YSize);
 	return gridArray[XSize * y + x];
 }
 
 void Grid::Set(unsigned int x, unsigned int y, unsigned int val)
 {
+	assert(x >= 0 && x < XSize && y >= 0 && y < YSize);
 	gridArray[XSize * y + x] = val;
 }
 

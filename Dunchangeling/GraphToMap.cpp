@@ -3,6 +3,8 @@
 #include "GeneticAlgorithmUtils.h"
 #include <list>
 #include <limits>
+#include "Vector2.h"
+#include "Door.h"
 
 GraphToMap::RoomCollection::RoomCollection(std::vector<Room> rooms)
 {
@@ -58,6 +60,7 @@ Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
 		stack.pop_back();
 
 		Chain chain = chains[layout.NextChainIndex];
+		std::cout << "Chain index: " << layout.NextChainIndex << "\n";
 
 		std::vector<std::pair<Layout, std::string>> debugLayout;
 
@@ -569,4 +572,165 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 	}
 
 	return positions;
+}
+
+DLLExport Grid GraphToMap::LayoutToSingleGrid(Layout & layout)
+{
+	int lowerXBound = INT_MAX, lowerYBound = INT_MAX, upperXBound = INT_MIN, upperYBound = INT_MIN;
+
+	// first find boundaries
+	for (auto i : layout.Rooms)
+	{
+		if (i.VertexID != -1)
+		{
+			if (i.PosX < lowerXBound)
+			{
+				lowerXBound = i.PosX;
+			}
+			if (i.PosY < lowerYBound)
+			{
+				lowerYBound = i.PosY;
+			}
+			int upperVal = i.PosX + i.Room.RoomGrid.XSize;
+			if (upperVal > upperXBound)
+			{
+				upperXBound = upperVal;
+			}
+			upperVal = i.PosY + i.Room.RoomGrid.YSize;
+			if (upperVal > upperYBound)
+			{
+				upperYBound = upperVal;
+			}
+		}
+	}
+
+	// create a new grid
+	Grid grid(upperXBound - lowerXBound, upperYBound - lowerYBound);
+
+	// now iterate over all rooms and create walls and doors
+	std::vector<bool> doorsFound(layout.Rooms.size(), false);
+	std::vector<Door> doorPositions;
+
+	for (auto currentRoom : layout.Rooms)
+	{
+		if (currentRoom.VertexID != -1)
+		{
+			std::unordered_map<int, std::vector<Door>> possibleDoors;
+
+			//std::vector<std::pair<int, int>> possibleDoors();
+			Grid & roomGrid = currentRoom.Room.RoomGrid;
+			for (int y = 0; y < roomGrid.YSize; y++)
+			{
+				for (int x = 0; x < roomGrid.XSize; x++)
+				{
+					// world coordinates
+					int worldPosX = x + currentRoom.PosX;
+					int worldPosY = y + currentRoom.PosY;
+
+					// makes only sense if there is a floor
+					if (roomGrid.Get(x, y) >= GRID_FILLED_NORMAL)
+					{
+
+						unsigned int wallType = 0;
+
+						if (x - 1 < 0 || roomGrid.Get(x - 1, y) == GRID_EMTPY)
+						{
+							// left is empty
+							wallType += 1;
+						}
+						if (x + 1 >= roomGrid.XSize || roomGrid.Get(x + 1, y) == GRID_EMTPY)
+						{
+							// right is empty
+							wallType += 2;
+						}
+						if (y - 1 < 0 || roomGrid.Get(x, y - 1) == GRID_EMTPY)
+						{
+							// up is empty
+							wallType += 4;
+						}
+						if (y + 1 >= roomGrid.YSize || roomGrid.Get(x, y + 1) == GRID_EMTPY)
+						{
+							// down is empty
+							wallType += 8;
+						}
+
+
+						// world coordinates
+						int worldPosX = x + currentRoom.PosX;
+						int worldPosY = y + currentRoom.PosY;
+
+						// set wall in grid
+						if(wallType != 0)
+							grid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, wallType);
+						else
+							grid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, TILE_FILLED);
+
+						for (auto neighbour : currentRoom.Neighbours)
+						{
+
+							if (layout.Rooms[neighbour].VertexID != -1 && !doorsFound[neighbour])
+							{
+								LayoutRoom & neighbourRoom = layout.Rooms[neighbour];
+								int localPosX = worldPosX - neighbourRoom.PosX;
+								int localPosY = worldPosY - neighbourRoom.PosY;
+
+								if (localPosX - 1 >= 0 && localPosY >= 0 
+									&& localPosX - 1 < neighbourRoom.Room.RoomGrid.XSize && localPosY < neighbourRoom.Room.RoomGrid.YSize 
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX - 1, localPosY) >= GRID_FILLED_NORMAL)
+								{
+									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX - 1, worldPosY)));
+								}
+								if (localPosX + 1 >= 0 && localPosY >= 0
+									&& localPosX + 1 < neighbourRoom.Room.RoomGrid.XSize && localPosY < neighbourRoom.Room.RoomGrid.YSize
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX + 1, localPosY) >= GRID_FILLED_NORMAL)
+								{
+									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX + 1, worldPosY)));
+								}
+								if (localPosX >= 0 && localPosY - 1 >= 0
+									&& localPosX < neighbourRoom.Room.RoomGrid.XSize && localPosY - 1 < neighbourRoom.Room.RoomGrid.YSize
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX, localPosY - 1) >= GRID_FILLED_NORMAL)
+								{
+									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX , worldPosY - 1)));
+								}
+								if (localPosX >= 0 && localPosY + 1 >= 0
+									&& localPosX < neighbourRoom.Room.RoomGrid.XSize && localPosY + 1 < neighbourRoom.Room.RoomGrid.YSize
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX, localPosY + 1) >= GRID_FILLED_NORMAL)
+								{
+									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX, worldPosY + 1)));
+								}
+							}
+						}
+					}
+					else
+					{
+						// grid is empty
+						grid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, GRID_EMTPY);
+					}
+				}
+			}
+			for (auto doors : possibleDoors)
+			{
+				Door doorPos = doors.second[randomNumber(0, doors.second.size() - 1)];
+				doorPositions.push_back(doorPos);
+			}
+
+			doorsFound[currentRoom.VertexID] = true;
+		}
+	}
+
+	for (auto door : doorPositions)
+	{
+		int wallType = grid.Get(door.Pos1.X - lowerXBound, door.Pos1.Y - lowerYBound);
+		int test = door.Pos1Orientation;
+		int doorType = wallType + door.Pos1Orientation;
+
+		grid.Set(door.Pos1.X - lowerXBound, door.Pos1.Y - lowerYBound, doorType);
+
+		wallType = grid.Get(door.Pos2.X - lowerXBound, door.Pos2.Y - lowerYBound);
+		doorType = wallType + door.Pos2Orientation;
+
+		grid.Set(door.Pos2.X - lowerXBound, door.Pos2.Y - lowerYBound, doorType);
+	}
+
+	return grid;
 }

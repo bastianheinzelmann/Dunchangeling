@@ -54,4 +54,5 @@ namespace GraphToMap
 	void calculateConfigSpaces(RoomCollection& roomCollection);
 	void GetAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& adjacentRooms);
 	void GetNonAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& nonAdjacentRooms);
+	DLLExport Grid LayoutToSingleGrid(Layout & layout);
 }
