@@ -654,10 +654,14 @@ DLLExport Grid GraphToMap::LayoutToSingleGrid(Layout & layout)
 							wallType += 8;
 						}
 
-
 						// world coordinates
 						int worldPosX = x + currentRoom.PosX;
 						int worldPosY = y + currentRoom.PosY;
+
+						if (wallType > 16)
+						{
+							std::cout << "hakldf";
+						}
 
 						// set wall in grid
 						if(wallType != 0)
@@ -724,10 +728,20 @@ DLLExport Grid GraphToMap::LayoutToSingleGrid(Layout & layout)
 		int test = door.Pos1Orientation;
 		int doorType = wallType + door.Pos1Orientation;
 
+		if (doorType == 112 || doorType == 102 || doorType == 132)
+		{
+			std::cout << "Help";
+		}
+
 		grid.Set(door.Pos1.X - lowerXBound, door.Pos1.Y - lowerYBound, doorType);
 
 		wallType = grid.Get(door.Pos2.X - lowerXBound, door.Pos2.Y - lowerYBound);
 		doorType = wallType + door.Pos2Orientation;
+
+		if (doorType == 112 || doorType == 102 || doorType == 132)
+		{
+			std::cout << "Help";
+		}
 
 		grid.Set(door.Pos2.X - lowerXBound, door.Pos2.Y - lowerYBound, doorType);
 	}

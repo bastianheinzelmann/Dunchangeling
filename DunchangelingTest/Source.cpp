@@ -218,7 +218,7 @@ int main()
 
 	std::cout << g1 << "\n";
 
-	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g1);
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g2);
 
 	//GraphUtils::GraphToDot(bg);
 	GeneticAlgorithmUtils::GetGraphFaces(bg);
@@ -267,20 +267,20 @@ int main()
 	//	0, 0, 0, 1, 1, 0, 0, 0
 	//};
 
-	unsigned int room5[] = {
-		1, 1, 1, 1,
-		1, 0, 0, 1,
-		1, 0, 0, 1,
-		1, 1, 1, 1
-	};
+	//unsigned int room5[] = {
+	//	1, 1, 1, 1,
+	//	1, 0, 0, 1,
+	//	1, 0, 0, 1,
+	//	1, 1, 1, 1
+	//};
 
 	Grid grid(4, 4, room);
 	Grid grid2(2, 2, room2);
 	Grid grid3(3, 5, room3);
 	Grid grid4(5, 3, room4);
-	Grid grid5(8, 8, room5);
+	//Grid grid5(4, 4, room5);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5) };
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4) };
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 

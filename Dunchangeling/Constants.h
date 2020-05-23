@@ -29,6 +29,16 @@ const unsigned int WALL_CORNER_SE = 10;
 const unsigned int WALL_CORNER_SW = 9;
 const unsigned int WALL_CORNER_NW = 5;
 
+// corridors
+const unsigned int WALL_UP_DOWN = 12;
+const unsigned int WALL_LEFT_RIGHT = 3;
+
+// dead ends
+const unsigned int WALL_END_NORTH = 7;
+const unsigned int WALL_END_EAST = 14;
+const unsigned int WALL_END_SOUTH = 11;
+const unsigned int WALL_END_WEST = 13;
+
 const unsigned int DOOR_ORI_LEFT = 16;
 const unsigned int DOOR_ORI_RIGHT = 32;
 const unsigned int DOOR_ORI_UP = 64;
@@ -39,13 +49,20 @@ const unsigned int DOOR_RIGHT = 34; // wall right + door ori right
 const unsigned int DOOR_UP = 68; // you get the gist 
 const unsigned int DOOR_DOWN = 136; // 
 const unsigned int DOOR_NE_UP = 70;
-const unsigned int DOOR_NE_RIGHT= 38;
+const unsigned int DOOR_NE_RIGHT = 38;
 const unsigned int DOOR_SE_DOWN = 138; // se = 10
 const unsigned int DOOR_SE_RIGHT = 42;
 const unsigned int DOOR_SW_DOWN = 137; // sw = 9
 const unsigned int DOOR_SW_LEFT = 25;
 const unsigned int DOOR_NW_LEFT = 21; //nw = 5
 const unsigned int DOOR_NW_UP = 69;
+
+const unsigned int DOOR_CORRIDOR_DOWN = 140;
+const unsigned int DOOR_CORRIDOR_UP = 76;
+const unsigned int DOOR_CORRIDOR_RIGHT = 35;
+const unsigned int DOOR_CORRIDOR_LEFT = 19;
+
+// dead ends
 
 const unsigned int TILE_FILLED = 100;
 
