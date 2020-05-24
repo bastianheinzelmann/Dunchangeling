@@ -256,16 +256,16 @@ int main()
 		1, 1, 1, 1, 1
 	};
 
-	//unsigned int room5[] = {
-	//	0, 0, 0, 1, 1, 0, 0, 0,
-	//	0, 0, 1, 1, 1, 1, 0, 0,
-	//	0, 1, 1, 1, 1, 1, 1, 1,
-	//	0, 1, 1, 1, 1, 1, 1, 1,
-	//	0, 1, 1, 1, 1, 1, 1, 1,
-	//	0, 1, 1, 1, 1, 1, 1, 1,
-	//	0, 0, 1, 1, 1, 1, 0, 0,
-	//	0, 0, 0, 1, 1, 0, 0, 0
-	//};
+	unsigned int room5[] = {
+		0, 0, 0, 1, 1, 0, 0,
+		0, 0, 1, 1, 1, 1, 0,
+		0, 1, 1, 1, 1, 1, 1,
+		0, 1, 1, 1, 1, 1, 1,
+		0, 1, 1, 1, 1, 1, 1,
+		0, 1, 1, 1, 1, 1, 1,
+		0, 0, 1, 1, 1, 1, 0,
+		0, 0, 0, 1, 1, 0, 0
+	};
 
 	//unsigned int room5[] = {
 	//	1, 1, 1, 1,
@@ -278,9 +278,9 @@ int main()
 	Grid grid2(2, 2, room2);
 	Grid grid3(3, 5, room3);
 	Grid grid4(5, 3, room4);
-	//Grid grid5(4, 4, room5);
+	Grid grid5(7, 8, room5);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4) };
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5)};
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
@@ -318,7 +318,7 @@ int main()
 	layout.Rooms[3].PosY = -1;
 	layout.Rooms[3].Neighbours = { 1, 2 };
 
-	Grid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
+	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(layout);
 	FinalGrid* finalGrid = new FinalGrid(griddy);
 
 	//std::cout << mg.IsLayoutValid(layout);

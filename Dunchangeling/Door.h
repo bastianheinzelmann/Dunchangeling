@@ -3,8 +3,10 @@
 #include "Vector2.h"
 #include "Constants.h"
 #include <assert.h>
+#include "DungeonGrid.h"
 
 enum DoorOrientation {DOE_Up = DOOR_ORI_UP, DOE_Down = DOOR_ORI_DOWN, DOE_Left = DOOR_ORI_LEFT, DOE_Right = DOOR_ORI_RIGHT};
+//enum DoorOrientation {DOE_Up = 1, DOE_Down = 3, DOE_Left = 4, DOE_Right = 2};
 
 struct Door
 {
@@ -16,23 +18,23 @@ struct Door
 
 		if ((Pos1.X - Pos2.X) == -1)
 		{
-			Pos1Orientation = DoorOrientation::DOE_Right;
-			Pos2Orientation = DoorOrientation::DOE_Left;
+			Pos1Orientation = DungeonData::DDE_East;
+			Pos2Orientation = DungeonData::DDE_West;
 		}
 		else if ((Pos1.X - Pos2.X) == 1)
 		{
-			Pos1Orientation = DoorOrientation::DOE_Left;
-			Pos2Orientation = DoorOrientation::DOE_Right;
+			Pos1Orientation = DungeonData::DDE_West;
+			Pos2Orientation = DungeonData::DDE_East;
 		}
 		else if ((Pos1.Y - Pos2.Y) == -1)
 		{
-			Pos1Orientation = DoorOrientation::DOE_Down;
-			Pos2Orientation = DoorOrientation::DOE_Up;
+			Pos1Orientation = DungeonData::DDE_South;
+			Pos2Orientation = DungeonData::DDE_North;
 		}
 		else if ((Pos1.Y - Pos2.Y) == 1)
 		{
-			Pos1Orientation = DoorOrientation::DOE_Up;
-			Pos2Orientation = DoorOrientation::DOE_Down;
+			Pos1Orientation = DungeonData::DDE_North;
+			Pos2Orientation = DungeonData::DDE_South;
 		}
 		else
 		{
@@ -43,6 +45,6 @@ struct Door
 	Vector2 Pos1;
 	Vector2 Pos2;
 
-	DoorOrientation Pos1Orientation;
-	DoorOrientation Pos2Orientation;
+	DungeonData Pos1Orientation;
+	DungeonData Pos2Orientation;
 };

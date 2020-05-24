@@ -5,6 +5,7 @@
 #include "SFML/Graphics.hpp"
 #include "../Dunchangeling/Room.h"
 #include "../Dunchangeling/Grid.h"
+#include "../Dunchangeling/DungeonGrid.h"
 
 
 const sf::Color COLOR_FILLED = sf::Color::Blue;
@@ -64,88 +65,91 @@ struct RoomShape
 	}
 };
 
+struct DungeonPart
+{
+	DungeonPart(sf::Vector2i offset, sf::RectangleShape shape, sf::Color color)
+	{
+		Offset = offset;
+		Shape = shape;
+		Color = color;
+		Shape.setFillColor(color);
+	}
+
+	void Draw(sf::RenderWindow & window, int xPos, int yPos)
+	{
+		Shape.setPosition(xPos + Offset.x, yPos + Offset.y);
+		window.draw(Shape);
+	}
+
+	sf::Vector2i Offset;
+	sf::RectangleShape Shape;
+	sf::Color Color;
+};
+
 class FinalGrid
 {
 public:
-	FinalGrid(Grid & grid)
+	FinalGrid(DungeonGrid & grid)
 	{
-		texture.loadFromFile("C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/Sprites/DungeonSheet.png");
-		sprite = sf::Sprite(texture);
-		spritePosRect = sf::IntRect(0, 0, 16, 16);
-		myGrid = grid;
+		dgrid = grid;
 	}
 
-	void Draw(sf::RenderWindow& window)
+	void Draw(sf::RenderWindow & window)
 	{
-		for (int y = 0; y < myGrid.YSize; y++)
+		for (int y = 0; y < dgrid.YSize; y++)
 		{
-			for (int x = 0; x < myGrid.XSize; x++)
+			for (int x = 0; x < dgrid.XSize; x++)
 			{
-				int tileType = myGrid.Get(x, y);
-				if (tileType > 0)
+				if (dgrid.Get(x, y, DDE_Tile) > 0)
 				{
-					sprite.setPosition(x * 16, y * 16);
+					background.Draw(window, x * 16, y * 16);
 
-					switch (tileType)
+					switch (dgrid.Get(x, y, DDE_North))
 					{
-					case TILE_FILLED: spritePosRect.left = filled.x; spritePosRect.top = filled.y; break;
-					case WALL_LEFT: spritePosRect.left = wallLeft.x; spritePosRect.top = wallLeft.y; break;
-					case WALL_RIGHT: spritePosRect.left = wallRight.x; spritePosRect.top = wallRight.y; break;
-					case WALL_DOWN: spritePosRect.left = wallDown.x; spritePosRect.top = wallDown.y; break;
-					case WALL_UP: spritePosRect.left = wallUp.x; spritePosRect.top = wallUp.y; break;
-					case WALL_CORNER_NE: spritePosRect.left = cornerNE.x; spritePosRect.top = cornerNE.y; break;
-					case WALL_CORNER_NW: spritePosRect.left = cornerNW.x; spritePosRect.top = cornerNW.y; break;
-					case WALL_CORNER_SE: spritePosRect.left = cornerSE.x; spritePosRect.top = cornerSE.y; break;
-					case WALL_CORNER_SW: spritePosRect.left = cornerSW.x; spritePosRect.top = cornerSW.y; break;
-					case DOOR_LEFT: spritePosRect.left = doorLeft.x; spritePosRect.top = doorLeft.y; break;
-					case DOOR_RIGHT: spritePosRect.left = doorRight.x; spritePosRect.top = doorRight.y; break;
-					case DOOR_DOWN: spritePosRect.left = doorDown.x; spritePosRect.top = doorDown.y; break;
-					case DOOR_UP: spritePosRect.left = doorUp.x; spritePosRect.top = doorUp.y; break;
-					case DOOR_NE_UP: spritePosRect.left = doorNEUp.x; spritePosRect.top = doorNEUp.y; break;
-					case DOOR_NE_RIGHT: spritePosRect.left = doorNERight.x; spritePosRect.top = doorNERight.y; break;
-					case DOOR_SE_DOWN: spritePosRect.left = doorSEDown.x; spritePosRect.top = doorSEDown.y; break;
-					case DOOR_SE_RIGHT: spritePosRect.left = doorSERight.x; spritePosRect.top = doorSERight.y; break;
-					case DOOR_NW_LEFT: spritePosRect.left = doorNWLeft.x; spritePosRect.top = doorNWLeft.y; break;
-					case DOOR_NW_UP: spritePosRect.left = doorNWUp.x; spritePosRect.top = doorNWUp.y; break;
-					case DOOR_SW_DOWN: spritePosRect.left = doorSWDown.x; spritePosRect.top = doorSWDown.y; break;
-					case DOOR_SW_LEFT: spritePosRect.left = doorSWLeft.x; spritePosRect.top = doorSWLeft.y; break;
-					default: assert(false);
+					case 1: wallNorth.Draw(window, x * 16, y * 16); break;
+					case 2: doorNorth1.Draw(window, x * 16, y * 16); doorNorth2.Draw(window, x * 16, y * 16); break;
 					}
 
-					sprite.setTextureRect(spritePosRect);
-					window.draw(sprite);
+					switch (dgrid.Get(x, y, DDE_East))
+					{
+					case 1: wallEast.Draw(window, x * 16, y * 16); break;
+					case 2: doorEast1.Draw(window, x * 16, y * 16); doorEast2.Draw(window, x * 16, y * 16); break;
+					}
+
+					switch (dgrid.Get(x, y, DDE_South))
+					{
+					case 1: wallSouth.Draw(window, x * 16, y * 16); break;
+					case 2: doorSouth1.Draw(window, x * 16, y * 16); doorSouth2.Draw(window, x * 16, y * 16); break;
+					}
+
+					switch (dgrid.Get(x, y, DDE_West))
+					{
+					case 1: wallWest.Draw(window, x * 16, y * 16); break;
+					case 2: doorWest1.Draw(window, x * 16, y * 16); doorWest2.Draw(window, x * 16, y * 16); break;
+					}
 				}
 			}
 		}
 	}
 
 private:
-	sf::IntRect spritePosRect;
-	sf::Texture texture;
-	sf::Sprite sprite;
-	Grid myGrid;
+	DungeonGrid dgrid;
 
-	sf::Vector2i wallDown = sf::Vector2i(0, 0);
-	sf::Vector2i wallUp = sf::Vector2i(16, 0);
-	sf::Vector2i wallRight = sf::Vector2i(32, 0);
-	sf::Vector2i wallLeft= sf::Vector2i(48, 0);
-	sf::Vector2i cornerSE = sf::Vector2i(0, 16);
-	sf::Vector2i cornerNE = sf::Vector2i(16, 16);
-	sf::Vector2i cornerNW = sf::Vector2i(32, 16);
-	sf::Vector2i cornerSW = sf::Vector2i(48, 16);
-	sf::Vector2i doorDown = sf::Vector2i(0, 32);
-	sf::Vector2i doorUp = sf::Vector2i(16, 32);
-	sf::Vector2i doorRight = sf::Vector2i(32, 32);
-	sf::Vector2i doorLeft = sf::Vector2i(48, 32);
-	sf::Vector2i doorSEDown = sf::Vector2i(0, 48);
-	sf::Vector2i doorNEUp = sf::Vector2i(16, 48);
-	sf::Vector2i doorNWLeft = sf::Vector2i(32, 48);
-	sf::Vector2i doorSWLeft = sf::Vector2i(48, 48);
-	sf::Vector2i doorSERight = sf::Vector2i(0, 64);
-	sf::Vector2i doorNERight = sf::Vector2i(16, 64);
-	sf::Vector2i doorNWUp = sf::Vector2i(32, 64);
-	sf::Vector2i doorSWDown = sf::Vector2i(48, 64);
-	sf::Vector2i filled = sf::Vector2i(0, 80);
+	DungeonPart background = DungeonPart( sf::Vector2i(0,0), sf::RectangleShape(sf::Vector2f(16, 16)), sf::Color::White );
+
+	DungeonPart wallNorth = DungeonPart( sf::Vector2i(0,0), sf::RectangleShape(sf::Vector2f(16, 2)), sf::Color::Black );
+	DungeonPart wallEast = DungeonPart ( sf::Vector2i(14,0), sf::RectangleShape(sf::Vector2f(2, 16)), sf::Color::Black);
+	DungeonPart wallSouth = DungeonPart ( sf::Vector2i(0,14), sf::RectangleShape(sf::Vector2f(16, 2)), sf::Color::Black);
+	DungeonPart wallWest = DungeonPart ( sf::Vector2i(0,0), sf::RectangleShape(sf::Vector2f(2, 16)), sf::Color::Black);
+
+	DungeonPart doorNorth1  = DungeonPart ( sf::Vector2i(0,0), sf::RectangleShape(sf::Vector2f(4, 2)), sf::Color::Black);
+	DungeonPart doorNorth2  = DungeonPart ( sf::Vector2i(12,0), sf::RectangleShape(sf::Vector2f(4, 2)), sf::Color::Black);
+	DungeonPart doorEast1   = DungeonPart ( sf::Vector2i(14,0), sf::RectangleShape(sf::Vector2f(2, 4)), sf::Color::Black);
+	DungeonPart doorEast2   = DungeonPart ( sf::Vector2i(14,12), sf::RectangleShape(sf::Vector2f(2, 4)), sf::Color::Black);
+	DungeonPart doorSouth1  = DungeonPart ( sf::Vector2i(0,14), sf::RectangleShape(sf::Vector2f(4, 2)), sf::Color::Black);
+	DungeonPart doorSouth2  = DungeonPart ( sf::Vector2i(12,14), sf::RectangleShape(sf::Vector2f(4, 2)), sf::Color::Black);
+	DungeonPart doorWest1   = DungeonPart ( sf::Vector2i(0,0), sf::RectangleShape(sf::Vector2f(2, 4)), sf::Color::Black);
+	DungeonPart doorWest2   = DungeonPart ( sf::Vector2i(0,12), sf::RectangleShape(sf::Vector2f(2, 4)), sf::Color::Black);
 };
 
 class LayoutShape

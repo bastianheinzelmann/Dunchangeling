@@ -10,7 +10,7 @@ DungeonGrid::DungeonGrid(int xSize, int ySize)
 
 	for (int i = 0; i < xSize * ySize * numData; i++)
 	{
-		DungeonArray[i] = true;
+		DungeonArray[i] = 0;
 	}
 }
 

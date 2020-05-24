@@ -9,5 +9,6 @@ extern "C"
 	DLLExport int multiplyWrapper(int num1, int num2);
 	DLLExport int substractWrapper(int num1, int num2);
 	DLLExport int divideWrapper(int num1, int num2);
+	DLLExport int generateLayout(int* grid);
 }
 #endif

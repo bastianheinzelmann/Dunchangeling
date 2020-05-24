@@ -5,6 +5,7 @@
 #include <vector>
 #include "Layout.h"
 #include "GraphUtils.h"
+#include "DungeonGrid.h"
 
 namespace GraphToMap
 {
@@ -54,5 +55,5 @@ namespace GraphToMap
 	void calculateConfigSpaces(RoomCollection& roomCollection);
 	void GetAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& adjacentRooms);
 	void GetNonAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& nonAdjacentRooms);
-	DLLExport Grid LayoutToSingleGrid(Layout & layout);
+	DLLExport DungeonGrid LayoutToSingleGrid(Layout & layout);
 }
