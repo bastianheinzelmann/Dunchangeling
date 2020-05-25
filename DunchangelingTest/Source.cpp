@@ -218,7 +218,7 @@ int main()
 
 	std::cout << g1 << "\n";
 
-	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g2);
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g1);
 
 	//GraphUtils::GraphToDot(bg);
 	GeneticAlgorithmUtils::GetGraphFaces(bg);
@@ -318,7 +318,7 @@ int main()
 	layout.Rooms[3].PosY = -1;
 	layout.Rooms[3].Neighbours = { 1, 2 };
 
-	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(layout);
+	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy);
 
 	//std::cout << mg.IsLayoutValid(layout);

@@ -27,7 +27,7 @@ int divideWrapper(int num1, int num2)
 	return divide(num1, num2);
 }
 
-int generateLayout(int * result)
+int generateLayout(int ** data, int * size)
 {
 	unsigned int room[] =
 	{
@@ -115,11 +115,9 @@ int generateLayout(int * result)
 	layout.Rooms[3].Neighbours = { 1, 2 };
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(layout);
-	
-	for (int i = 0; i < griddy.XSize * griddy.YSize * 5; i++)
-	{
-		result[i] = griddy.DungeonArray[i];
-	}
+
+	*data = griddy.DungeonArray;
+	*size = griddy.XSize * griddy.YSize * 5;
 
 	return griddy.XSize * griddy.YSize * 5;
 }
