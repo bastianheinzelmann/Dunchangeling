@@ -15,6 +15,5 @@ struct DungeonGrid
 	int* DungeonArray;
 	int XSize;
 	int YSize;
-private:
 	int numData = 5;
 };

@@ -5,6 +5,7 @@
 #include "../Dunchangeling/GraphUtils.cpp"
 #include "../Dunchangeling/GeneticAlgorithmUtils.h"
 #include "../Dunchangeling/GraphToMap.h"
+#include "../Dunchangeling/GeneticAlgorithm.h"
 #include "Functions.h"
 
 int addWrapper(int num1, int num2)
@@ -27,7 +28,7 @@ int divideWrapper(int num1, int num2)
 	return divide(num1, num2);
 }
 
-int generateLayout(int ** data, int * size)
+int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 {
 	unsigned int room[] =
 	{
@@ -87,6 +88,8 @@ int generateLayout(int ** data, int * size)
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
+#pragma region MyRegion
+
 	Layout layout(7, 0);
 	layout.LaidOutVertices = { true, true, true, true, false , false, false };
 
@@ -113,11 +116,53 @@ int generateLayout(int ** data, int * size)
 	layout.Rooms[3].PosX = 9;
 	layout.Rooms[3].PosY = -1;
 	layout.Rooms[3].Neighbours = { 1, 2 };
+#pragma endregion
 
-	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(layout);
+	GeneticAlgorithm ga;
+	Graph graph;
+
+	PopId id1 = ga.requestId();
+	PopId id2 = ga.requestId();
+	PopId id3 = ga.requestId();
+	PopId id4 = ga.requestId();
+	PopId id5 = ga.requestId();
+	PopId id6 = ga.requestId();
+	PopId id7 = ga.requestId();
+	PopId id8 = ga.requestId();
+	PopId id9 = ga.requestId();
+	PopId id10 = ga.requestId();
+	PopId id11 = ga.requestId();
+	PopId id12 = ga.requestId();
+	PopId id13 = ga.requestId();
+
+	graph.addEdge(id1, id2, false);
+	graph.addEdge(id2, id3, false);
+	graph.addEdge(id2, id10, false);
+	graph.addEdge(id3, id4, false);
+	graph.addEdge(id3, id7, false);
+	graph.addEdge(id4, id5, false);
+	graph.addEdge(id4, id5, false);
+	graph.addEdge(id5, id6, false);
+	graph.addEdge(id6, id7, false);
+	graph.addEdge(id7, id8, false);
+	graph.addEdge(id8, id9, false);
+	graph.addEdge(id9, id10, false);
+	graph.addEdge(id9, id11, false);
+	graph.addEdge(id11, id12, false);
+	graph.addEdge(id11, id13, false);
+
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(graph);
+	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
+
+	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
+	Layout finalLayout = mg.GenerateLayout(bg);
+
+	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 
 	*data = griddy.DungeonArray;
-	*size = griddy.XSize * griddy.YSize * 5;
+	*xSize = griddy.XSize;
+	*ySize = griddy.YSize;
+	*numData = griddy.numData;
 
 	return griddy.XSize * griddy.YSize * 5;
 }
