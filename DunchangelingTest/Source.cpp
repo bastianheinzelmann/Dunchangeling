@@ -9,6 +9,7 @@
 #include "../Dunchangeling/GraphUtils.cpp"
 #include "../Dunchangeling/GeneticAlgorithmUtils.h"
 #include "../Dunchangeling/GraphToMap.h"
+#include "../Dunchangeling/EntryEndCrossover.h"
 
 #include "DrawGrid.h"
 #include <SFML/Graphics.hpp>
@@ -178,52 +179,75 @@ void testRandomGraph2()
 	std::cout << "Rand2: \n" << randdot << std::endl;
 }
 
-//RoomShape createRoomShape(Grid& grid)
-//{
-//	int ySize = grid.YSize;
-//	int xSize = grid.XSize;
-//
-//	RoomShape roomShape;
-//
-//	for (int y = 0; y < ySize; y++)
-//	{
-//		for (int x = 0; x < xSize; x++)
-//		{
-//			int val = grid.Get(x, y);
-//			if (val == GRID_FILLED_NORMAL)
-//			{
-//				roomShape.tiles.push_back(Tile(x, y, COLOR_FILLED));
-//			}
-//			else if(val == GRID_CONFIG_SPACE)
-//			{
-//				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_SPACE));
-//			}
-//			else if (val == (GRID_CONFIG_SPACE | GRID_FILLED_NORMAL))
-//			{
-//				roomShape.tiles.push_back(Tile(x, y, COLOR_CONFIG_FILLED));
-//			}
-//		}
-//	}
-//
-//	return roomShape;
-//}
+void testLayout(GraphToMap::RoomCollection & roomCollection)
+{
+	Layout layout(7, 0);
+	layout.LaidOutVertices = { true, true, true, true, false , false, false };
+
+	layout.Rooms[0].Room = roomCollection[1];
+	layout.Rooms[0].VertexID = 0;
+	layout.Rooms[0].PosX = 6;
+	layout.Rooms[0].PosY = 0;
+	layout.Rooms[0].Neighbours = { 1, 2 };
+
+	layout.Rooms[1].Room = roomCollection[1];
+	layout.Rooms[1].VertexID = 1;
+	layout.Rooms[1].PosX = 8;
+	layout.Rooms[1].PosY = 1;
+	layout.Rooms[1].Neighbours = { 0, 3 };
+
+	layout.Rooms[2].Room = roomCollection[0];
+	layout.Rooms[2].VertexID = 2;
+	layout.Rooms[2].PosX = 5;
+	layout.Rooms[2].PosY = -4;
+	layout.Rooms[2].Neighbours = { 0, 3 };
+
+	layout.Rooms[3].Room = roomCollection[1];
+	layout.Rooms[3].VertexID = 3;
+	layout.Rooms[3].PosX = 9;
+	layout.Rooms[3].PosY = -1;
+	layout.Rooms[3].Neighbours = { 1, 2 };
+}
 
 int main()
 {
-	Graph g1, g2, g3;
-	GeneticAlgorithm ga;
+	//Graph g1, g2, g3;
+	//GeneticAlgorithm ga;
 
-	generateDecompTestGraph(g1, ga);
-	generateTestGraphs(g2, g3, ga);
 
-	std::cout << g1 << "\n";
+	//std::cout << g1 << "\n";
 
-	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g1);
+	//BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g1);
 
 	//GraphUtils::GraphToDot(bg);
-	GeneticAlgorithmUtils::GetGraphFaces(bg);
-	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
+	//GeneticAlgorithmUtils::GetGraphFaces(bg);
+	//Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
+	//GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
 
+	EntryEndCrossover * gaFunctions = new EntryEndCrossover();
+
+	GeneticAlgorithm ga(100, 1000, gaFunctions);
+
+	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
+	//Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
+
+	//Graph graphDecomp;
+	//generateDecompTestGraph(graphDecomp, ga);
+
+	//std::cout << graph1 << std::endl;
+	//std::cout << graph2 << std::endl;
+
+	//Graph matedGraph = graph_crossover(graph1, graph2, ga);
+	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
+
+	ga.generateInitialPopulation(8, 9, 3);
+	ga.run();
+	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
+	std::cout << gaGraph;
+
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
+	GraphToDot(bg);
+	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
 
 	unsigned int room[] = 
@@ -285,47 +309,14 @@ int main()
 	GraphToMap::RoomCollection roomCollection(rooms);
 
 	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
-	Layout lcool(boost::num_vertices(bg), 0);
 	std::vector<std::pair<Layout, std::string>> debugLayout;
 
 	Layout finalLayout = mg.GenerateLayout(bg);
-	//auto layouties = mg.AddChain(lcool, chains[0], bg, 5, 50, 4, 0.6f, 0.2f, debugLayout);
-
-	Layout layout(7, 0);
-	layout.LaidOutVertices = { true, true, true, true, false , false, false };
-
-	layout.Rooms[0].Room = roomCollection[1];
-	layout.Rooms[0].VertexID = 0;
-	layout.Rooms[0].PosX = 6;
-	layout.Rooms[0].PosY = 0;
-	layout.Rooms[0].Neighbours = { 1, 2 };
-
-	layout.Rooms[1].Room = roomCollection[1];
-	layout.Rooms[1].VertexID = 1;
-	layout.Rooms[1].PosX = 8;
-	layout.Rooms[1].PosY = 1;
-	layout.Rooms[1].Neighbours = { 0, 3 };
-
-	layout.Rooms[2].Room = roomCollection[0];
-	layout.Rooms[2].VertexID = 2;
-	layout.Rooms[2].PosX = 5;
-	layout.Rooms[2].PosY = -4;
-	layout.Rooms[2].Neighbours = { 0, 3};
-
-	layout.Rooms[3].Room = roomCollection[1];
-	layout.Rooms[3].VertexID = 3;
-	layout.Rooms[3].PosX = 9;
-	layout.Rooms[3].PosY = -1;
-	layout.Rooms[3].Neighbours = { 1, 2 };
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy);
 
-	//std::cout << mg.IsLayoutValid(layout);
-
 	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
-
-	//LayoutShape lShape(finalLayout, 10, 10, 16);
 
 	while (window.isOpen())
 	{
@@ -343,10 +334,6 @@ int main()
 	}
 
 	//PlanarityCheck();
-
-	//GeneticAlgorithm ga(10, 100);
-	//ga.generateInitialPopulation(8, 9, 3);
-	//ga.run();
 
 	//ga.currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff");
 

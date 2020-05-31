@@ -8,12 +8,13 @@
 #include "Constants.h"
 #include <chrono>
 #include <math.h>
+#include "IGAFunctions.h"
 
 class GeneticAlgorithm
 {
 public:
 	GeneticAlgorithm() {};
-	DLLExport GeneticAlgorithm(unsigned int popSize, unsigned int maxGens);
+	DLLExport GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions);
 
 	std::vector<Graph>* CurrentPopBuffer;
 
@@ -37,11 +38,12 @@ private:
 	unsigned int populationSize = 0;
 	unsigned int maxGenerations = 0;
 	unsigned int elitismRate = 10;
-	unsigned int crossoverRate = 90;
+	unsigned int crossoverRate = 0;
+	bool doCrossover = false;
 
 	float highestFitness;
 	unsigned int nothingChangedCount = 0;
-	unsigned int convergenceBorder = 100;
+	unsigned int convergenceBorder = 20;
 
 	std::vector<Graph> BrokenPopulation;
 
@@ -49,4 +51,6 @@ private:
 	PopId currentPopId = 0;
 	VertexName currentVertexName = 0;
 	unsigned int currentGeneration = 0;
+
+	IGAFunctions * gaFunctions;
 };

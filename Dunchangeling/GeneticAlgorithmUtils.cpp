@@ -14,6 +14,28 @@ DLLExport int randomNumber(int min, int max)
 	return uid(re, Dist::param_type{ min, max });
 }
 
+bool integrityCheck(Graph & graph)
+{
+	if (graph.attributes.endIndex < 0)
+	{
+		return false;
+	}
+	if (graph.attributes.entryIndex < 0)
+	{
+		return false;
+	}
+
+	for (int i = 0; i < graph.vertices.size(); i++)
+	{
+		if (graph.vertices[i].neighbours.size() == 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 DLLExport float randomFloatNumber(float min, float max)
 {
 	static std::default_random_engine re{};
@@ -27,17 +49,6 @@ DLLExport Graph graph_fuseGraphs(const Graph& graph1, const Graph& graph2, Genet
 {
 	std::vector<Vertex> vertices(graph1.vertices);
 	std::vector<Vertex> vertices2(graph2.vertices);
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		vertices[i].vertexID = ga.requestId();
-	}
-
-	for (int i = 0; i < vertices2.size(); i++)
-	{
-		vertices2[i].vertexID = ga.requestId();
-	}
-
 
 	int offset = vertices.size();
 
@@ -53,17 +64,26 @@ DLLExport Graph graph_fuseGraphs(const Graph& graph1, const Graph& graph2, Genet
 
 	vertices.insert(vertices.end(), vertices2.begin(), vertices2.end());
 
-	return Graph(vertices);
+	Graph fusedGraph = Graph(vertices);
+
+	for (int i = 0; i < fusedGraph.vertices.size(); i++)
+	{
+		if (fusedGraph.vertices[i].attributes.isEntry)
+		{
+			fusedGraph.attributes.entryIndex = i;
+		}
+		if (fusedGraph.vertices[i].attributes.isEndRoom)
+		{
+			fusedGraph.attributes.endIndex = i;
+		}
+	}
+
+	return fusedGraph;
 }
 
 DLLExport Graph graph_mate(Graph& graph1, Graph& graph2, GeneticAlgorithm & ga)
 {
 	assert(!graph1.empty() && !graph2.empty(), "One graph is empty during crossover");
-
-	std::random_device dev;
-	std::mt19937 rngg(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> graphDistribution;
-
 
 	// get the names of the splitted graph's broken vertices
 	std::vector<int> brokenEdgesGraph1 = graph1.getAllBrokenEdges();
@@ -77,29 +97,39 @@ DLLExport Graph graph_mate(Graph& graph1, Graph& graph2, GeneticAlgorithm & ga)
 	auto rng = std::default_random_engine{};
 	std::shuffle(std::begin(brokenEdgesGraph2), std::end(brokenEdgesGraph2), rng);
 
-
-	graphDistribution = std::uniform_int_distribution<std::mt19937::result_type>(0, graph2.vertices.size() - 1);
-
 	// last broken edge from graph1 gets last broken edge from graph2 and so on
 
-	while (!brokenEdgesGraph1.empty())
+	while (!brokenEdgesGraph1.empty() || !brokenEdgesGraph2.empty())
 	{
-		int lastVertex1 = brokenEdgesGraph1.back();
-		brokenEdgesGraph1.pop_back();
+		int lastVertex1 = -1;
+		int lastVertex2 = -1;
 
-		int lastVertex2;
+		if (!brokenEdgesGraph1.empty())
+		{
+			lastVertex1 = brokenEdgesGraph1.back();
+			brokenEdgesGraph1.pop_back();
+		}
+
 
 		if (!brokenEdgesGraph2.empty())
 		{
 			lastVertex2 = brokenEdgesGraph2.back();
 			brokenEdgesGraph2.pop_back();
 		}
-		else
+
+
+		if(lastVertex2 == -1)
 		{
 			// select random vertex in graph2
 			// this is a serious problem not really because we have graph2 i am kinda silly today and great!
-			int randIndex = graphDistribution(rngg);
+			int randIndex = randomNumber(0, graph2.vertices.size() - 1);
 			lastVertex2 = graph2.vertices[randIndex].vertexID;
+		}
+
+		if (lastVertex1 == -1)
+		{
+			int randIndex = randomNumber(0, graph1.vertices.size() - 1);
+			lastVertex1 = graph1.vertices[randIndex].vertexID;
 		}
 
 		fusedGraph.addEdge(lastVertex1, lastVertex2, false);
@@ -110,18 +140,17 @@ DLLExport Graph graph_mate(Graph& graph1, Graph& graph2, GeneticAlgorithm & ga)
 	return fusedGraph;
 }
 
-DLLExport void graph_splitGraph(Graph& graph, Graph& graph1, Graph& graph2)
+DLLExport void graph_splitGraph(Graph graph, Graph& graph1, Graph& graph2)
 {
-	RNG::getInstance().setDistribution(0, graph.vertices.size() - 1);
-
-	int randIndex = RNG::getInstance()();
+	int randIndex = randomNumber(0, graph.vertices.size() - 1);
 
 	//TODO get a random neighbour (not yet)
 	int randNeighbour = *graph.vertices[randIndex].neighbours.begin();
 
 	//std::cout << "Notice me senpai!!! RandIndex: " << graph.vertices[randIndex].vertexName << " RandNeighbour " << graph.vertices[randNeighbour].vertexName << std::endl;
 
-	graph.splitGraph(graph.vertices[randIndex].vertexID, graph.vertices[randNeighbour].vertexID, graph1, graph2);
+	//graph.splitGraph(graph.vertices[randIndex].vertexID, graph.vertices[randNeighbour].vertexID, graph1, graph2);
+	graph.splitGraph(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID, graph1, graph2);
 
 	assert(!graph1.empty() && !graph2.empty(), "One graph is empty after split");
 }
@@ -157,100 +186,148 @@ DLLExport Graph graph_crossover(Graph& parent1, Graph& parent2, GeneticAlgorithm
 	graph_splitGraph(parent1, parent1part1, parent1part2);
 	graph_splitGraph(parent2, parent2part1, parent2part2);
 
-	unsigned int partKind1 = 0, partKind2 = 0;
-	if (parent1part1.attributes.entryIndex > -1) partKind1 = partKind1 | 1;
-	if (parent1part1.attributes.endIndex > -1) partKind1 = partKind1 | 2;
-	if (parent1part2.attributes.entryIndex > -1) partKind1 = partKind1 | 4;
-	if (parent1part2.attributes.endIndex > -1) partKind1 = partKind1 | 8;
+	Graph entryGraph;
+	Graph endGraph;
 
-	if (parent2part1.attributes.entryIndex > -1) partKind2 = partKind2 | 1;
-	if (parent2part1.attributes.endIndex > -1) partKind2 = partKind2 | 2;
-	if (parent2part2.attributes.entryIndex > -1) partKind2 = partKind2 | 4;
-	if (parent2part2.attributes.endIndex > -1) partKind2 = partKind2 | 8;
-
-	Graph graph;
-
-	int partKind = partKind1 | partKind2;
-
-	assert(partKind != 0);
-
-	switch (partKind)
+	if (parent1part1.attributes.entryIndex > -1)
 	{
-	case 0b1111: {
-		graph = graph_mate(parent1part1, parent2part1, ga);
-		break;
+		entryGraph = parent1part1;
 	}
-	case 0b1001: {
-		graph = graph_mate(parent1part2, parent2part1, ga);
-		break;
+	else if (parent1part2.attributes.entryIndex > -1)
+	{
+		entryGraph = parent1part2;
 	}
-	case 0b0110: {
-		graph = graph_mate(parent1part2, parent2part1, ga);
-		break;
-	}
-	case 0b1110: {
-		if (partKind1 == 0b1100)
-		{
-			// need to add random end room to parent1part1
-			graph_addRandomEndRoom(parent1part1);
-			graph = graph_mate(parent1part1, parent2part2, ga);
-		}
-		else
-		{
-			// add random entry to parent2part1
-			graph_addRandomEntry(parent2part1);
-			graph = graph_mate(parent1part1, parent2part1, ga);
-		}
-		break;
-	}
-	case 0b1101: {
-		if (partKind1 == 0b1100)
-		{
-			// need to add end to parent1part1
-			graph_addRandomEndRoom(parent1part1);
-			graph_mate(parent1part1, parent2part1, ga);
-		}
-		else
-		{
-			// add end roim to parent part 1
-			graph_addRandomEndRoom(parent2part1);
-			graph_mate(parent1part1, parent2part1, ga);
-		}
-		break;
-	}
-	case 0b0111: {
-		if (partKind1 == 0b0011)
-		{
-			// parent1part2 needs endroom bruh
-			graph_addRandomEndRoom(parent1part2);
-			graph_mate(parent1part2, parent2part1, ga);
-		}
-		else
-		{
-			// add endroo, to parent2part2
-			graph_addRandomEndRoom(parent2part2);
-			graph_mate(parent1part2, parent2part2, ga);
-		}
-		break;
-	}
-	case 0b1011: {
-		if (partKind1 == 0b0011)
-		{
-			// add entry to parent1part1
-			graph_addRandomEntry(parent1part1);
-			graph_mate(parent1part1, parent2part2, ga);
-		}
-		else
-		{
-			// parent2part2 needs end room
-			graph_addRandomEndRoom(parent2part2);
-			graph_mate(parent1part2, parent2part2, ga);
-		}
-		break;
-	}
+	else
+	{
+		assert(true);
 	}
 
-	return graph_mate(parent1part1, parent1part2, ga);
+	if (parent2part1.attributes.endIndex > -1)
+	{
+		endGraph = parent2part1;
+	}
+	else if(parent2part2.attributes.endIndex > -1)
+	{
+		endGraph = parent2part2;
+	}
+	else
+	{
+		assert(true);
+	}
+
+	Graph graph = graph_mate(entryGraph, endGraph, ga);
+
+	for (int i = 0; i < graph.vertices.size(); i++)
+	{
+		graph.vertices[i].vertexID = ga.requestId();
+	}
+
+	//std::cout << "I split\n<< " << parent1 << std::endl;
+	//graph_splitGraph(parent1, parent1part1, parent1part2);
+	//std::cout << "Part1\n" << parent1part1 << std::endl;
+	//std::cout << "Part2\n" << parent1part2 << std::endl;
+	//std::cout << "I split\n<< " << parent2 << std::endl;
+	//graph_splitGraph(parent2, parent2part1, parent2part2);
+	//std::cout << "Part1\n" << parent2part1 << std::endl;
+	//std::cout << "Part2\n" << parent2part2 << std::endl;
+
+	//unsigned int partKind1 = 0, partKind2 = 0;
+	//if (parent1part1.attributes.entryIndex > -1) partKind1 = partKind1 | 1;
+	//if (parent1part1.attributes.endIndex > -1) partKind1 = partKind1 | 2;
+	//if (parent1part2.attributes.entryIndex > -1) partKind1 = partKind1 | 4;
+	//if (parent1part2.attributes.endIndex > -1) partKind1 = partKind1 | 8;
+
+	//if (parent2part1.attributes.entryIndex > -1) partKind2 = partKind2 | 1;
+	//if (parent2part1.attributes.endIndex > -1) partKind2 = partKind2 | 2;
+	//if (parent2part2.attributes.entryIndex > -1) partKind2 = partKind2 | 4;
+	//if (parent2part2.attributes.endIndex > -1) partKind2 = partKind2 | 8;
+
+	//Graph graph;
+
+	//int partKind = partKind1 | partKind2;
+
+	//assert(partKind != 0);
+
+	//switch (partKind)
+	//{
+	//case 0b1111: {
+	//	graph = graph_mate(parent1part1, parent2part1, ga);
+	//	break;
+	//}
+	//case 0b1001: {
+	//	graph = graph_mate(parent1part2, parent2part1, ga);
+	//	break;
+	//}
+	//case 0b0110: {
+	//	graph = graph_mate(parent1part2, parent2part1, ga);
+	//	break;
+	//}
+	//case 0b1110: {
+	//	if (partKind1 == 0b1100)
+	//	{
+	//		// need to add random end room to parent1part1
+	//		graph_addRandomEndRoom(parent1part1);
+	//		graph = graph_mate(parent1part1, parent2part2, ga);
+	//	}
+	//	else
+	//	{
+	//		// add random entry to parent2part1
+	//		graph_addRandomEntry(parent2part1);
+	//		graph = graph_mate(parent1part1, parent2part1, ga);
+	//	}
+	//	break;
+	//}
+	//case 0b1101: {
+	//	if (partKind1 == 0b1100)
+	//	{
+	//		// need to add end to parent1part1
+	//		graph_addRandomEndRoom(parent1part1);
+	//		graph = graph_mate(parent1part1, parent2part1, ga);
+	//	}
+	//	else
+	//	{
+	//		// add end roim to parent part 1
+	//		graph_addRandomEndRoom(parent2part1);
+	//		graph = graph_mate(parent1part1, parent2part1, ga);
+	//	}
+	//	break;
+	//}
+	//case 0b0111: {
+	//	if (partKind1 == 0b0011)
+	//	{
+	//		// parent1part2 needs endroom bruh
+	//		graph_addRandomEndRoom(parent1part2);
+	//		graph = graph_mate(parent1part2, parent2part1, ga);
+	//	}
+	//	else
+	//	{
+	//		// add endroo, to parent2part2
+	//		graph_addRandomEndRoom(parent2part2);
+	//		graph = graph_mate(parent1part2, parent2part2, ga);
+	//	}
+	//	break;
+	//}
+	//case 0b1011: {
+	//	if (partKind1 == 0b0011)
+	//	{
+	//		// add entry to parent1part1
+	//		graph_addRandomEntry(parent1part1);
+	//		graph = graph_mate(parent1part1, parent2part2, ga);
+	//	}
+	//	else
+	//	{
+	//		// parent2part2 needs end room
+	//		graph_addRandomEndRoom(parent2part2);
+	//		graph = graph_mate(parent1part2, parent2part2, ga);
+	//	}
+	//	break;
+	//}
+	//default: assert(true, "Did not find crossover case");
+	//}
+
+	assert(integrityCheck(graph));
+
+	return graph;
 }
 
 DLLExport void graph_addRandomEdges(Graph& graph, int edgeNum)
@@ -307,7 +384,6 @@ DLLExport Graph graph_generateRandomGraphWilson(int verticesNum, int edgesNum, G
 
 	graph_addRandomEdges(graph, edgesNum - verticesNum);
 
-	// declare an entry vertex and an end vertex
 	int entryVertexIndex = randomNumber(0, verticesNum - 1);
 	int endVertexIndex;
 	do
@@ -367,19 +443,22 @@ DLLExport void graph_removeEdgeMutation(Graph& graph, Vertex& vertex)
 {
 	if (vertex.neighbours.size() > 1)
 	{
-		RNG::getInstance().setDistribution(0, vertex.neighbours.size() - 1);
-		int neighbourIndex = RNG::getInstance()();
+		int neighbourIndex = randomNumber(0, vertex.neighbours.size() - 1);
 		int edgeToRemoveIndex;
 		int i = 0;
 		for (auto n : vertex.neighbours)
 		{
 			if (i == neighbourIndex)
+			{
 				edgeToRemoveIndex = n;
+				break;
+			}
 
 			i++;
 		}
 
-		graph.removeEdgeByName(vertex.vertexID, graph.vertices[edgeToRemoveIndex].vertexID);
+		if(graph.vertices[edgeToRemoveIndex].neighbours.size() > 1)
+			graph.removeEdgeByName(vertex.vertexID, graph.vertices[edgeToRemoveIndex].vertexID);
 
 		//std::cout << "Remove edge " << graph.vertices[edgeToRemoveIndex].vertexName << " from " << vertex.vertexName << std::endl;
 	}
@@ -387,12 +466,11 @@ DLLExport void graph_removeEdgeMutation(Graph& graph, Vertex& vertex)
 
 DLLExport void graph_addEdgeMutation(Graph& graph, Vertex& vertex)
 {
-	RNG::getInstance().setDistribution(0, graph.vertices.size() - 1);
 	int newEdge;
 
 	do
 	{
-		newEdge = graph.vertices[RNG::getInstance()()].vertexID;
+		newEdge = graph.vertices[randomNumber(0, graph.vertices.size() - 1)].vertexID;
 	} while (newEdge == vertex.vertexID);
 
 	graph.addEdge(vertex.vertexID, newEdge, false);
@@ -465,5 +543,7 @@ DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga)
 		{
 			graph_swapEntryMutation(graph, ga);
 		}
+
+		assert(integrityCheck(graph));
 	}
 }

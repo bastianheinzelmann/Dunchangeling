@@ -249,11 +249,16 @@ Chain GeneticAlgorithmUtils::GetNeighbourPath(BoostGraph & graph, std::vector<bo
 	}
 	else
 	{
-		// muss den finden der nur einen nachbarn hat
+		// find the one with only one neighbour
 		for (int i = 0; i < boost::num_vertices(graph); i++)
 		{
 			auto neighbours = boost::adjacent_vertices(i, graph);
-			int numNeighbours = *neighbours.second - *neighbours.first;
+			int numNeighbours = 0;
+			for (; neighbours.first != neighbours.second; neighbours.first++)
+			{
+				numNeighbours++;
+			}
+
 			if (numNeighbours == 1)
 			{
 				firstVertexIndex = i;

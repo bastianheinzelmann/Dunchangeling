@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/boyer_myrvold_planar_test.hpp>
+#include "GeneticAlgorithmUtils.h"
 
 void Graph::splitGraph(PopId vertex1, PopId vertex2)
 {
@@ -15,17 +16,13 @@ void Graph::splitGraph(PopId vertex1, PopId vertex2)
 
 void Graph::splitGraph( PopId vertex1, PopId vertex2, Graph & part1, Graph & part2)
 {
-	std::random_device dev;
-	std::mt19937 rngg(dev());
-
 	std::vector<unsigned int> pathIndices = shortestPath(vertex1, vertex2);
 
 	while (!pathIndices.empty())
 	{
-		std::uniform_int_distribution<std::mt19937::result_type> graphDistribution(0, pathIndices.size() - 2);
-		int deletePathIndex = graphDistribution(rngg);
+		int deletePathIndex = randomNumber(0, pathIndices.size() - 2);
 		breakEdge(pathIndices[deletePathIndex], pathIndices[deletePathIndex + 1]);
-
+		std::cout << "Path index: " << deletePathIndex << std::endl;
 		pathIndices = shortestPath(vertex1, vertex2);
 	}
 
@@ -91,19 +88,31 @@ std::vector<Vertex>::iterator Graph::findVertexIndex(int val, bool& res)
 
 int Graph::findVertexIndexInt(int val, bool& res)
 {
-	std::vector<Vertex>::iterator it;
-	Vertex v(val);
-	it = std::find(vertices.begin(), vertices.end(), v);
-	if (it != vertices.end())
+	for (int i = 0; i < vertices.size(); i++)
 	{
-		res = true;
-		return it - vertices.begin();
+		if (vertices[i].vertexID == val)
+		{
+			res = true;
+			return i;
+		}
 	}
-	else
-	{
-		res = false;
-		return -1;
-	}
+
+	res = false;
+	return -1;
+
+	//std::vector<Vertex>::iterator it;
+	//Vertex v(val);
+	//it = std::find(vertices.begin(), vertices.end(), v);
+	//if (it != vertices.end())
+	//{
+	//	res = true;
+	//	return it - vertices.begin();
+	//}
+	//else
+	//{
+	//	res = false;
+	//	return -1;
+	//}
 }
 
 void Graph::addEdgeIndices(unsigned int index1, unsigned int index2, bool directed)
@@ -441,8 +450,8 @@ void Graph::addEdge(PopId n1, PopId n2, bool directed)
 	bool foundVertex01 = false;
 	bool foundVertex02 = false;
 
-	std::vector<Vertex>::iterator vit1 = findVertexIndex(n1, foundVertex01);
-	std::vector<Vertex>::iterator vit2 = findVertexIndex(n2, foundVertex02);
+	int vit1 = findVertexIndexInt(n1, foundVertex01);
+	int vit2 = findVertexIndexInt(n2, foundVertex02);
 
 	int node1Index = -1;
 	int	node2Index = -1;
@@ -455,7 +464,7 @@ void Graph::addEdge(PopId n1, PopId n2, bool directed)
 	}
 	else
 	{
-		node1Index = vit1 - vertices.begin();
+		node1Index = vit1;
 	}
 
 	if (!foundVertex02)
@@ -466,7 +475,7 @@ void Graph::addEdge(PopId n1, PopId n2, bool directed)
 	}
 	else
 	{
-		node2Index = vit2 - vertices.begin();
+		node2Index = vit2;
 	}
 
 	assert((node1Index > -1) && (node1Index < vertices.size()));

@@ -10,7 +10,7 @@ DLLExport int randomNumber(int min, int max);
 DLLExport float randomFloatNumber(float min, float max);
 DLLExport Graph graph_fuseGraphs(const Graph& graph1, const Graph& graph2, GeneticAlgorithm & ga);
 DLLExport Graph graph_mate(Graph& graph1, Graph& graph2, GeneticAlgorithm & ga);
-DLLExport void graph_splitGraph(Graph& graph, Graph& graph1, Graph& graph2);
+DLLExport void graph_splitGraph(Graph graph, Graph& graph1, Graph& graph2);
 DLLExport void graph_addRandomEntry(Graph& graph);
 DLLExport void graph_addRandomEndRoom(Graph& graph);
 DLLExport Graph graph_crossover(Graph& parent1, Graph& parent2, GeneticAlgorithm& ga);
@@ -23,3 +23,4 @@ DLLExport void graph_addVertexMutation(Graph& graph, Vertex& vertex, GeneticAlgo
 DLLExport void graph_swapEntryMutation(Graph& graph, GeneticAlgorithm& ga);
 DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga);
 DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga);
+DLLExport bool integrityCheck(Graph &graph);

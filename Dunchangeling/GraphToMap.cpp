@@ -65,7 +65,7 @@ Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
 
 		std::vector<std::pair<Layout, std::string>> debugLayout;
 
-		std::vector<Layout> partialLayouts = AddChain(layout, chain, graph, 5, 50, 4, 0.6f, 0.2f, debugLayout);
+		std::vector<Layout> partialLayouts = AddChain(layout, chain, graph, 10, 100, 4, 0.6f, 0.2f, debugLayout);
 
 		if (partialLayouts.size() > 0)
 		{
@@ -109,7 +109,7 @@ std::vector<Layout> GraphToMap::MapGenerator::AddChain(Layout & layout, Chain ch
 
 	for (int i = 0; i < cycles; i++)
 	{
-		if (generatedLayouts.size() == maxLayouts)
+		if (generatedLayouts.size() >= maxLayouts)
 		{
 			break;
 		}

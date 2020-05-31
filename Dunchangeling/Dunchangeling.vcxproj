@@ -127,6 +127,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DungeonGrid.cpp" />
+    <ClCompile Include="EntryEndCrossover.cpp" />
     <ClCompile Include="GeneticAlgorithm.cpp" />
     <ClCompile Include="GeneticAlgorithmUtils.cpp" />
     <ClCompile Include="Graph.cpp" />
@@ -145,6 +146,8 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="DungeonGrid.h" />
+    <ClInclude Include="EntryEndCrossover.h" />
+    <ClInclude Include="IGAFunctions.h" />
     <ClInclude Include="GeneticAlgorithm.h" />
     <ClInclude Include="GeneticAlgorithmUtils.h" />
     <ClInclude Include="Graph.h" />

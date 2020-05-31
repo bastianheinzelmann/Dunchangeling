@@ -36,13 +36,15 @@ VertexName GeneticAlgorithm::requestVertexName()
 	if (currentVertexName == UINT_MAX)
 	{
 		std::cout << "Vertexnames are all given" << std::endl;
+		assert(false);
 	}
 
 	return currentVertexName++;
 }
 
-GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens)
+GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions)
 {
+	gaFunctions = functions;
 	populationSize = popSize;
 	this->maxGenerations = maxGens;
 	PopBuffer1 = std::vector<Graph>(popSize);
@@ -84,7 +86,7 @@ void GeneticAlgorithm::currentGenerationToFile(const char * directory)
 
 void GeneticAlgorithm::nextGeneration()
 {
-
+	
 }
 
 Graph & GeneticAlgorithm::TournamentSelection(int k)
@@ -131,63 +133,80 @@ void GeneticAlgorithm::run()
 			}
 		}
 
-		int crossoverRatio = (crossoverRate * populationSize) / 100;
-		for (int i = elitismRatio; i < crossoverRatio + elitismRatio; i++)
+		if (doCrossover)
 		{
-			Graph & parent1 = TournamentSelection(3);
-			Graph & parent2 = TournamentSelection(3);
+			int crossoverRatio = (crossoverRate * populationSize) / 100;
+			for (int i = elitismRatio; i < populationSize; i++)
+			{
+				Graph & parent1 = TournamentSelection(3);
+				Graph & parent2 = TournamentSelection(3);
 
-			Graph matedGraph = graph_mate(parent1, parent2, *this);
-			if (currentGeneration & 1 == 1)
-			{
-				// odd number
-				PopBuffer1[i] = parent1;
+				//Graph matedGraph = graph_crossover(parent1, parent2, *this);
+				Graph matedGraph = gaFunctions->Crossover(parent1, parent2, *this);
+				if (currentGeneration & 1 == 1)
+				{
+					// odd number
+					PopBuffer1[i] = matedGraph;
+				}
+				else
+				{
+					// even number
+					PopBuffer2[i] = matedGraph;
+				}
 			}
-			else
+		}
+		else
+		{
+			for (int i = elitismRatio; i < populationSize; i++)
 			{
-				// even number
-				PopBuffer2[i] = parent1;
+				if (currentGeneration & 1 == 1)
+				{
+					// odd number
+					PopBuffer1[i] = PopBuffer2[i];
+				}
+				else
+				{
+					// even number
+					PopBuffer2[i] = PopBuffer1[i];
+				}
 			}
 		}
 
-		for (int i = elitismRatio + crossoverRatio; i < populationSize; i++)
+		if (currentGeneration == 55)
 		{
-			// fill in with random graph??? nah thats stupid
-			//assert(false);
+			std::cout << "Hii" << std::endl;
 		}
-
-
 
 		for (int i = elitismRatio; i < populationSize; i++)
 		{
 			if (currentGeneration & 1 == 1)
 			{
 				// odd number
-				graph_mutate(PopBuffer1[i], *this);
+				//graph_mutate(PopBuffer1[i], *this);
+				gaFunctions->Mutate(PopBuffer1[i], *this);
 			}
 			else
 			{
 				// even number
-				graph_mutate(PopBuffer2[i], *this);
+				//graph_mutate(PopBuffer2[i], *this);
+				gaFunctions->Mutate(PopBuffer2[i], *this);
 			}
 		}
-
-		currentGeneration++;
-		currentPopId = 0;
 		
 		if (currentGeneration & 1 == 1)
 		{
-			sort(PopBuffer1.begin(), PopBuffer1.end(), std::greater<Graph>());
+			//sort(PopBuffer1.begin(), PopBuffer1.end(), std::greater<Graph>());
 			CurrentPopBuffer = &PopBuffer1;
 		}
 		else
 		{
-			sort(PopBuffer2.begin(), PopBuffer2.end(), std::greater<Graph>());
-			// even number
+			//even
+			//sort(PopBuffer2.begin(), PopBuffer2.end(), std::greater<Graph>());
 			CurrentPopBuffer = &PopBuffer2;
 		}
 
 		calculateFitness();
+		sort(CurrentPopBuffer->begin(), CurrentPopBuffer->end(), std::greater<Graph>());
 
 		if (highestFitness < (*CurrentPopBuffer)[0].fitness)
 		{
@@ -198,6 +217,9 @@ void GeneticAlgorithm::run()
 		{
 			++nothingChangedCount;
 		}
+
+		currentGeneration++;
+		currentPopId = 0;
 
 		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << " Gen: " << currentGeneration << std::endl;
 		//currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");
