@@ -2,6 +2,7 @@
 
 #include "Room.h"
 #include <vector>
+#include "Graph.h"
 
 struct LayoutRoom
 {
@@ -9,6 +10,8 @@ struct LayoutRoom
 	int VertexID;
 	int PosX;
 	int PosY;
+
+	VertexAttributes Attributes;
 
 	std::vector<int> Neighbours;
 };

@@ -28,7 +28,7 @@ public:
 	DLLExport void currentGenerationToFile(const char* directory);
 
 	DLLExport void nextGeneration();
-	DLLExport void run();
+	DLLExport void run();	
 
 private:
 	
@@ -43,7 +43,7 @@ private:
 
 	float highestFitness;
 	unsigned int nothingChangedCount = 0;
-	unsigned int convergenceBorder = 20;
+	unsigned int convergenceBorder = 100;
 
 	std::vector<Graph> BrokenPopulation;
 

@@ -110,7 +110,8 @@ void GeneticAlgorithm::calculateFitness()
 {
 	for (int i = 0; i < CurrentPopBuffer->size(); i++)
 	{
-		(*CurrentPopBuffer)[i].calculateFitness();
+		gaFunctions->CalculateFitness((*CurrentPopBuffer)[i], *this);
+		//(*CurrentPopBuffer)[i].calculateFitness();
 	}
 }
 

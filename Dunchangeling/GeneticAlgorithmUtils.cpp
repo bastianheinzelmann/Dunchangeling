@@ -25,11 +25,47 @@ bool integrityCheck(Graph & graph)
 		return false;
 	}
 
+	if (!graph.vertices[graph.attributes.endIndex].attributes.isEndRoom)
+	{
+		std::cout << "End index points to wrong vertex";
+		return false;
+	}
+
+	if (!graph.vertices[graph.attributes.entryIndex].attributes.isEntry)
+	{
+		return false;
+	}
+
+	bool hasEntry = false;
+	bool hasEnd = false;
+
 	for (int i = 0; i < graph.vertices.size(); i++)
 	{
 		if (graph.vertices[i].neighbours.size() == 0)
 		{
 			return false;
+		}
+		if (graph.vertices[i].attributes.isEntry)
+		{
+			if (!hasEntry)
+			{
+				hasEntry = true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		if (graph.vertices[i].attributes.isEndRoom)
+		{
+			if (!hasEnd)
+			{
+				hasEnd = true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 
@@ -400,6 +436,8 @@ DLLExport Graph graph_generateRandomGraphWilson(int verticesNum, int edgesNum, G
 	graph.attributes.endIndex = endVertexIndex;
 	graph.attributes.entryIndex = entryVertexIndex;
 
+	assert(integrityCheck(graph));
+
 	return graph;
 }
 
@@ -495,7 +533,7 @@ DLLExport void graph_swapEntryMutation(Graph& graph, GeneticAlgorithm& ga)
 	do
 	{
 		newEntry = randomNumber(0, graph.vertices.size() - 1);
-	} while (newEntry == graph.attributes.endIndex);
+	} while (newEntry == graph.attributes.endIndex || graph.attributes.entryIndex == newEntry);
 
 	graph.attributes.entryIndex = newEntry;
 	graph.vertices[newEntry].attributes.isEntry = true;
@@ -510,9 +548,9 @@ DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
 	do
 	{
 		newEnd = randomNumber(0, graph.vertices.size() - 1);
-	} while (newEnd == graph.attributes.endIndex);
+	} while (newEnd == graph.attributes.endIndex || newEnd == graph.attributes.entryIndex);
 
-	graph.attributes.entryIndex = newEnd;
+	graph.attributes.endIndex = newEnd;
 	graph.vertices[newEnd].attributes.isEndRoom = true;
 }
 

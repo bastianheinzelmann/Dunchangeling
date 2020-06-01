@@ -436,6 +436,8 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 		LayoutRoom layoutRoom;
 		layoutRoom.Room = this->Rooms[randomNumber(0, Rooms.Rooms.size() - 1)];
 		layoutRoom.VertexID = u;
+		layoutRoom.Attributes.isEndRoom = graph[u].isEndRoom;
+		layoutRoom.Attributes.isEntry = graph[u].isEntry;
 
 		// add adjacent rooms to room and add them to the queue on the way
 		auto neighbours = boost::adjacent_vertices(u, graph);
@@ -638,6 +640,20 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 0);
 						}
 
+						unsigned int tileType;
+						if (currentRoom.Attributes.isEndRoom)
+						{
+							tileType = TILE_END_ROOM;
+						}
+						else if (currentRoom.Attributes.isEntry)
+						{
+							tileType = TILE_START_ROOM;
+						}
+						else
+						{
+							tileType = TILE_FILLED;
+						}
+
 						unsigned int wallType = 0;
 
 						if (x - 1 < 0 || roomGrid.Get(x - 1, y) == GRID_EMTPY)
@@ -669,51 +685,51 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						{
 						case 0: 
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							break;
 						}
 						case 1:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
 							break;
 						}
 						case 2:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
 							break;
 						}
 						case 3:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
 							break;
 						}
 						case 4:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							break;
 						}
 						case 5:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
 							break;
 						}
 						case 6:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
 							break;
 						}
 						case 7:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
@@ -721,27 +737,27 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						}
 						case 8:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							break;
 						}
 						case 9:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
 							break;
 						}
 						case 10:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
 							break;
 						}
 						case 11:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
@@ -749,14 +765,14 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						}
 						case 12:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							break;
 						}
 						case 13:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 1);
@@ -764,7 +780,7 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						}
 						case 14:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);
@@ -772,7 +788,7 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						}
 						case 15:
 						{
-							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, 1);
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile, tileType);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 1);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 1);

@@ -51,33 +51,6 @@ Graph EntryEndCrossover::Crossover(Graph & parent1, Graph & parent2, GeneticAlgo
 
 void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 {
-	//for (int i = 0; i < graph.vertices.size(); i++)
-	//{
-	//	int p = randomNumber(0, 100);
-	//	//std::cout << "P: " << p << std::endl;
-	//	if (p < 7)
-	//	{
-	//		graph_removeEdgeMutation(graph, graph.vertices[i]);
-	//	}
-	//	else if (p < 14)
-	//	{
-	//		graph_addEdgeMutation(graph, graph.vertices[i]);
-	//	}
-	//	else if (p < 21)
-	//	{
-	//		//graph_addVertexMutation(graph, graph.vertices[i], ga);
-	//	}
-	//	else if (p < 28)
-	//	{
-	//		graph_swapEndMutation(graph, ga);
-	//	}
-	//	else if (p < 35)
-	//	{
-	//		graph_swapEntryMutation(graph, ga);
-	//	}
-
-	//	assert(integrityCheck(graph));
-	//}
 	int p = randomNumber(0, 100);
 	int vertexIndex = randomNumber(0, graph.vertices.size() - 1);
 	//std::cout << "P: " << p << std::endl;
@@ -89,10 +62,6 @@ void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 	{
 		graph_addEdgeMutation(graph, graph.vertices[vertexIndex]);
 	}
-	else if (p < 21)
-	{
-		//graph_addVertexMutation(graph, graph.vertices[i], ga);
-	}
 	else if (p < 28)
 	{
 		graph_swapEndMutation(graph, ga);
@@ -103,4 +72,10 @@ void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 	}
 
 	assert(integrityCheck(graph));
+}
+
+void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
+{
+	std::vector<unsigned int> path = graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
+	graph.fitness = (((float)path.size() / (float)graph.vertices.size())) * 10;
 }

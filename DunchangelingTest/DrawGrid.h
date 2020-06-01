@@ -100,8 +100,16 @@ public:
 		{
 			for (int x = 0; x < dgrid.XSize; x++)
 			{
-				if (dgrid.Get(x, y, DDE_Tile) > 0)
+				int tileType = dgrid.Get(x, y, DDE_Tile);
+				if (tileType > 0)
 				{
+					switch (tileType)
+					{
+					case TILE_FILLED: background.Shape.setFillColor(sf::Color::White); break;
+					case TILE_START_ROOM: background.Shape.setFillColor(sf::Color::Green); break;
+					case TILE_END_ROOM: background.Shape.setFillColor(sf::Color::Red); break;
+					}
+
 					background.Draw(window, x * 16, y * 16);
 
 					switch (dgrid.Get(x, y, DDE_North))

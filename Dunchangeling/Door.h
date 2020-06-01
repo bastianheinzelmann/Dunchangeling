@@ -5,9 +5,6 @@
 #include <assert.h>
 #include "DungeonGrid.h"
 
-enum DoorOrientation {DOE_Up = DOOR_ORI_UP, DOE_Down = DOOR_ORI_DOWN, DOE_Left = DOOR_ORI_LEFT, DOE_Right = DOOR_ORI_RIGHT};
-//enum DoorOrientation {DOE_Up = 1, DOE_Down = 3, DOE_Left = 4, DOE_Right = 2};
-
 struct Door
 {
 	Door() {};
