@@ -42,7 +42,7 @@ VertexName GeneticAlgorithm::requestVertexName()
 	return currentVertexName++;
 }
 
-GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions)
+GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions, DungeonProperties props)
 {
 	gaFunctions = functions;
 	populationSize = popSize;
@@ -50,6 +50,7 @@ GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, I
 	PopBuffer1 = std::vector<Graph>(popSize);
 	PopBuffer2 = std::vector<Graph>(popSize);
 	BrokenPopulation = std::vector<Graph>(popSize);
+	DProperties = props;
 }
 
 void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsigned int edgesNum, unsigned int edgesTolerance)
@@ -61,12 +62,12 @@ void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsig
 
 	for (int i = 0; i < populationSize; i++)
 	{
-		PopBuffer1[i] = graph_generateRandomGraphWilson(verticesNum, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
+		PopBuffer1[i] = graph_generateRandomGraphWilson(this->DProperties.NumRooms, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
 	}
 
 	CurrentPopBuffer = &PopBuffer1;
 	calculateFitness();
-	sort(PopBuffer1.begin(), PopBuffer1.end(), std::greater<Graph>());
+	sort(PopBuffer1.begin(), PopBuffer1.end());
 	highestFitness = PopBuffer1[0].fitness;
 
 	std::cout << "Initial Best fitness: " << PopBuffer1[0].fitness << std::endl;
@@ -207,7 +208,7 @@ void GeneticAlgorithm::run()
 		}
 
 		calculateFitness();
-		sort(CurrentPopBuffer->begin(), CurrentPopBuffer->end(), std::greater<Graph>());
+		sort(CurrentPopBuffer->begin(), CurrentPopBuffer->end());
 
 		if (highestFitness < (*CurrentPopBuffer)[0].fitness)
 		{

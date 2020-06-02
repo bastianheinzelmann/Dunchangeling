@@ -226,7 +226,11 @@ int main()
 
 	EntryEndCrossover * gaFunctions = new EntryEndCrossover();
 
-	GeneticAlgorithm ga(100, 1000, gaFunctions);
+	DungeonProperties props;
+	props.NumRooms = 8;
+	props.NumSpecialRooms = 1;
+
+	GeneticAlgorithm ga(100, 1000, gaFunctions, props);
 
 	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
 	//Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
@@ -241,6 +245,7 @@ int main()
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 	ga.generateInitialPopulation(8, 9, 3);
+	//ga.generateInitialPopulation(12, 15, 3);
 	ga.run();
 	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
 	std::cout << gaGraph;

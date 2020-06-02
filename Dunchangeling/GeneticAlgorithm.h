@@ -9,12 +9,13 @@
 #include <chrono>
 #include <math.h>
 #include "IGAFunctions.h"
+#include "DungeonProperties.h"
 
 class GeneticAlgorithm
 {
 public:
 	GeneticAlgorithm() {};
-	DLLExport GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions);
+	DLLExport GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions, DungeonProperties props);
 
 	std::vector<Graph>* CurrentPopBuffer;
 
@@ -29,6 +30,8 @@ public:
 
 	DLLExport void nextGeneration();
 	DLLExport void run();	
+
+	DungeonProperties DProperties;
 
 private:
 	

@@ -554,6 +554,20 @@ DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
 	graph.vertices[newEnd].attributes.isEndRoom = true;
 }
 
+void graph_addTreasure(Graph & graph, GeneticAlgorithm & ga)
+{
+	int randIndex = randomNumber(0, graph.vertices.size() - 1);
+	if (!graph.vertices[randIndex].attributes.isEndRoom && !graph.vertices[randIndex].attributes.isEntry)
+	{
+		graph.vertices[randomNumber(0, graph.vertices.size() - 1)].attributes.treasureRoom = true;
+	}
+}
+
+void graph_removeTreasure(Graph & graph, GeneticAlgorithm & ga)
+{
+	graph.vertices[randomNumber(0, graph.vertices.size() - 1)].attributes.treasureRoom = false;
+}
+
 // TODO mutation rate should not be magic values
 DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga)
 {

@@ -167,6 +167,12 @@ std::string Graph::printAsDot() const
 			connections.append(" [style=filled, fillcolor=yellow]\n");
 		}
 
+		if (vertices[i].attributes.treasureRoom)
+		{
+			connections.append(std::to_string(vertices[i].vertexID));
+			connections.append(" [style=filled, fillcolor=blue]\n");
+		}
+
 		if (vertices[i].hasBrokenEdge)
 		{
 			connections.append(std::to_string(vertices[i].vertexID));

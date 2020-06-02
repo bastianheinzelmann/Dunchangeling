@@ -23,4 +23,6 @@ DLLExport void graph_addVertexMutation(Graph& graph, Vertex& vertex, GeneticAlgo
 DLLExport void graph_swapEntryMutation(Graph& graph, GeneticAlgorithm& ga);
 DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga);
 DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga);
+DLLExport void graph_addTreasure(Graph& graph, GeneticAlgorithm& ga);
+DLLExport void graph_removeTreasure(Graph& graph, GeneticAlgorithm& ga);
 DLLExport bool integrityCheck(Graph &graph);

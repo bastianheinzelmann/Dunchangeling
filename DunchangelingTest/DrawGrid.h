@@ -108,6 +108,7 @@ public:
 					case TILE_FILLED: background.Shape.setFillColor(sf::Color::White); break;
 					case TILE_START_ROOM: background.Shape.setFillColor(sf::Color::Green); break;
 					case TILE_END_ROOM: background.Shape.setFillColor(sf::Color::Red); break;
+					case TILE_SPECIAL_ROOM: background.Shape.setFillColor(sf::Color::Yellow); break;
 					}
 
 					background.Draw(window, x * 16, y * 16);

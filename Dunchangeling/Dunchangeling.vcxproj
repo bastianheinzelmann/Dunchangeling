@@ -146,6 +146,7 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="DungeonGrid.h" />
+    <ClInclude Include="DungeonProperties.h" />
     <ClInclude Include="EntryEndCrossover.h" />
     <ClInclude Include="IGAFunctions.h" />
     <ClInclude Include="GeneticAlgorithm.h" />

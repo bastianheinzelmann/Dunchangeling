@@ -23,6 +23,7 @@ const unsigned int GRID_DOOR = 16;
 const unsigned int TILE_FILLED = 1;
 const unsigned int TILE_END_ROOM = 2;
 const unsigned int TILE_START_ROOM = 3;
+const unsigned int TILE_SPECIAL_ROOM = 4;
 
 const unsigned int OBJECT_TREASURE = 1;
 const unsigned int OBJECT_MONSTER_A = 2;

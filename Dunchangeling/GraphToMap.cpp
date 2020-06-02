@@ -438,6 +438,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 		layoutRoom.VertexID = u;
 		layoutRoom.Attributes.isEndRoom = graph[u].isEndRoom;
 		layoutRoom.Attributes.isEntry = graph[u].isEntry;
+		layoutRoom.Attributes = graph[u];
 
 		// add adjacent rooms to room and add them to the queue on the way
 		auto neighbours = boost::adjacent_vertices(u, graph);
@@ -648,6 +649,10 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						else if (currentRoom.Attributes.isEntry)
 						{
 							tileType = TILE_START_ROOM;
+						}
+						else if (currentRoom.Attributes.treasureRoom)
+						{
+							tileType = TILE_SPECIAL_ROOM;
 						}
 						else
 						{
