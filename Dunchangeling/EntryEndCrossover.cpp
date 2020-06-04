@@ -49,59 +49,43 @@ Graph EntryEndCrossover::Crossover(Graph & parent1, Graph & parent2, GeneticAlgo
 	return graph;
 }
 
+void EntryEndCrossover::SplitGraph(Graph graph, Graph & part1, Graph & part2)
+{
+}
+
 void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 {
-	int p = randomNumber(0, 100);
-	int vertexIndex = randomNumber(0, graph.vertices.size() - 1);
-	//std::cout << "P: " << p << std::endl;
-	//if (p < 7)
-	//{
-	//	graph_removeEdgeMutation(graph, graph.vertices[vertexIndex]);
-	//}
-	//else if (p < 14)
-	//{
-	//	graph_addEdgeMutation(graph, graph.vertices[vertexIndex]);
-	//}
-	//else if (p < 21)
-	//{
-	//	graph_swapEndMutation(graph, ga);
-	//}
-	//else if (p < 28)
-	//{
-	//	graph_swapEntryMutation(graph, ga);
-	//}
-	//else if (p < 35)
-	//{
-	//	graph_addTreasure(graph, ga);
-	//}
-	//else if (p < 42)
-	//{
-	//	graph_removeTreasure(graph, ga);
-	//}
+	int numMutations = randomNumber(1, graph.vertices.size() / 2);
 
-	if (p < 17)
+	for (int i = 0; i < numMutations; i++)
 	{
-		graph_removeEdgeMutation(graph, graph.vertices[vertexIndex]);
-	}
-	else if (p < 34)
-	{
-		graph_addEdgeMutation(graph, graph.vertices[vertexIndex]);
-	}
-	else if (p < 21)
-	{
-		graph_swapEndMutation(graph, ga);
-	}
-	else if (p < 51)
-	{
-		graph_swapEntryMutation(graph, ga);
-	}
-	else if (p < 68)
-	{
-		graph_addTreasure(graph, ga);
-	}
-	else if (p < 85)
-	{
-		graph_removeTreasure(graph, ga);
+		int p = randomNumber(0, 100);
+		int vertexIndex = randomNumber(0, graph.vertices.size() - 1);
+
+		if (p < 17)
+		{
+			graph_removeEdgeMutation(graph, graph.vertices[vertexIndex]);
+		}
+		else if (p < 34)
+		{
+			graph_addEdgeMutation(graph, graph.vertices[vertexIndex]);
+		}
+		else if (p < 21)
+		{
+			graph_swapEndMutation(graph, ga);
+		}
+		else if (p < 51)
+		{
+			graph_swapEntryMutation(graph, ga);
+		}
+		else if (p < 68)
+		{
+			graph_addTreasure(graph, ga);
+		}
+		else if (p < 85)
+		{
+			graph_removeTreasure(graph, ga);
+		}
 	}
 
 	assert(integrityCheck(graph));
@@ -153,7 +137,6 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 			}
 		}
 	}
-
 
 	int numSpecialRooms = specialRoomsInCritPath + specialRoomsNotInCritPath;
 

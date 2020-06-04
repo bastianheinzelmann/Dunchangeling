@@ -89,6 +89,27 @@ void generateNonPlanarGraph(Graph& graph, GeneticAlgorithm& ga)
 	std::cout << graph << std::endl;
 }
 
+void generateFuckGraph(Graph& graph, GeneticAlgorithm& ga)
+{
+	PopId id0 = ga.requestId();
+	PopId id1 = ga.requestId();
+	PopId id2 = ga.requestId();
+	PopId id3 = ga.requestId();
+	PopId id4 = ga.requestId();
+	PopId id5 = ga.requestId();
+	PopId id6 = ga.requestId();
+	PopId id7 = ga.requestId();
+
+	graph.addEdge(id7, id2, false);
+	graph.addEdge(id2, id5, false);
+	graph.addEdge(id5, id3, false);
+	graph.addEdge(id5, id4, false);
+	graph.addEdge(id3, id4, false);
+	graph.addEdge(id4, id0, false);
+	graph.addEdge(id0, id6, false);
+	graph.addEdge(id6, id1, false);
+}
+
 void generateDecompTestGraph(Graph& graph, GeneticAlgorithm& ga)
 {
 	PopId id1 = ga.requestId();
@@ -179,9 +200,9 @@ void testRandomGraph2()
 	std::cout << "Rand2: \n" << randdot << std::endl;
 }
 
-void testLayout(GraphToMap::RoomCollection & roomCollection)
+void generateTestLayout(Layout & layout, GraphToMap::RoomCollection & roomCollection)
 {
-	Layout layout(7, 0);
+	layout = Layout(7, 0);
 	layout.LaidOutVertices = { true, true, true, true, false , false, false };
 
 	layout.Rooms[0].Room = roomCollection[1];
@@ -232,8 +253,8 @@ int main()
 
 	GeneticAlgorithm ga(100, 1000, gaFunctions, props);
 
-	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
-	//Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
+	Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
+	Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
 
 	//Graph graphDecomp;
 	//generateDecompTestGraph(graphDecomp, ga);
@@ -245,10 +266,13 @@ int main()
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 	ga.generateInitialPopulation(8, 9, 3);
-	//ga.generateInitialPopulation(12, 15, 3);
+	ga.generateInitialPopulation(12, 15, 3);
 	ga.run();
 	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
 	std::cout << gaGraph;
+
+	//Graph gaGraph;
+	//generateFuckGraph(gaGraph, ga);
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
 	GraphToDot(bg);
@@ -286,14 +310,19 @@ int main()
 	};
 
 	unsigned int room5[] = {
-		0, 0, 0, 1, 1, 0, 0,
-		0, 0, 1, 1, 1, 1, 0,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 0, 1, 1, 1, 1, 0,
-		0, 0, 0, 1, 1, 0, 0
+		1, 1, 1, 1,
+		1, 1, 1, 1,
+		0, 0, 1, 1,
+		0, 0, 1, 1
+	};
+
+	unsigned int room6[] = {
+		1, 1, 0, 0,
+		1, 1, 0, 0,
+		1, 1, 1, 1,
+		1, 1, 1, 1,
+		1, 1, 0, 0,
+		1, 1, 0, 0
 	};
 
 	//unsigned int room5[] = {
@@ -307,9 +336,10 @@ int main()
 	Grid grid2(2, 2, room2);
 	Grid grid3(3, 5, room3);
 	Grid grid4(5, 3, room4);
-	Grid grid5(7, 8, room5);
+	Grid grid5(4, 4, room5);
+	Grid grid6(4, 6, room6);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5)};
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6)};
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
@@ -317,6 +347,9 @@ int main()
 	std::vector<std::pair<Layout, std::string>> debugLayout;
 
 	Layout finalLayout = mg.GenerateLayout(bg);
+
+	//Layout testLayout;
+	//generateTestLayout(testLayout, roomCollection);
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy);

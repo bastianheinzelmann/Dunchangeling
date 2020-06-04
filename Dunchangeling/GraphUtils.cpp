@@ -135,7 +135,8 @@ Chains GeneticAlgorithmUtils::ChainDecomposition(BoostGraph & graph)
 	while (faces.size() != 0)
 	{
 		Chain chain = GetNeighbourCycle(graph, faces, usedVertices);
-		chains.push_back(chain);
+		if(chain.size() > 0)
+			chains.push_back(chain);
 	}
 
 	while (std::any_of(usedVertices.begin(), usedVertices.end(), [](int v) { return !v; }))
@@ -183,9 +184,29 @@ Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<s
 		[usedVertices](const int& x){ return usedVertices[x]; }
 	), smallestFace.end());
 
+	// remove duplicates
+	std::set<int> containedInds;
+	for (int i = 0; i < smallestFace.size(); i++)
+	{
+		int index = smallestFace[i];
+		if (containedInds.find(index) == containedInds.end())
+		{
+			containedInds.insert(index);
+		}
+		else
+		{
+			smallestFace.erase(smallestFace.begin() + i);
+		}
+	}
+
 	faces.erase(faces.begin() + smallestFaceIndex);
 	int firstVertexIndex = -1;
 	Chain chain;
+
+	if (smallestFace.empty())
+	{
+		return chain;
+	}
 
 	for (int i = 0; i < smallestFace.size(); i++)
 	{

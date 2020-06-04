@@ -44,7 +44,7 @@ namespace GraphToMap
 		float ShapePerturbChance = 0.4f;
 		float PositionPerturbChance = 0.8f;
 
-		float allowedRoomOverlapping = 0.25f;
+		float allowedRoomOverlapping = 0.0f;
 		float DifferenceScale = 0.4f;
 
 		RoomCollection Rooms;
@@ -55,5 +55,6 @@ namespace GraphToMap
 	void calculateConfigSpaces(RoomCollection& roomCollection);
 	void GetAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& adjacentRooms);
 	void GetNonAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& nonAdjacentRooms);
+	bool CheckLayoutIntegrity(Layout & layout);
 	DLLExport DungeonGrid LayoutToSingleGrid(Layout & layout);
 }

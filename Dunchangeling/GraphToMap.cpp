@@ -209,7 +209,7 @@ void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
 	int randChainIndex = randomNumber(0, chain.size() - 1);
 	int randVertexIndex = chain[randChainIndex];
 
-	std::vector<Room> validRooms = GetValidRooms(2, layout);
+	std::vector<Room> validRooms = GetValidRooms(randVertexIndex, layout);
 
 	if (validRooms.size() > 0)
 	{
@@ -221,6 +221,8 @@ void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
 	{
 		//std::cout << "No suitable shape found \n";
 	}
+
+	assert(CheckLayoutIntegrity(layout));
 }
 
 void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain, std::string & action)
@@ -232,6 +234,7 @@ void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain, s
 
 	std::vector<LayoutRoom> adjacentRooms;
 
+	assert(room.VertexID != -1);
 
 	for (int i = 0; i < room.Neighbours.size(); i++)
 	{
@@ -256,7 +259,7 @@ void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain, s
 	}
 
 	action.append("Vertex: ").append(std::to_string(randVertexIndex)).append(" Intersection Index ").append(std::to_string(randomIntersection));
-
+	assert(CheckLayoutIntegrity(layout));
 	//std::cout << "Perturbed position of vertex: " << randVertexIndex << " \n";
 }
 
@@ -413,7 +416,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 			int chainVertexIndex = chain[i];
 
 			auto neighbours = boost::adjacent_vertices(chainVertexIndex, graph);
-			if (std::any_of(neighbours.first, neighbours.second, [layout](int v) { return layout.LaidOutVertices[v];}))
+			if (std::any_of(neighbours.first, neighbours.second, [layout](int v) { return layout.LaidOutVertices[v]; }))
 			{
 				queue.push_back(chainVertexIndex);
 				chain.erase(chain.begin() + i);
@@ -425,7 +428,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 		queue.push_back(chain[0]);
 		chain.erase(chain.begin());
 	}
-
+	
 	assert(queue.size() > 0);
 
 	while (!queue.empty())
@@ -462,6 +465,12 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 		}
 	}
 
+	if (chain.size() != 0)
+	{
+		std::cout << "Couldnt empty chain failed..." << std::endl;
+		success = false;
+	}
+		
 	return layout;
 }
 
@@ -518,11 +527,22 @@ bool GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 	else
 	{
 		// layout is empty
+		for (int i = 0; i < layout.LaidOutVertices.size(); i++)
+		{
+			if (layout.LaidOutVertices[i])
+			{
+				assert(false);
+			}
+		}
+		assert(!std::any_of(layout.LaidOutVertices.begin(), layout.LaidOutVertices.end(), [](int v) { return v; }));
+
 		newRoom.PosX = 0;
 		newRoom.PosY = 0;
 		layout.Rooms[newRoom.VertexID] = newRoom;
 		layout.LaidOutVertices[newRoom.VertexID] = true;
 	}
+
+	assert(CheckLayoutIntegrity(layout));
 
 	return true;
 }
@@ -631,15 +651,15 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 					int worldPosY = y + currentRoom.PosY;
 
 					// makes only sense if there is a floor
-					if (roomGrid.Get(x, y) >= GRID_FILLED_NORMAL)
+					if (roomGrid.Get(x, y) >= GRID_FILLED_NORMAL && dgrid.Get(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) < 1)
 					{
-						if (dgrid.Get(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) > 0)
+						/*if (dgrid.Get(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) > 0)
 						{
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_East, 0);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_South, 0);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_North, 0);
 							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_West, 0);
-						}
+						}*/
 
 						unsigned int tileType;
 						if (currentRoom.Attributes.isEndRoom)
@@ -813,25 +833,25 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 
 								if (localPosX - 1 >= 0 && localPosY >= 0 
 									&& localPosX - 1 < neighbourRoom.Room.RoomGrid.XSize && localPosY < neighbourRoom.Room.RoomGrid.YSize 
-									&& neighbourRoom.Room.RoomGrid.Get(localPosX - 1, localPosY) >= GRID_FILLED_NORMAL)
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX - 1, localPosY) >= GRID_FILLED_NORMAL && dgrid.Get(worldPosX - 1 - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) == 0)
 								{
 									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX - 1, worldPosY)));
 								}
 								if (localPosX + 1 >= 0 && localPosY >= 0
 									&& localPosX + 1 < neighbourRoom.Room.RoomGrid.XSize && localPosY < neighbourRoom.Room.RoomGrid.YSize
-									&& neighbourRoom.Room.RoomGrid.Get(localPosX + 1, localPosY) >= GRID_FILLED_NORMAL)
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX + 1, localPosY) >= GRID_FILLED_NORMAL && dgrid.Get(worldPosX + 1 - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) == 0)
 								{
 									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX + 1, worldPosY)));
 								}
 								if (localPosX >= 0 && localPosY - 1 >= 0
 									&& localPosX < neighbourRoom.Room.RoomGrid.XSize && localPosY - 1 < neighbourRoom.Room.RoomGrid.YSize
-									&& neighbourRoom.Room.RoomGrid.Get(localPosX, localPosY - 1) >= GRID_FILLED_NORMAL)
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX, localPosY - 1) >= GRID_FILLED_NORMAL && dgrid.Get(worldPosX - lowerXBound, worldPosY - 1 - lowerYBound, DungeonData::DDE_Tile) == 0)
 								{
 									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX , worldPosY - 1)));
 								}
 								if (localPosX >= 0 && localPosY + 1 >= 0
 									&& localPosX < neighbourRoom.Room.RoomGrid.XSize && localPosY + 1 < neighbourRoom.Room.RoomGrid.YSize
-									&& neighbourRoom.Room.RoomGrid.Get(localPosX, localPosY + 1) >= GRID_FILLED_NORMAL)
+									&& neighbourRoom.Room.RoomGrid.Get(localPosX, localPosY + 1) >= GRID_FILLED_NORMAL && dgrid.Get(worldPosX - lowerXBound, worldPosY + 1 - lowerYBound, DungeonData::DDE_Tile) == 0)
 								{
 									possibleDoors[neighbour].push_back(Door(Vector2(worldPosX, worldPosY), Vector2(worldPosX, worldPosY + 1)));
 								}
@@ -845,6 +865,9 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 					}
 				}
 			}
+
+			//assert(possibleDoors.size() > 0, "No doors for room found");
+
 			for (auto doors : possibleDoors)
 			{
 				Door doorPos = doors.second[randomNumber(0, doors.second.size() - 1)];
@@ -865,4 +888,49 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 	}
 
 	return dgrid;
+}
+
+bool GraphToMap::CheckLayoutIntegrity(Layout & layout)
+{
+	for (auto currentRoom : layout.Rooms)
+	{
+		if (currentRoom.VertexID != -1)
+		{
+			Grid& currentGrid = currentRoom.Room.RoomGrid;
+			int pivotX = currentRoom.PosX - currentGrid.PivotX;
+			int pivotY = currentRoom.PosY - currentGrid.PivotY;
+
+			for (int y = 0; y < currentGrid.YSize; y++)
+			{
+				for (int x = 0; x < currentGrid.XSize; x++)
+				{
+					if (currentGrid.Get(x, y) >= GRID_FILLED_NORMAL)
+					{
+						int worldX = pivotX + x;
+						int worldY = pivotY + y;
+
+						for (auto n : currentRoom.Neighbours)
+						{
+							LayoutRoom& adjacentRoom = layout.Rooms[n];
+							if (layout.Rooms[n].VertexID != -1)
+							{
+								int localX = worldX - adjacentRoom.PosX;
+								int localY = worldY - adjacentRoom.PosY;
+
+								if (localX >= 0 && localX < adjacentRoom.Room.RoomGrid.XSize && localY >= 0 && localY < adjacentRoom.Room.RoomGrid.YSize)
+								{
+									if (adjacentRoom.Room.RoomGrid.Get(localX, localY) >= GRID_FILLED_NORMAL)
+									{
+										return false;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return true;
 }

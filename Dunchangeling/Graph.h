@@ -19,7 +19,7 @@ struct Vertex
 {
 public:
 	std::unordered_set <int> neighbours;
-	bool hasBrokenEdge = false;
+	int NumBrokenEdges = 0;
 	PopId vertexID;
 
 	VertexAttributes attributes;
@@ -72,7 +72,7 @@ public:
 	DLLExport std::vector<Vertex>::iterator findVertexIndex(int val, bool &res);
 	DLLExport int findVertexIndexInt(int val, bool& res);
 	DLLExport void addEdge(PopId n1, PopId n2, bool directed);
-	DLLExport void addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed);
+	DLLExport void addEdge(PopId n1, PopId n2, int n1BrokenEdges, int n2brokenEdges, bool directed);
 	DLLExport std::string printAsDot() const;
 	DLLExport std::string printAsDotPlus();
 	DLLExport bool BreadthFirstSearch(int src, int dest, int predecessorsList[], int distanceList[]);

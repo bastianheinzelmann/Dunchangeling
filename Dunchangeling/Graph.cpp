@@ -38,7 +38,7 @@ void Graph::clearBrokenEdges()
 {
 	for (int i = 0; i < vertices.size(); i++)
 	{
-		vertices[i].hasBrokenEdge = false;
+		vertices[i].NumBrokenEdges = 0;
 	}
 }
 
@@ -50,8 +50,8 @@ bool Graph::breakEdge(const int vertexIndex1, const int vertexIndex2)
 	vertices[vertexIndex1].neighbours.erase(vertexIndex2);
 	vertices[vertexIndex2].neighbours.erase(vertexIndex1);
 
-	vertices[vertexIndex1].hasBrokenEdge = true;
-	vertices[vertexIndex2].hasBrokenEdge = true;
+	vertices[vertexIndex1].NumBrokenEdges++;
+	vertices[vertexIndex2].NumBrokenEdges++;
 
 	return true;
 }
@@ -137,7 +137,7 @@ std::vector<int> Graph::getAllBrokenEdges() const
 
 	for (int i = 0; i < vertices.size(); i++)
 	{
-		if (vertices[i].hasBrokenEdge)
+		if (vertices[i].NumBrokenEdges > 0)
 		{
 			brokenEdges.push_back(vertices[i].vertexID);
 		}
@@ -173,7 +173,7 @@ std::string Graph::printAsDot() const
 			connections.append(" [style=filled, fillcolor=blue]\n");
 		}
 
-		if (vertices[i].hasBrokenEdge)
+		if (vertices[i].NumBrokenEdges > 0)
 		{
 			connections.append(std::to_string(vertices[i].vertexID));
 			connections.append(" [style=filled, fillcolor=red]\n");
@@ -218,7 +218,7 @@ std::string Graph::printAsDotPlus()
 		queue.pop_front();
 
 		// mark broken edges
-		if (vertices[u].hasBrokenEdge)
+		if (vertices[u].NumBrokenEdges > 0)
 		{
 			result.append(std::to_string(vertices[u].vertexID));
 			result.append(" [style=filled, fillcolor=red]\n");
@@ -342,7 +342,7 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 		queue.pop_front();
 		for (int v : vertices[u].neighbours)
 		{
-			graph.addEdge(vertices[u].vertexID, vertices[v].vertexID, vertices[u].hasBrokenEdge, vertices[v].hasBrokenEdge, false);
+			graph.addEdge(vertices[u].vertexID, vertices[v].vertexID, vertices[u].NumBrokenEdges, vertices[v].NumBrokenEdges, false);
 			if (visited[v] == false)
 			{
 				visited[v] = true;
@@ -354,7 +354,7 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 	if (graph.vertices.empty())
 	{
 		Vertex poorVertex(src);
-		poorVertex.hasBrokenEdge = true;
+		poorVertex.NumBrokenEdges++;
 		graph.vertices.push_back(poorVertex);
 	}
 
@@ -490,7 +490,7 @@ void Graph::addEdge(PopId n1, PopId n2, bool directed)
 	addEdgeIndices(node1Index, node2Index, directed);
 }
 
-void Graph::addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bool directed)
+void Graph::addEdge(PopId n1, PopId n2, int n1BrokenEdges, int n2brokenEdges, bool directed)
 {
 	bool foundVertex01 = false;
 	bool foundVertex02 = false;
@@ -526,8 +526,8 @@ void Graph::addEdge(PopId n1, PopId n2, bool n1BrokenEdge, bool n2brokenEdge, bo
 	assert((node1Index > -1) && (node1Index < vertices.size()));
 	assert((node2Index > -1) && (node2Index < vertices.size()));
 
-	vertices[node1Index].hasBrokenEdge = n1BrokenEdge;
-	vertices[node2Index].hasBrokenEdge = n2brokenEdge;
+	vertices[node1Index].NumBrokenEdges = n1BrokenEdges;
+	vertices[node2Index].NumBrokenEdges = n2brokenEdges;
 
 	addEdgeIndices(node1Index, node2Index, directed);
 }
