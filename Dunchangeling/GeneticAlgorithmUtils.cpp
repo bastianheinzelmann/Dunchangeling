@@ -18,21 +18,24 @@ bool integrityCheck(Graph & graph)
 {
 	if (graph.attributes.endIndex < 0)
 	{
+		std::cout << "no end index\n";
 		return false;
 	}
 	if (graph.attributes.entryIndex < 0)
 	{
+		std::cout << "No entry index\n";
 		return false;
 	}
 
 	if (!graph.vertices[graph.attributes.endIndex].attributes.isEndRoom)
 	{
-		std::cout << "End index points to wrong vertex";
+		std::cout << "End index points to wrong vertex\n";
 		return false;
 	}
 
 	if (!graph.vertices[graph.attributes.entryIndex].attributes.isEntry)
 	{
+		std::cout << "Entry index points to wrong vertex\n";
 		return false;
 	}
 
@@ -43,6 +46,7 @@ bool integrityCheck(Graph & graph)
 	{
 		if (graph.vertices[i].neighbours.size() == 0)
 		{
+			std::cout << "Vertex with no neighbours\n";
 			return false;
 		}
 		if (graph.vertices[i].attributes.isEntry)
@@ -53,6 +57,7 @@ bool integrityCheck(Graph & graph)
 			}
 			else
 			{
+				std::cout << "doubled entry\n";
 				return false;
 			}
 		}
@@ -64,6 +69,7 @@ bool integrityCheck(Graph & graph)
 			}
 			else
 			{
+				std::cout << "doubled end\n";
 				return false;
 			}
 		}
@@ -537,6 +543,7 @@ DLLExport void graph_swapEntryMutation(Graph& graph, GeneticAlgorithm& ga)
 
 	graph.attributes.entryIndex = newEntry;
 	graph.vertices[newEntry].attributes.isEntry = true;
+	graph.vertices[newEntry].attributes.treasureRoom = false;
 }
 
 DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
@@ -552,6 +559,7 @@ DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
 
 	graph.attributes.endIndex = newEnd;
 	graph.vertices[newEnd].attributes.isEndRoom = true;
+	graph.vertices[newEnd].attributes.treasureRoom = false;
 }
 
 void graph_addTreasure(Graph & graph, GeneticAlgorithm & ga)

@@ -28,7 +28,8 @@ public:
 	DLLExport void generateInitialPopulation(unsigned int verticesNum, unsigned int edgesNum, unsigned int edgesTolerance);
 	DLLExport void currentGenerationToFile(const char* directory);
 
-	DLLExport void nextGeneration();
+	DLLExport void InitGA();
+
 	DLLExport void run();	
 
 	DungeonProperties DProperties;
@@ -42,11 +43,11 @@ private:
 	unsigned int maxGenerations = 0;
 	unsigned int elitismRate = 10;
 	unsigned int crossoverRate = 0;
-	bool doCrossover = false;
+	bool doCrossover = true;
 
 	float highestFitness;
 	unsigned int nothingChangedCount = 0;
-	unsigned int convergenceBorder = 100;
+	unsigned int convergenceBorder = 30;
 
 	std::vector<Graph> BrokenPopulation;
 

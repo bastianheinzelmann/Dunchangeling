@@ -58,11 +58,12 @@ void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsig
 	if (populationSize <= 0)
 	{
 		std::cout << "Initialize Population size bigger than 0!" << std::endl;
+		assert(false);
 	}
 
 	for (int i = 0; i < populationSize; i++)
 	{
-		PopBuffer1[i] = graph_generateRandomGraphWilson(this->DProperties.NumRooms, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
+		PopBuffer1[i] = graph_generateRandomGraphWilson(verticesNum, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
 	}
 
 	CurrentPopBuffer = &PopBuffer1;
@@ -85,9 +86,10 @@ void GeneticAlgorithm::currentGenerationToFile(const char * directory)
 	}
 }
 
-void GeneticAlgorithm::nextGeneration()
+void GeneticAlgorithm::InitGA()
 {
-	
+	int edges = this->DProperties.NumRooms + 2;
+	generateInitialPopulation(DProperties.NumRooms, edges, 3);
 }
 
 Graph & GeneticAlgorithm::TournamentSelection(int k)

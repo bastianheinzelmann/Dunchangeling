@@ -406,18 +406,55 @@ std::vector<unsigned int> Graph::shortestPath(PopId src, PopId dest)
 		crawl = pred[crawl];
 	}
 
-	//std::cout << "Shortest path length is: " << dist[destIndex];
-
-	//std::cout << "\nPath is: \n";
-	//for (int i = path.size() - 1; i >= 0; i--)
-	//	std::cout << path[i] << " ";
-
-	//std::cout << std::endl;
-
 	delete[](pred);
 	delete[](dist);
 
 	return pathIndices;
+}
+
+std::vector<std::vector<unsigned int>> Graph::GetAllPaths(PopId src, PopId dest)
+{
+	std::list<std::vector<unsigned int>> queue;
+	std::vector<std::vector<unsigned int>> paths;
+
+	bool resultSrc, resultDest;
+	unsigned int sourceIndex = findVertexIndexInt(src, resultSrc);
+	unsigned int destIndex = findVertexIndexInt(dest, resultDest);
+	if (!resultSrc || !resultDest)
+	{
+		assert(false);
+	}
+
+	std::vector<unsigned int> path;
+	path.push_back(sourceIndex);
+	queue.push_back(path);
+
+	while (!queue.empty())
+	{
+		path = queue.front();
+		queue.pop_front();
+
+		int lastVertex = path[path.size() - 1];
+
+		if (lastVertex == destIndex)
+		{
+			paths.push_back(path);
+		}
+		else
+		{
+			for (auto i : vertices[lastVertex].neighbours)
+			{
+				if (!std::any_of(path.begin(), path.end(), [i](int v) { return v == i; }))
+				{
+					std::vector<unsigned int> newPath(path);
+					newPath.push_back(i);
+					queue.push_back(newPath);
+				}
+			}
+		}
+	}
+
+	return paths;
 }
 
 bool Graph::empty() const
@@ -528,6 +565,48 @@ void Graph::addEdge(PopId n1, PopId n2, int n1BrokenEdges, int n2brokenEdges, bo
 
 	vertices[node1Index].NumBrokenEdges = n1BrokenEdges;
 	vertices[node2Index].NumBrokenEdges = n2brokenEdges;
+
+	addEdgeIndices(node1Index, node2Index, directed);
+}
+
+void Graph::addEdge(PopId n1, PopId n2, VertexAttributes va1, VertexAttributes va2, bool directed)
+{
+	bool foundVertex01 = false;
+	bool foundVertex02 = false;
+
+	std::vector<Vertex>::iterator vit1 = findVertexIndex(n1, foundVertex01);
+	std::vector<Vertex>::iterator vit2 = findVertexIndex(n2, foundVertex02);
+
+	int node1Index = -1;
+	int	node2Index = -1;
+
+	if (!foundVertex01)
+	{
+		Vertex v1(n1);
+		vertices.push_back(v1);
+		node1Index = vertices.size() - 1;
+	}
+	else
+	{
+		node1Index = vit1 - vertices.begin();
+	}
+
+	if (!foundVertex02)
+	{
+		Vertex v2(n2);
+		vertices.push_back(v2);
+		node2Index = vertices.size() - 1;
+	}
+	else
+	{
+		node2Index = vit2 - vertices.begin();
+	}
+
+	assert((node1Index > -1) && (node1Index < vertices.size()));
+	assert((node2Index > -1) && (node2Index < vertices.size()));
+
+	vertices[node1Index].attributes = va1;
+	vertices[node2Index].attributes = va2;
 
 	addEdgeIndices(node1Index, node2Index, directed);
 }

@@ -7,4 +7,6 @@ struct DungeonProperties
 
 	bool EndroomDeadEnd = true;
 	bool SpecialIsDeadEnd = true;
+	bool FlankingRoutes = false;
+	int NumFlankingRoutes = 2;
 };

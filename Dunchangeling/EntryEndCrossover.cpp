@@ -3,59 +3,186 @@
 
 Graph EntryEndCrossover::Crossover(Graph & parent1, Graph & parent2, GeneticAlgorithm & ga)
 {
-	Graph parent1part1, parent1part2, parent2part1, parent2part2;
+	int cutPosition = randomNumber(1, parent1.vertices.size() - 2);
+	Graph entryGraph, endGraph, fusedGraph;
 
-	graph_splitGraph(parent1, parent1part1, parent1part2);
-	graph_splitGraph(parent2, parent2part1, parent2part2);
+	SplitGraph(parent1, cutPosition, parent1.attributes.entryIndex, entryGraph, ga);
+	cutPosition = parent2.vertices.size() - entryGraph.vertices.size();
+	SplitGraph(parent2, cutPosition, parent2.attributes.endIndex, endGraph, ga);
 
-	Graph entryGraph;
-	Graph endGraph;
+	//std::cout << "Entry graph: " << entryGraph << std::endl;
+	//std::cout << "End graph: " << endGraph << std::endl;
 
-	if (parent1part1.attributes.entryIndex > -1)
+	std::vector<int> brokenEdgesEntry = entryGraph.getAllBrokenEdges();
+	std::vector<int> brokenEdgesEnd = endGraph.getAllBrokenEdges();
+
+	fusedGraph = graph_fuseGraphs(entryGraph, endGraph, ga);
+
+	//std::cout << "Connecting broken edges\n";
+
+	while (!brokenEdgesEnd.empty() || !brokenEdgesEntry.empty())
 	{
-		entryGraph = parent1part1;
-	}
-	else if (parent1part2.attributes.entryIndex > -1)
-	{
-		entryGraph = parent1part2;
-	}
-	else
-	{
-		assert(true);
+		int brokenEdgeEnd;
+		int brokenEdgeEntry;
+
+		if (!brokenEdgesEnd.empty())
+		{
+			int randBrokenListIndex = randomNumber(0, brokenEdgesEnd.size() - 1);
+			brokenEdgeEnd = brokenEdgesEnd[randBrokenListIndex];
+			bool foundIndex;
+			int index = fusedGraph.findVertexIndexInt(brokenEdgeEnd, foundIndex);
+			//std::cout << "Decrease " << brokenEdgeEnd << " by one. Currently: " << fusedGraph.vertices[index].NumBrokenEdges << std::endl;
+			assert(fusedGraph.vertices[index].NumBrokenEdges > 0);
+			fusedGraph.vertices[index].NumBrokenEdges -= 1;
+			//std::cout << "Decreased " << brokenEdgeEnd << " by one. Currently: " << fusedGraph.vertices[index].NumBrokenEdges << std::endl;
+			if (fusedGraph.vertices[index].NumBrokenEdges == 0)
+			{
+				brokenEdgesEnd.erase(brokenEdgesEnd.begin() + randBrokenListIndex);
+				//std::cout << "Delete " << brokenEdgeEnd << std::endl;
+				//for (int i = 0; i < brokenEdgesEnd.size(); i++)
+				//{
+				//	std::cout << brokenEdgesEnd[i] << std::endl;
+				//}
+			}
+		}
+		else
+		{
+			if (randomNumber(0, 1) == 1)
+			{
+				brokenEdgeEnd = endGraph.vertices[randomNumber(0, endGraph.vertices.size() - 1)].vertexID;
+			}
+			else
+			{
+				brokenEdgeEnd = -1;
+			}
+		}
+
+		if (!brokenEdgesEntry.empty())
+		{
+			int randBrokenListIndex = randomNumber(0, brokenEdgesEntry.size() - 1);
+			brokenEdgeEntry = brokenEdgesEntry[randBrokenListIndex];
+			bool foundIndex;
+			int index = fusedGraph.findVertexIndexInt(brokenEdgeEntry, foundIndex);
+			//std::cout << "Decrease " << brokenEdgeEntry << " by one. Currently: " << fusedGraph.vertices[index].NumBrokenEdges << std::endl;
+			assert(fusedGraph.vertices[index].NumBrokenEdges > 0);
+			fusedGraph.vertices[index].NumBrokenEdges -= 1;
+			//std::cout << "Decreased " << brokenEdgeEntry << " by one. Currently: " << fusedGraph.vertices[index].NumBrokenEdges << std::endl;
+			if (fusedGraph.vertices[index].NumBrokenEdges == 0)
+			{
+				brokenEdgesEntry.erase(brokenEdgesEntry.begin() + randBrokenListIndex);
+				//std::cout << "Delete " << brokenEdgeEntry << std::endl;
+				//for (int i = 0; i < brokenEdgesEntry.size(); i++)
+				//{
+				//	std::cout << brokenEdgesEntry[i] << std::endl;
+				//}
+			}
+		}
+		else
+		{
+			if (randomNumber(0, 1) == 1)
+			{
+				brokenEdgeEntry = entryGraph.vertices[randomNumber(0, entryGraph.vertices.size() - 1)].vertexID;
+			}
+			else
+			{
+				brokenEdgeEntry = -1;
+			}
+		}
+
+		if(brokenEdgeEnd > -1 && brokenEdgeEntry > -1)
+			fusedGraph.addEdge(brokenEdgeEntry, brokenEdgeEnd, false);
 	}
 
-	if (parent2part1.attributes.endIndex > -1)
+	if (fusedGraph.vertices.size() < parent1.vertices.size())
 	{
-		endGraph = parent2part1;
-	}
-	else if (parent2part2.attributes.endIndex > -1)
-	{
-		endGraph = parent2part2;
-	}
-	else
-	{
-		assert(true);
+		fusedGraph = parent1;
+		for (int i = 0; i < parent1.vertices.size(); i++)
+		{
+			parent1.vertices[i].vertexID = ga.requestId();
+		}
 	}
 
-	Graph graph = graph_mate(entryGraph, endGraph, ga);
+	assert(integrityCheck(fusedGraph));
 
+	return fusedGraph;
+}
+
+void EntryEndCrossover::SplitGraph(Graph graph, int cutPosition, int sourceIndex, Graph & splittedGraph, GeneticAlgorithm & ga)
+{
+	assert(splittedGraph.vertices.size() == 0);
+
+	// we generating a new graph so rename all vertices
 	for (int i = 0; i < graph.vertices.size(); i++)
 	{
 		graph.vertices[i].vertexID = ga.requestId();
 	}
 
-	assert(integrityCheck(graph));
+	// breadth first search
+	std::list<int> queue;
+	int consumedVertices = 0;
 
-	return graph;
-}
+	bool* visited = new bool[graph.vertices.size()];
 
-void EntryEndCrossover::SplitGraph(Graph graph, Graph & part1, Graph & part2)
-{
+	for (int i = 0; i < graph.vertices.size(); i++)
+	{
+		visited[i] = false;
+	}
+
+	visited[sourceIndex] = true;
+	queue.push_back(sourceIndex);
+	Vertex vertex;
+	vertex.attributes = graph.vertices[sourceIndex].attributes;
+	vertex.vertexID = graph.vertices[sourceIndex].vertexID;
+	splittedGraph.vertices.push_back(vertex);
+	++consumedVertices;
+
+	while (!queue.empty())
+	{
+		int u = queue.front();
+		queue.pop_front();
+		for (int v : graph.vertices[u].neighbours)
+		{
+			if (!visited[v])
+			{
+				visited[v] = true;
+				if (!graph.vertices[v].attributes.isEndRoom && !graph.vertices[v].attributes.isEntry && consumedVertices < cutPosition)
+				{
+					splittedGraph.addEdge(graph.vertices[u].vertexID, graph.vertices[v].vertexID,graph.vertices[u].attributes, graph.vertices[v].attributes, false);
+					++consumedVertices;
+					queue.push_back(v);
+				}
+				else
+				{
+					bool result;
+					int index = splittedGraph.findVertexIndexInt(graph.vertices[u].vertexID, result);
+					if (!result)
+					{
+						assert(false);
+					}
+					++splittedGraph.vertices[index].NumBrokenEdges;
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < splittedGraph.vertices.size(); i++)
+	{
+		if (splittedGraph.vertices[i].attributes.isEndRoom)
+		{
+			splittedGraph.attributes.endIndex = i;
+		}
+		if (splittedGraph.vertices[i].attributes.isEntry)
+		{
+			splittedGraph.attributes.entryIndex = i;
+		}
+	}
+
+	delete[](visited);
 }
 
 void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 {
-	int numMutations = randomNumber(1, graph.vertices.size() / 2);
+	int numMutations = randomNumber(1, graph.vertices.size() - 1);
 
 	for (int i = 0; i < numMutations; i++)
 	{
@@ -95,7 +222,15 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 {
 	float fitness;
 
+	//-------------Critical Path-----------------------------
 	std::vector<unsigned int> path = graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
+
+	//-------------Flanking Routes-----------------------------
+
+	auto paths = graph.GetAllPaths(graph.attributes.entryIndex, graph.attributes.endIndex);
+	
+
+	//-----------SPECIAL ROOMS STUFF---------------------------
 
 	int specialRoomsInCritPath = 0;
 	int specialRoomsNotInCritPath = 0;
@@ -122,6 +257,8 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 		}
 	}
 
+	//---------------------------DEAD ENDS-----------------------------------
+
 	int numDeadEnds = 0;
 	int numBrokenDeadends = 0;
 
@@ -137,6 +274,8 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 			}
 		}
 	}
+
+	//----------------------------------------------------------------------
 
 	int numSpecialRooms = specialRoomsInCritPath + specialRoomsNotInCritPath;
 

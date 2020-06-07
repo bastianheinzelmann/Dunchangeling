@@ -73,21 +73,20 @@ public:
 	DLLExport int findVertexIndexInt(int val, bool& res);
 	DLLExport void addEdge(PopId n1, PopId n2, bool directed);
 	DLLExport void addEdge(PopId n1, PopId n2, int n1BrokenEdges, int n2brokenEdges, bool directed);
+	DLLExport void addEdge(PopId n1, PopId n2, VertexAttributes va1, VertexAttributes va2, bool directed);
 	DLLExport std::string printAsDot() const;
 	DLLExport std::string printAsDotPlus();
 	DLLExport bool BreadthFirstSearch(int src, int dest, int predecessorsList[], int distanceList[]);
 	bool BreadthFirstSearch(int src, Graph& graph);
 	DLLExport std::vector<unsigned int> shortestPath(PopId src, PopId dest);
+	DLLExport std::vector<std::vector<unsigned int>> GetAllPaths(PopId src, PopId dest);
 
 	DLLExport bool empty() const;
 	DLLExport void clear();
 
-	DLLExport bool generateGraphImage();
 	DLLExport bool writeToFile(const char* file);
 
 	DLLExport bool IsPlanar();
-
-	DLLExport void GetBoostGraph();
 
 	//Fitness
 	DLLExport void calculateFitness();

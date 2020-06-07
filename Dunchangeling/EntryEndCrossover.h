@@ -2,11 +2,11 @@
 
 #include "IGAFunctions.h"
 
-class EntryEndCrossover : public IGAFunctions
+struct EntryEndCrossover : public IGAFunctions
 {
 	DLLExport virtual Graph Crossover(Graph & parent1, Graph & parent2, GeneticAlgorithm & ga);
 	DLLExport virtual void Mutate(Graph & graph, GeneticAlgorithm & ga);
 	DLLExport virtual void CalculateFitness(Graph & graph, GeneticAlgorithm & ga);
 
-	DLLExport void SplitGraph(Graph graph, Graph & part1, Graph & part2);
+	DLLExport void SplitGraph(Graph graph, int cutPosition, int sourceIndex, Graph & splittedGraph, GeneticAlgorithm & ga);
 };
