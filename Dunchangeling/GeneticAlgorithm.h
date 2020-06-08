@@ -47,7 +47,7 @@ private:
 
 	float highestFitness;
 	unsigned int nothingChangedCount = 0;
-	unsigned int convergenceBorder = 30;
+	unsigned int convergenceBorder = 500;
 
 	std::vector<Graph> BrokenPopulation;
 

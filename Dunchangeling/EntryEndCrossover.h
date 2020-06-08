@@ -9,4 +9,5 @@ struct EntryEndCrossover : public IGAFunctions
 	DLLExport virtual void CalculateFitness(Graph & graph, GeneticAlgorithm & ga);
 
 	DLLExport void SplitGraph(Graph graph, int cutPosition, int sourceIndex, Graph & splittedGraph, GeneticAlgorithm & ga);
+	DLLExport float CalculateFlankingFitness(std::vector<unsigned int> & path1, std::vector<unsigned int> & path2);
 };

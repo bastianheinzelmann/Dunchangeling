@@ -212,7 +212,7 @@ void GeneticAlgorithm::run()
 		calculateFitness();
 		sort(CurrentPopBuffer->begin(), CurrentPopBuffer->end());
 
-		if (highestFitness < (*CurrentPopBuffer)[0].fitness)
+		if (highestFitness > (*CurrentPopBuffer)[0].fitness)
 		{
 			highestFitness = (*CurrentPopBuffer)[0].fitness;
 			nothingChangedCount = 0;

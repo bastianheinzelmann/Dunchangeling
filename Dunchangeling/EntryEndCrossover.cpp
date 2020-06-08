@@ -218,16 +218,78 @@ void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 	assert(integrityCheck(graph));
 }
 
+float EntryEndCrossover::CalculateFlankingFitness(std::vector<unsigned int>& path1, std::vector<unsigned int>& path2)
+{
+	// start and end are always duplicates
+	int duplicates = -2;
+
+	for (int i = 0; i < path1.size(); i++)
+	{
+		int currentVertex = path1[i];
+		if (std::any_of(path2.begin(), path2.end(), [currentVertex](int j) { return currentVertex == j; }))
+		{
+			++duplicates;
+		}
+	}
+
+	float difference = std::abs((int)path1.size() - (int)path2.size());
+	return difference + duplicates;
+}
+
 void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 {
 	float fitness;
 
 	//-------------Critical Path-----------------------------
-	std::vector<unsigned int> path = graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
+	std::vector<unsigned int> path; 
+	
+	if(!ga.DProperties.FlankingRoutes)
+		path = graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
 
 	//-------------Flanking Routes-----------------------------
+	float FlankingFitness = 0;
 
-	auto paths = graph.GetAllPaths(graph.attributes.entryIndex, graph.attributes.endIndex);
+	if (ga.DProperties.FlankingRoutes)
+	{
+		auto paths = graph.GetAllPaths(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
+		
+		float bestFitness = graph.vertices.size() - 2;
+		std::pair<int, int> bestPaths;
+
+		int pathSurplus = 0;
+
+		if (paths.size() > 2)
+		{
+			pathSurplus = paths.size() - ga.DProperties.NumFlankingRoutes;
+
+			for (int i = 0; i < paths.size(); i++)
+			{
+				for (int k = i + 1; k < paths.size(); k++)
+				{
+					float currentFitness = CalculateFlankingFitness(paths[i], paths[k]);
+					if (currentFitness < bestFitness)
+					{
+						bestFitness = currentFitness;
+						bestPaths.first = i;
+						bestPaths.second = k;
+					}
+				}
+			}
+
+			path = std::vector<unsigned int>(paths[bestPaths.first]);
+			for (int i = 0; i < paths[bestPaths.second].size(); i++)
+			{
+				int vertex = paths[bestPaths.second][i];
+				if (!std::any_of(path.begin(), path.end(), [vertex](int j) { return j == vertex; }))
+				{
+					path.push_back(vertex);
+				}
+			}
+		}
+
+
+		FlankingFitness = std::exp(bestFitness);
+	}
 	
 
 	//-----------SPECIAL ROOMS STUFF---------------------------
@@ -288,7 +350,7 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 
 	float deadEndFitness = std::exp((float)numBrokenDeadends) - 1.0f;
 
-	fitness = critPathFitness + specialRoomDiffFitness + deadEndFitness;
+	fitness = critPathFitness + specialRoomDiffFitness + deadEndFitness + FlankingFitness;
 
 	graph.fitness = fitness;
 }

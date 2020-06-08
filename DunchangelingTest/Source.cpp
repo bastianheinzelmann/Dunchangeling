@@ -248,11 +248,11 @@ int main()
 	EntryEndCrossover * gaFunctions = new EntryEndCrossover();
 
 	DungeonProperties props;
-	props.NumRooms = 10;
+	props.NumRooms = 15;
 	props.NumSpecialRooms = 1;
-	props.FlankingRoutes = true;
+	props.FlankingRoutes = false;
 
-	GeneticAlgorithm ga(100, 1000, gaFunctions, props);
+	GeneticAlgorithm ga(40, 500, gaFunctions, props);
 
 	Graph graph1 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
 	Graph graph2 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
@@ -263,6 +263,7 @@ int main()
 	std::cout << graph1 << std::endl;
 	std::cout << graph2 << std::endl;
 
+	gaFunctions->CalculateFitness(graph1, ga);
 	gaFunctions->Crossover(graph1, graph2, ga);
 
 	//Graph matedGraph = graph_crossover(graph1, graph2, ga);
@@ -328,6 +329,29 @@ int main()
 		1, 1, 0, 0
 	};
 
+	unsigned int room7[] = {
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1
+	};
+
+	unsigned int room8[] = {
+		1, 1, 1,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 1, 1,
+	};
+
 	//unsigned int room5[] = {
 	//	1, 1, 1, 1,
 	//	1, 0, 0, 1,
@@ -341,8 +365,11 @@ int main()
 	Grid grid4(5, 3, room4);
 	Grid grid5(4, 4, room5);
 	Grid grid6(4, 6, room6);
+	Grid grid7(1, 9, room7);
+	Grid grid8(9, 1, room7);
+	Grid grid9(3, 8, room8);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6)};
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6), Room(grid7), Room(grid8)};
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
