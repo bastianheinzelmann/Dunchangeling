@@ -105,10 +105,11 @@ public:
 				{
 					switch (tileType)
 					{
-					case TILE_FILLED: background.Shape.setFillColor(sf::Color::White); break;
+					case TILE_FILLED: background.Shape.setFillColor(sf::Color(211.0f, 211.0f, 211.0f)); break;
 					case TILE_START_ROOM: background.Shape.setFillColor(sf::Color::Green); break;
 					case TILE_END_ROOM: background.Shape.setFillColor(sf::Color::Red); break;
 					case TILE_SPECIAL_ROOM: background.Shape.setFillColor(sf::Color::Yellow); break;
+					case TILE_HAZARD: background.Shape.setFillColor(sf::Color::Magenta); break;
 					}
 
 					background.Draw(window, x * 16, y * 16);

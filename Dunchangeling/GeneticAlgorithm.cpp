@@ -7,27 +7,33 @@
 
 PopId GeneticAlgorithm::requestId()
 {
-	unsigned int currentId = currentPopId & ((1 << ID_BITS) - 1);
-	currentId += 1;
+	//unsigned int currentId = currentPopId & ((1 << ID_BITS) - 1);
+	//currentId += 1;
 
-	if (currentId > (1 << ID_BITS) - 1)
-	{
-		// TODO problem all ids are given
-		std::cout << "All ids are given" << std::endl;
-	}
+	//if (currentId > (1 << ID_BITS) - 1)
+	//{
+	//	// TODO problem all ids are given
+	//	std::cout << "All ids are given" << std::endl;
+	//}
 
-	assert(currentId < (1 << ID_BITS - 1));
+	//assert(currentId < (1 << ID_BITS - 1));
 
-	PopId generationPart = currentGeneration << ID_BITS;
-	currentId += generationPart;
+	//PopId generationPart = currentGeneration << ID_BITS;
+	//currentId += generationPart;
 
-	currentPopId = currentId;
+	//currentPopId = currentId;
+
+
 
 	//std::bitset<32> bits(currentId);
 	//std::cout << "As binary: " << (bits) << std::endl;
 	//std::cout << "Current popid: " << (currentPopId & (1u << ID_BITS) - 1) << std::endl;
+	if (currentPopId + 1 == UINT_MAX)
+	{
+		assert(false, "All ids are given");
+	}
 
-	return currentPopId;
+	return currentPopId++;
 	//return ++currentPopId;
 }
 
@@ -223,7 +229,7 @@ void GeneticAlgorithm::run()
 		}
 
 		currentGeneration++;
-		currentPopId = 0;
+		//currentPopId = 0;
 
 		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << " Gen: " << currentGeneration << std::endl;
 		//currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");

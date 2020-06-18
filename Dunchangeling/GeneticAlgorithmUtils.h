@@ -26,3 +26,4 @@ DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga);
 DLLExport void graph_addTreasure(Graph& graph, GeneticAlgorithm& ga);
 DLLExport void graph_removeTreasure(Graph& graph, GeneticAlgorithm& ga);
 DLLExport bool integrityCheck(Graph &graph);
+DLLExport void GetDeadends(Graph &graph, std::vector<int> & indices);

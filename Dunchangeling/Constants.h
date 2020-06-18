@@ -16,14 +16,15 @@ const int ID_BITS = 32 - GENERATION_BITS;
 const unsigned int GRID_EMTPY = 0;
 const unsigned int GRID_FILLED_NORMAL = 1;
 const unsigned int GRID_FILLED_BOSS = 2;
+const unsigned int GRID_FILLED_HAZARD = 3;
 const unsigned int GRID_FILLED_START = 4;
 const unsigned int GRID_CONFIG_SPACE = 8;
-const unsigned int GRID_DOOR = 16;
 
 const unsigned int TILE_FILLED = 1;
 const unsigned int TILE_END_ROOM = 2;
 const unsigned int TILE_START_ROOM = 3;
 const unsigned int TILE_SPECIAL_ROOM = 4;
+const unsigned int TILE_HAZARD = 5;
 
 const unsigned int OBJECT_TREASURE = 1;
 const unsigned int OBJECT_MONSTER_A = 2;

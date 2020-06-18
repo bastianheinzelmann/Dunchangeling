@@ -248,11 +248,11 @@ int main()
 	EntryEndCrossover * gaFunctions = new EntryEndCrossover();
 
 	DungeonProperties props;
-	props.NumRooms = 15;
+	props.NumRooms = 10;
 	props.NumSpecialRooms = 1;
 	props.FlankingRoutes = false;
 
-	GeneticAlgorithm ga(40, 500, gaFunctions, props);
+	GeneticAlgorithm ga(40, 200, gaFunctions, props);
 
 	Graph graph1 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
 	Graph graph2 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
@@ -334,8 +334,8 @@ int main()
 		1,
 		1,
 		1,
-		1,
-		1,
+		3,
+		3,
 		1,
 		1,
 		1
@@ -384,7 +384,7 @@ int main()
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy);
 
-	sf::RenderWindow window(sf::VideoMode(512, 512), "SFML works!");
+	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML works!");
 
 	while (window.isOpen())
 	{
@@ -395,7 +395,7 @@ int main()
 				window.close();
 		}
 
-		window.clear(sf::Color::Blue);
+		window.clear(sf::Color::White);
 		//lShape.DrawLayoutShape(window);
 		finalGrid->Draw(window);
 		window.display();

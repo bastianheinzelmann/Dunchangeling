@@ -646,7 +646,7 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 					int worldPosX = x + currentRoom.PosX;
 					int worldPosY = y + currentRoom.PosY;
 
-					// makes only sense if there is a floor
+					// makes only sense if there is a floor and the dungeongrid is empty on that position
 					if (roomGrid.Get(x, y) >= GRID_FILLED_NORMAL && dgrid.Get(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) < 1)
 					{
 						/*if (dgrid.Get(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Tile) > 0)
@@ -669,6 +669,10 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 						else if (currentRoom.Attributes.treasureRoom)
 						{
 							tileType = TILE_SPECIAL_ROOM;
+						}
+						else if (roomGrid.Get(x, y) == GRID_FILLED_HAZARD)
+						{
+							tileType = TILE_HAZARD;
 						}
 						else
 						{

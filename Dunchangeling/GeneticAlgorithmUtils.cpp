@@ -197,6 +197,17 @@ DLLExport void graph_splitGraph(Graph graph, Graph& graph1, Graph& graph2)
 	assert(!graph1.empty() && !graph2.empty(), "One graph is empty after split");
 }
 
+void GetDeadends(Graph & graph, std::vector<int> & indices)
+{
+	for (int i = 0; i < graph.vertices.size(); i++)
+	{
+		if (graph.vertices[i].neighbours.size() == 1)
+		{
+			indices.push_back(i);
+		}
+	}
+}
+
 DLLExport void graph_addRandomEntry(Graph& graph)
 {
 	int entryIndex;
@@ -212,12 +223,20 @@ DLLExport void graph_addRandomEntry(Graph& graph)
 DLLExport void graph_addRandomEndRoom(Graph& graph)
 {
 	int endIndex;
+	std::vector<int> deadends;
+	GetDeadends(graph, deadends);
 
-	do
+	if (deadends.size() > 0)
 	{
-		endIndex = randomNumber(0, graph.vertices.size() - 1);
-	} while (graph.attributes.endIndex == endIndex);
-
+		endIndex = deadends[randomNumber(0, deadends.size() - 1)];
+	}
+	else
+	{
+		do
+		{
+			endIndex = randomNumber(0, graph.vertices.size() - 1);
+		} while (graph.attributes.endIndex == endIndex);
+	}
 	graph.attributes.endIndex = endIndex;
 }
 
@@ -226,7 +245,7 @@ DLLExport Graph graph_crossover(Graph& parent1, Graph& parent2, GeneticAlgorithm
 	Graph parent1part1, parent1part2, parent2part1, parent2part2;
 
 	graph_splitGraph(parent1, parent1part1, parent1part2);
-	graph_splitGraph(parent2, parent2part1, parent2part2);
+	graph_splitGraph(parent2, parent2part1, parent2part2); 
 
 	Graph entryGraph;
 	Graph endGraph;
@@ -534,7 +553,7 @@ DLLExport void graph_swapEntryMutation(Graph& graph, GeneticAlgorithm& ga)
 {
 	graph.vertices[graph.attributes.entryIndex].attributes.isEntry = false;
 
-	unsigned int newEntry;
+	unsigned int newEntry = -1;
 
 	do
 	{
@@ -550,12 +569,26 @@ DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
 {
 	graph.vertices[graph.attributes.endIndex].attributes.isEndRoom = false;
 
-	unsigned int newEnd;
+	unsigned int newEnd = -1;
 
-	do
+	std::vector<int> deadends;
+	GetDeadends(graph, deadends);
+
+	if (deadends.size() > 0)
+	{
+		for (int i = 0; i < deadends.size(); i++)
+		{
+			if (!graph.vertices[deadends[i]].attributes.isEndRoom && !graph.vertices[deadends[i]].attributes.isEntry)
+			{
+				newEnd = deadends[i];
+			}
+		}
+	}
+
+	while (newEnd == graph.attributes.endIndex || newEnd == graph.attributes.entryIndex || newEnd == -1)
 	{
 		newEnd = randomNumber(0, graph.vertices.size() - 1);
-	} while (newEnd == graph.attributes.endIndex || newEnd == graph.attributes.entryIndex);
+	}
 
 	graph.attributes.endIndex = newEnd;
 	graph.vertices[newEnd].attributes.isEndRoom = true;
@@ -564,10 +597,22 @@ DLLExport void graph_swapEndMutation(Graph& graph, GeneticAlgorithm& ga)
 
 void graph_addTreasure(Graph & graph, GeneticAlgorithm & ga)
 {
-	int randIndex = randomNumber(0, graph.vertices.size() - 1);
-	if (!graph.vertices[randIndex].attributes.isEndRoom && !graph.vertices[randIndex].attributes.isEntry)
+	int index;
+	std::vector<int> deadends;
+
+	GetDeadends(graph, deadends);
+	if (deadends.size() > 0)
 	{
-		graph.vertices[randomNumber(0, graph.vertices.size() - 1)].attributes.treasureRoom = true;
+		index = deadends[randomNumber(0, deadends.size() - 1)];
+	}
+	else
+	{
+		index = randomNumber(0, graph.vertices.size() - 1);
+
+	}
+	if (!graph.vertices[index].attributes.isEndRoom && !graph.vertices[index].attributes.isEntry)
+	{
+		graph.vertices[index].attributes.treasureRoom = true;
 	}
 }
 
