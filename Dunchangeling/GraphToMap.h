@@ -25,7 +25,7 @@ namespace GraphToMap
 	public:
 		DLLExport MapGenerator(RoomCollection roomCollection, Chains chains, BoostGraph graph);
 
-		DLLExport Layout GenerateLayout(BoostGraph & graph);
+		DLLExport Layout GenerateLayout(BoostGraph & graph, std::list<Layout> & layoutHistory);
 
 		Layout GetInitialLayout(Layout& layout, Chain chain, BoostGraph& graph, bool & success);
 		bool PlaceRoom(Layout& layout, LayoutRoom newRoom);

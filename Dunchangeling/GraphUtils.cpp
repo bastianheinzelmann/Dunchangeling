@@ -164,7 +164,8 @@ Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<s
 			return std::any_of(neighbours.first, neighbours.second, [graph, usedVertices](int v) { return usedVertices[v]; });
 		}))
 		{
-			int size = faces.size() - std::count_if(face.begin(), face.end(), [usedVertices](int v) { return usedVertices[v]; });
+			int testval =std::count_if(face.begin(), face.end(), [usedVertices](int v) { return usedVertices[v]; });
+			int size = face.size() - std::count_if(face.begin(), face.end(), [usedVertices](int v) { return usedVertices[v]; });
 
 			if (size < smallestFaceSize)
 			{
@@ -224,6 +225,16 @@ Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<s
 	assert(firstVertexIndex != -1);
 
 	for (int i = firstVertexIndex; i < smallestFace.size(); i++)
+	{
+		int vertexIndex = smallestFace[i];
+
+		assert(!usedVertices[vertexIndex]);
+
+		usedVertices[vertexIndex] = true;
+		chain.push_back(vertexIndex);
+	}
+
+	for (int i = 0; i < firstVertexIndex; i++)
 	{
 		int vertexIndex = smallestFace[i];
 

@@ -143,6 +143,41 @@ void generateDecompTestGraph(Graph& graph, GeneticAlgorithm& ga)
 	graph.addEdge(id11, id13, false);
 }
 
+void generateDecompTestGraph2(Graph& graph, GeneticAlgorithm& ga)
+{
+	PopId id0 = ga.requestId();
+	PopId id1 = ga.requestId();
+	PopId id2 = ga.requestId();
+	PopId id3 = ga.requestId();
+	PopId id4 = ga.requestId();
+	PopId id5 = ga.requestId();
+	PopId id6 = ga.requestId();
+	PopId id7 = ga.requestId();
+	PopId id8 = ga.requestId();
+	PopId id9 = ga.requestId();
+	PopId id10 = ga.requestId();
+	PopId id11 = ga.requestId();
+	PopId id12 = ga.requestId();
+	PopId id13 = ga.requestId();
+
+	graph.addEdge(id0, id1, false);
+	graph.addEdge(id1, id2, false);
+	graph.addEdge(id1, id3, false);
+	graph.addEdge(id1, id5, false);
+	graph.addEdge(id2, id4, false);
+	graph.addEdge(id3, id7, false);
+	graph.addEdge(id4, id6, false);
+	graph.addEdge(id5, id6, false);
+	graph.addEdge(id6, id8, false);
+	graph.addEdge(id7, id9, false);
+	graph.addEdge(id7, id8, false);
+	graph.addEdge(id8, id10, false);
+	graph.addEdge(id8, id11, false);
+	graph.addEdge(id9, id12, false);
+	graph.addEdge(id10, id13, false);
+	graph.addEdge(id11, id13, false);
+}
+
 void PlanarityCheck()
 {
 	GeneticAlgorithm ga;
@@ -254,6 +289,16 @@ int main()
 
 	GeneticAlgorithm ga(40, 200, gaFunctions, props);
 
+	Graph decompGraph;
+	generateDecompTestGraph2(decompGraph, ga);
+	BoostGraph boost = GeneticAlgorithmUtils::ConvertToBoostGraph(decompGraph);
+
+	GeneticAlgorithmUtils::GraphToDot(boost);
+	Chains testchains = GeneticAlgorithmUtils::ChainDecomposition(boost);
+	GeneticAlgorithmUtils::GraphChainsDot(boost, testchains);
+
+
+
 	Graph graph1 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
 	Graph graph2 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
 
@@ -270,15 +315,15 @@ int main()
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 	ga.InitGA();
-	//ga.generateInitialPopulation(12, 15, 3);
-	ga.run();
-	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
-	std::cout << gaGraph;
+	//ga.run();
+	//Graph gaGraph = (*ga.CurrentPopBuffer)[0];
+	//std::cout << gaGraph;
 
 	//Graph gaGraph;
 	//generateFuckGraph(gaGraph, ga);
 
-	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
+	BoostGraph bg = boost;
+	//BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
 	GraphToDot(bg);
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
@@ -334,8 +379,8 @@ int main()
 		1,
 		1,
 		1,
-		3,
-		3,
+		1,
+		1,
 		1,
 		1,
 		1
@@ -369,14 +414,16 @@ int main()
 	Grid grid8(9, 1, room7);
 	Grid grid9(3, 8, room8);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6), Room(grid7), Room(grid8)};
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6), Room(grid8)};
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
 	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
 	std::vector<std::pair<Layout, std::string>> debugLayout;
 
-	Layout finalLayout = mg.GenerateLayout(bg);
+	std::list<Layout> layoutHistory;
+
+	Layout finalLayout = mg.GenerateLayout(bg, layoutHistory);
 
 	//Layout testLayout;
 	//generateTestLayout(testLayout, roomCollection);

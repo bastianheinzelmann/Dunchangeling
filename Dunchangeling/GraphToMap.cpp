@@ -43,7 +43,7 @@ void GraphToMap::calculateConfigSpaces(RoomCollection& roomCollection)
 	}
 }
 
-Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
+Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph, std::list<Layout> & layoutHistory)
 {
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(graph);
 	std::list<Chain> chainList;
@@ -53,12 +53,16 @@ Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
 	std::list<Layout> stack;
 	stack.push_back(startLayout);
 
+
 	int chainIndex = 0;
 
 	while (!stack.empty())
 	{
 		Layout layout = stack.back();
 		stack.pop_back();
+
+		// just for demonstration uses
+		layoutHistory.push_back(layout);
 
 		Chain chain = chains[layout.NextChainIndex];
 		std::cout << "Chain index: " << layout.NextChainIndex << "\n";
@@ -78,6 +82,10 @@ Layout GraphToMap::MapGenerator::GenerateLayout(BoostGraph & graph)
 				stack.insert(stack.end(), partialLayouts.begin(), partialLayouts.end());
 				++chainIndex;
 			}
+		}
+		else
+		{
+			layoutHistory.pop_back();
 		}
 	}
 
