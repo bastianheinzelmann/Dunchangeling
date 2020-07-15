@@ -69,6 +69,12 @@ bool Graph::removeEdgeByName(const PopId name1, const PopId name2)
 	vertices[vertexIndex2].neighbours.erase(vertexIndex1);
 }
 
+DLLExport void Graph::removeEdge(const int vertexIndex1, const int vertexIndex2)
+{
+	vertices[vertexIndex1].neighbours.erase(vertexIndex2);
+	vertices[vertexIndex2].neighbours.erase(vertexIndex1);
+}
+
 std::vector<Vertex>::iterator Graph::findVertexIndex(int val, bool& res)
 {
 	std::vector<Vertex>::iterator it;
@@ -410,6 +416,63 @@ std::vector<unsigned int> Graph::shortestPath(PopId src, PopId dest)
 	delete[](dist);
 
 	return pathIndices;
+}
+
+bool Graph::removeVertex(int vertexIndex)
+{
+	std::list<int> deletedEdges;
+
+	for (auto neighbor : vertices[vertexIndex].neighbours)
+	{
+		deletedEdges.push_back(neighbor);
+	}
+
+	for (auto n : deletedEdges)
+	{
+		removeEdge(vertexIndex, n);
+	}
+
+	vertices.erase(vertices.begin() + vertexIndex);
+
+	for (int vertex = 0; vertex < vertices.size(); vertex++)
+	{
+		std::unordered_set<int> newNeighbours;
+
+		for (const auto& neighbor : vertices[vertex].neighbours)
+		{
+			if (neighbor > vertexIndex)
+			{
+				newNeighbours.insert(neighbor - 1);
+			}
+			else
+			{
+				newNeighbours.insert(neighbor);
+			}
+		}
+
+		vertices[vertex].neighbours = newNeighbours;
+	}
+
+	if (this->attributes.endIndex > vertexIndex) attributes.endIndex--;
+	if (this->attributes.entryIndex > vertexIndex) attributes.entryIndex--;
+
+	// check for connectivity
+	int *pred = new int[vertices.size()];
+	int *dist = new int[vertices.size()];
+
+
+	for (auto i : deletedEdges)
+	{
+		int src = i;
+		if (i > vertexIndex)
+		{
+			--src;
+		}
+		if (!BreadthFirstSearch(vertices[src].vertexID, vertices[attributes.endIndex].vertexID, pred, dist))
+			return false;
+	}
+
+	return true;
 }
 
 std::vector<std::vector<unsigned int>> Graph::GetAllPaths(PopId src, PopId dest)

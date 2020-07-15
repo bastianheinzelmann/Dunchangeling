@@ -68,6 +68,7 @@ public:
 
 	bool breakEdge(const int vertexIndex1, const int vertexIndex2);
 	DLLExport bool removeEdgeByName(const PopId name1, const PopId name2);
+	DLLExport void removeEdge(const int vertexIndex1, const int vertexIndex2);
 
 	DLLExport std::vector<Vertex>::iterator findVertexIndex(int val, bool &res);
 	DLLExport int findVertexIndexInt(int val, bool& res);
@@ -80,6 +81,8 @@ public:
 	bool BreadthFirstSearch(int src, Graph& graph);
 	DLLExport std::vector<unsigned int> shortestPath(PopId src, PopId dest);
 	DLLExport std::vector<std::vector<unsigned int>> GetAllPaths(PopId src, PopId dest);
+
+	DLLExport bool removeVertex(int vertexIndex);
 
 	DLLExport bool empty() const;
 	DLLExport void clear();

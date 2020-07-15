@@ -621,6 +621,109 @@ void graph_removeTreasure(Graph & graph, GeneticAlgorithm & ga)
 	graph.vertices[randomNumber(0, graph.vertices.size() - 1)].attributes.treasureRoom = false;
 }
 
+DLLExport void graph_addVertex1Production(Graph & graph, int vertexIndex , GeneticAlgorithm & ga)
+{
+	assert(!graph.vertices[vertexIndex].attributes.isEntry && !graph.vertices[vertexIndex].attributes.isEndRoom);
+
+	int randomNeighborIndex = randomNumber(0, graph.vertices[vertexIndex].neighbours.size() - 1);
+	int i = 0;
+	int randomNeighbor;
+	for (int neighbor : graph.vertices[vertexIndex].neighbours)
+	{
+		if (randomNeighborIndex == i)
+		{
+			randomNeighbor = neighbor;
+		}
+
+		i++;
+	}
+	graph.removeEdge(vertexIndex, randomNeighbor);
+
+	PopId newVertex = ga.requestId();
+
+	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex, false);
+	graph.addEdge(graph.vertices[randomNeighbor].vertexID, newVertex, false);
+}
+
+DLLExport void graph_addVertex2Production(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+	assert(!graph.vertices[vertexIndex].attributes.isEntry && !graph.vertices[vertexIndex].attributes.isEndRoom);
+
+	PopId newVertex = ga.requestId();
+	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex, false);
+}
+
+DLLExport void graph_removeVertexProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+	assert(!graph.vertices[vertexIndex].attributes.isEntry && !graph.vertices[vertexIndex].attributes.isEndRoom);
+
+
+	if (graph.vertices[vertexIndex].neighbours.size() >= 2)
+	{
+		Graph copy = graph;
+
+		int randomNeighborIndex1 = randomNumber(0, copy.vertices[vertexIndex].neighbours.size() - 1);
+		int i = 0;
+		int randomNeighbor1;
+		for (int neighbor : copy.vertices[vertexIndex].neighbours)
+		{
+			if (randomNeighborIndex1 == i)
+			{
+				randomNeighbor1 = neighbor;
+			}
+
+			i++;
+		}
+		copy.removeEdge(vertexIndex, randomNeighbor1);
+		int randomNeighborIndex2 = randomNumber(0, copy.vertices[vertexIndex].neighbours.size() - 1);
+		i = 0;
+		int randomNeighbor2;
+		for (int neighbor : copy.vertices[vertexIndex].neighbours)
+		{
+			if (randomNeighborIndex2 == i)
+			{
+				randomNeighbor2 = neighbor;
+			}
+
+			i++;
+		}
+		copy.removeEdge(vertexIndex, randomNeighbor2);
+		copy.addEdge(copy.vertices[randomNeighbor1].vertexID, copy.vertices[randomNeighbor2].vertexID, false);
+		if (copy.removeVertex(vertexIndex))
+		{
+			graph = copy;
+		}
+	}
+}
+
+DLLExport void graph_addCycleProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+	assert(!graph.vertices[vertexIndex].attributes.isEntry && !graph.vertices[vertexIndex].attributes.isEndRoom);
+
+	int randomNeighborIndex = randomNumber(0, graph.vertices[vertexIndex].neighbours.size() - 1);
+	int i = 0;
+	int randomNeighbor;
+	for (int neighbor : graph.vertices[vertexIndex].neighbours)
+	{
+		if (randomNeighborIndex == i)
+		{
+			randomNeighbor = neighbor;
+		}
+
+		i++;
+	}
+	PopId newVertex1 = ga.requestId();
+	PopId newVertex2 = ga.requestId();
+
+	graph.removeEdgeByName(graph.vertices[vertexIndex].vertexID, graph.vertices[randomNeighbor].vertexID);
+
+	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex1, false);
+	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex2, false);
+
+	graph.addEdge(graph.vertices[randomNeighborIndex].vertexID, newVertex1, false);
+	graph.addEdge(graph.vertices[randomNeighborIndex].vertexID, newVertex2, false);
+}
+
 // TODO mutation rate should not be magic values
 DLLExport void graph_mutate(Graph& graph, GeneticAlgorithm& ga)
 {

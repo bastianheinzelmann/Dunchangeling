@@ -176,6 +176,16 @@ void generateDecompTestGraph2(Graph& graph, GeneticAlgorithm& ga)
 	graph.addEdge(id9, id12, false);
 	graph.addEdge(id10, id13, false);
 	graph.addEdge(id11, id13, false);
+
+	bool result;
+	int start = graph.findVertexIndexInt(id0, result);
+	int end = graph.findVertexIndexInt(id13, result);
+
+	graph.vertices[start].attributes.isEntry = true;
+	graph.vertices[end].attributes.isEndRoom = true;
+
+	graph.attributes.endIndex = end;
+	graph.attributes.entryIndex = start;
 }
 
 void PlanarityCheck()
@@ -291,11 +301,20 @@ int main()
 
 	Graph decompGraph;
 	generateDecompTestGraph2(decompGraph, ga);
-	BoostGraph boost = GeneticAlgorithmUtils::ConvertToBoostGraph(decompGraph);
 
-	GeneticAlgorithmUtils::GraphToDot(boost);
-	Chains testchains = GeneticAlgorithmUtils::ChainDecomposition(boost);
-	GeneticAlgorithmUtils::GraphChainsDot(boost, testchains);
+	bool result;
+
+	std::cout << decompGraph << std::endl;
+	graph_removeVertexProduction(decompGraph, decompGraph.findVertexIndexInt(7, result), ga);
+	std::cout << decompGraph << std::endl;
+
+
+
+	//BoostGraph boost = GeneticAlgorithmUtils::ConvertToBoostGraph(decompGraph);
+
+	//GeneticAlgorithmUtils::GraphToDot(boost);
+	//Chains testchains = GeneticAlgorithmUtils::ChainDecomposition(boost);
+	//GeneticAlgorithmUtils::GraphChainsDot(boost, testchains);
 
 
 
@@ -315,15 +334,14 @@ int main()
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 	ga.InitGA();
-	//ga.run();
-	//Graph gaGraph = (*ga.CurrentPopBuffer)[0];
+	ga.run();
+	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
 	//std::cout << gaGraph;
 
 	//Graph gaGraph;
 	//generateFuckGraph(gaGraph, ga);
 
-	BoostGraph bg = boost;
-	//BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
+	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
 	GraphToDot(bg);
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
@@ -414,24 +432,37 @@ int main()
 	Grid grid8(9, 1, room7);
 	Grid grid9(3, 8, room8);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6), Room(grid8)};
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6)};
 
 	GraphToMap::RoomCollection roomCollection(rooms);
 
 	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
 	std::vector<std::pair<Layout, std::string>> debugLayout;
 
-	std::list<Layout> layoutHistory;
+	std::vector<Layout> layoutHistory;
 
 	Layout finalLayout = mg.GenerateLayout(bg, layoutHistory);
+	// all layouts
+	layoutHistory.push_back(finalLayout);
+
+	std::vector<FinalGrid> finalGrids;
 
 	//Layout testLayout;
 	//generateTestLayout(testLayout, roomCollection);
+
+	for (auto i : layoutHistory)
+	{
+		DungeonGrid dgrid = GraphToMap::LayoutToSingleGrid(i);
+		finalGrids.push_back(FinalGrid(dgrid));
+	}
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy);
 
 	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML works!");
+
+	int currentGrid = 0;
+	bool switchForward = false;
 
 	while (window.isOpen())
 	{
@@ -440,11 +471,26 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			if (event.type == sf::Event::KeyReleased)
+			{
+				if (event.key.code == sf::Keyboard::Right)
+				{
+					switchForward = true;
+				}
+			}
 		}
 
 		window.clear(sf::Color::White);
 		//lShape.DrawLayoutShape(window);
-		finalGrid->Draw(window);
+
+		if (switchForward)
+		{
+			switchForward = false;
+			currentGrid =  (currentGrid + 1) % finalGrids.size();
+			std::cout << "Current grid: " << currentGrid << std::endl;
+		}
+
+		finalGrids[currentGrid].Draw(window);
 		window.display();
 	}
 

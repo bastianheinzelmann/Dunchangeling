@@ -16,7 +16,7 @@ public:
 	int NextChainIndex;
 	DLLExport float GetEnergy();
 	DLLExport int GetIntersectionArea();
-	DLLExport bool isComplete();
+	DLLExport bool IsComplete();
 	int GetDistances();
 	float GetAverageRoomArea();
 };

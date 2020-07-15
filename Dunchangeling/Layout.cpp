@@ -24,7 +24,7 @@ float Layout::GetEnergy()
 	return std::exp(intersectionArea / omega) * std::exp(distances / omega) - 1;
 }
 
-bool Layout::isComplete()
+bool Layout::IsComplete()
 {
 	return std::all_of(LaidOutVertices.begin(), LaidOutVertices.end(), [](bool x) { return x; });
 }
