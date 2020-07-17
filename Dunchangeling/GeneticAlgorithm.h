@@ -41,13 +41,13 @@ private:
 
 	unsigned int populationSize = 0;
 	unsigned int maxGenerations = 0;
-	unsigned int elitismRate = 10;
+	unsigned int elitismRate = 20;
 	unsigned int crossoverRate = 0;
 	bool doCrossover = true;
 
 	float highestFitness;
 	unsigned int nothingChangedCount = 0;
-	unsigned int convergenceBorder = 1000;
+	unsigned int convergenceBorder = 20;
 
 	std::vector<Graph> BrokenPopulation;
 

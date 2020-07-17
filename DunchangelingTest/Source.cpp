@@ -10,6 +10,7 @@
 #include "../Dunchangeling/GeneticAlgorithmUtils.h"
 #include "../Dunchangeling/GraphToMap.h"
 #include "../Dunchangeling/EntryEndCrossover.h"
+#include "../Dunchangeling/ProductionRules.h"
 
 #include "DrawGrid.h"
 #include <SFML/Graphics.hpp>
@@ -229,14 +230,6 @@ void testGraphSplit()
 	std::cout << "Fused: \n" << fusedGraphDot << std::endl;
 }
 
-void testRandomGraph()
-{
-	GeneticAlgorithm ga;
-	Graph randG = graph_generateRandomGraph(10, ga);
-	std::string randdot = randG.printAsDot();
-	std::cout << "Rand: \n" << randdot << std::endl;
-}
-
 void testRandomGraph2()
 {
 	GeneticAlgorithm ga;
@@ -291,22 +284,24 @@ int main()
 	//GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
 
 	EntryEndCrossover * gaFunctions = new EntryEndCrossover();
+	ProductionRules * gaFunctions2 = new ProductionRules();
 
 	DungeonProperties props;
-	props.NumRooms = 10;
+	props.NumRooms = 14;
 	props.NumSpecialRooms = 1;
 	props.FlankingRoutes = false;
 
-	GeneticAlgorithm ga(40, 200, gaFunctions, props);
+	GeneticAlgorithm ga(100, 200, gaFunctions2, props);
 
 	Graph decompGraph;
 	generateDecompTestGraph2(decompGraph, ga);
 
 	bool result;
 
-	std::cout << decompGraph << std::endl;
-	graph_removeVertexProduction(decompGraph, decompGraph.findVertexIndexInt(7, result), ga);
-	std::cout << decompGraph << std::endl;
+	//std::cout << decompGraph << std::endl;
+	//graph_removeVertexProduction(decompGraph, decompGraph.findVertexIndexInt(7, result), ga);
+	//graph_addVertex2Production(decompGraph, 9, ga);
+	//std::cout << decompGraph << std::endl;
 
 
 
@@ -324,11 +319,11 @@ int main()
 	//Graph graphDecomp;
 	//generateDecompTestGraph(graphDecomp, ga);
 
-	std::cout << graph1 << std::endl;
-	std::cout << graph2 << std::endl;
+	//std::cout << graph1 << std::endl;
+	//std::cout << graph2 << std::endl;
 
-	gaFunctions->CalculateFitness(graph1, ga);
-	gaFunctions->Crossover(graph1, graph2, ga);
+	//gaFunctions->CalculateFitness(graph1, ga);
+	//gaFunctions->Crossover(graph1, graph2, ga);
 
 	//Graph matedGraph = graph_crossover(graph1, graph2, ga);
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;

@@ -16,7 +16,7 @@ DLLExport void graph_addRandomEndRoom(Graph& graph);
 DLLExport Graph graph_crossover(Graph& parent1, Graph& parent2, GeneticAlgorithm& ga);
 DLLExport void graph_addRandomEdges(Graph& graph, int edgeNum);
 DLLExport Graph graph_generateRandomGraphWilson(int verticesNum, int edgesNum, GeneticAlgorithm& ga);
-DLLExport Graph graph_generateRandomGraph(int verticesNum, GeneticAlgorithm& ga);
+DLLExport Graph graph_generateStartGraph(int verticesNum, GeneticAlgorithm& ga);
 DLLExport void graph_removeEdgeMutation(Graph& graph, Vertex& vertex);
 DLLExport void graph_addEdgeMutation(Graph& graph, Vertex& vertex);
 DLLExport void graph_addVertexMutation(Graph& graph, Vertex& vertex, GeneticAlgorithm& ga);
@@ -29,5 +29,7 @@ DLLExport void graph_addVertex1Production(Graph& graph, int vertexIndex, Genetic
 DLLExport void graph_addVertex2Production(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport void graph_removeVertexProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport void graph_addCycleProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
+DLLExport void graph_addTreasureProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
+DLLExport void graph_removeTreasureProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport bool integrityCheck(Graph &graph);
 DLLExport void GetDeadends(Graph &graph, std::vector<int> & indices);

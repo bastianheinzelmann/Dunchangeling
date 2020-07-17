@@ -69,7 +69,8 @@ void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsig
 
 	for (int i = 0; i < populationSize; i++)
 	{
-		PopBuffer1[i] = graph_generateRandomGraphWilson(verticesNum, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
+		//PopBuffer1[i] = graph_generateRandomGraphWilson(verticesNum, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
+		PopBuffer1[i] = graph_generateStartGraph(3, *this);
 	}
 
 	CurrentPopBuffer = &PopBuffer1;
@@ -232,6 +233,9 @@ void GeneticAlgorithm::run()
 		//currentPopId = 0;
 
 		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << " Gen: " << currentGeneration << std::endl;
-		//currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");
+		//if (currentGeneration == 10 || currentGeneration == 11)
+		//{
+		//	currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");
+		//}
 	}
 }

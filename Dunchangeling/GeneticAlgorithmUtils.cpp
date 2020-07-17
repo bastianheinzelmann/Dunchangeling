@@ -466,38 +466,36 @@ DLLExport Graph graph_generateRandomGraphWilson(int verticesNum, int edgesNum, G
 	return graph;
 }
 
-DLLExport Graph graph_generateRandomGraph(int verticesNum, GeneticAlgorithm& ga)
+DLLExport Graph graph_generateStartGraph(int verticesNum, GeneticAlgorithm & ga)
 {
-	assert(verticesNum >= 2);
+	assert(verticesNum >= 1);
 
 	Graph graph;
-	int v1(ga.requestId());
-	int v2(ga.requestId());
-	graph.addEdge(v1, v2, false);
 
-	for (int i = 0; i < verticesNum - 2; i++)
+	PopId start = ga.requestId();
+	PopId end = ga.requestId();
+
+	PopId currentVertex = ga.requestId();
+
+	graph.addEdge(start, currentVertex, false);
+
+	for (int i = 0; i < verticesNum - 1; i++)
 	{
-		int newVertexName = ga.requestId();
-
-		auto rng = std::default_random_engine{};
-		std::vector<Vertex> setOfVertices = graph.vertices;
-		std::shuffle(std::begin(setOfVertices), std::end(setOfVertices), rng);
-
-		int edges = randomNumber(1, (setOfVertices.size() * 0.2) + 1);
-		std::cout << "Edges " << edges << " Edges2 " << edges << std::endl;
-
-		if (edges > setOfVertices.size())
-		{
-			edges = setOfVertices.size();
-		}
-
-		for (int j = 0; j < edges; j++)
-		{
-			int vNameOther = setOfVertices.back().vertexID;
-			setOfVertices.pop_back();
-			graph.addEdge(vNameOther, newVertexName, false);
-		}
+		PopId newVertex = ga.requestId();
+		graph.addEdge(currentVertex, newVertex, false);
+		currentVertex = newVertex;
 	}
+
+	graph.addEdge(end, currentVertex, false);
+	bool result;
+	int endIndex = graph.findVertexIndexInt(end, result);
+	int startIndex = graph.findVertexIndexInt(start, result);
+	graph.vertices[endIndex].attributes.isEndRoom = true;
+	graph.vertices[startIndex].attributes.isEntry = true;
+	graph.attributes.entryIndex = startIndex;
+	graph.attributes.endIndex = endIndex;
+
+	assert(result == true);
 
 	return graph;
 }
@@ -715,13 +713,23 @@ DLLExport void graph_addCycleProduction(Graph & graph, int vertexIndex, GeneticA
 	PopId newVertex1 = ga.requestId();
 	PopId newVertex2 = ga.requestId();
 
-	graph.removeEdgeByName(graph.vertices[vertexIndex].vertexID, graph.vertices[randomNeighbor].vertexID);
+	graph.removeEdge(vertexIndex, randomNeighbor);
 
 	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex1, false);
 	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex2, false);
 
-	graph.addEdge(graph.vertices[randomNeighborIndex].vertexID, newVertex1, false);
-	graph.addEdge(graph.vertices[randomNeighborIndex].vertexID, newVertex2, false);
+	graph.addEdge(graph.vertices[randomNeighbor].vertexID, newVertex1, false);
+	graph.addEdge(graph.vertices[randomNeighbor].vertexID, newVertex2, false);
+}
+
+DLLExport void graph_addTreasureProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+	graph.vertices[vertexIndex].attributes.treasureRoom = !graph.vertices[vertexIndex].attributes.treasureRoom;
+}
+
+DLLExport void graph_removeTreasureProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+
 }
 
 // TODO mutation rate should not be magic values

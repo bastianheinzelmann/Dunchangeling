@@ -57,6 +57,9 @@
     <ClCompile Include="EntryEndCrossover.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProductionRules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TestDLL.h">
@@ -129,6 +132,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DungeonProperties.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProductionRules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
