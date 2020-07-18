@@ -472,6 +472,9 @@ bool Graph::removeVertex(int vertexIndex)
 			return false;
 	}
 
+	delete[](pred);
+	delete[](dist);
+
 	return true;
 }
 

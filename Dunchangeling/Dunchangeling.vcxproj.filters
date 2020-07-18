@@ -137,6 +137,9 @@
     <ClInclude Include="ProductionRules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OpponentInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -31,5 +31,7 @@ DLLExport void graph_removeVertexProduction(Graph& graph, int vertexIndex, Genet
 DLLExport void graph_addCycleProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport void graph_addTreasureProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport void graph_removeTreasureProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
+DLLExport void graph_addOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm& ga);
+DLLExport void graph_removeOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport bool integrityCheck(Graph &graph);
 DLLExport void GetDeadends(Graph &graph, std::vector<int> & indices);

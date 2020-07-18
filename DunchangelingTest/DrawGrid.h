@@ -92,6 +92,15 @@ public:
 	FinalGrid(DungeonGrid & grid)
 	{
 		dgrid = grid;
+
+		if (!enemy01.loadFromFile("C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/Sprites/Creep01.png", sf::IntRect(0, 0, 16, 16)))
+		{
+			std::cout << "Error loading texture. \n";
+		}
+		else
+		{
+			creep01.setTexture(enemy01);
+		}
 	}
 
 	void Draw(sf::RenderWindow & window)
@@ -137,12 +146,21 @@ public:
 					case 1: wallWest.Draw(window, x * 16, y * 16); break;
 					case 2: doorWest1.Draw(window, x * 16, y * 16); doorWest2.Draw(window, x * 16, y * 16); break;
 					}
+					switch (dgrid.Get(x, y, DDE_Object))
+					{
+					case 1: creep01.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creep01);
+					case 2: creep01.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creep01);
+					case 3: creep01.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creep01);
+					}
 				}
 			}
 		}
 	}
 
 private:
+	sf::Texture enemy01;
+	sf::Sprite creep01;
+
 	DungeonGrid dgrid;
 
 	DungeonPart background = DungeonPart( sf::Vector2i(0,0), sf::RectangleShape(sf::Vector2f(16, 16)), sf::Color::White );

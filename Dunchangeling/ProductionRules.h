@@ -16,4 +16,5 @@ struct ProductionRules : public IGAFunctions
 	int pRemoveVertex = 50;
 	int pAddCycle = 10;
 	int pAddTreasure = 10;
+
 };

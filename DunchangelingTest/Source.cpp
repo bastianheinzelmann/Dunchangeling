@@ -290,6 +290,9 @@ int main()
 	props.NumRooms = 14;
 	props.NumSpecialRooms = 1;
 	props.FlankingRoutes = false;
+	props.OpponentTypes.emplace(0, OpponentInfo(0, 1));
+	props.OpponentTypes.emplace(1, OpponentInfo(1, 2));
+	props.OpponentTypes.emplace(2, OpponentInfo(2, 3));
 
 	GeneticAlgorithm ga(100, 200, gaFunctions2, props);
 

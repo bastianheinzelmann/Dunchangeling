@@ -185,7 +185,16 @@ void ProductionRules::Mutate(Graph & graph, GeneticAlgorithm & ga)
 {
 	int mutationRate = 20;
 
+	// reduce size of very big graphs to save speed and improve their fitness
 	if (graph.vertices.size() > ga.DProperties.NumRooms)
+	{
+		pAddVertex1 = 0;
+		pAddVertex2 = 0;
+		pRemoveVertex = 100;
+		pAddCycle = 0;
+		pAddTreasure = 0;
+	}
+	else if (graph.vertices.size() > ga.DProperties.NumRooms * 1.5f)
 	{
 		pAddVertex1 = 10;
 		pAddVertex2 = 10;
@@ -337,6 +346,40 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 		}
 	}
 
+	//----------------------------Opponents---------------------------------
+	float opponentFitness = 0;
+	if (!ga.DProperties.FlankingRoutes)
+	{
+		int previousDifficulty = 0;
+		for (int i = 0; i < path.size(); i++)
+		{
+			int currentDifficulty = 0;
+			if (!graph.vertices[path[i]].attributes.Opponents.empty())
+			{
+				for (auto opponentId : graph.vertices[i].attributes.Opponents)
+				{
+					// we have the id of our object and look up the difficulty rating
+					currentDifficulty += ga.DProperties.OpponentTypes[opponentId].Difficulty;
+				}
+				if (currentDifficulty >= previousDifficulty)
+				{
+					previousDifficulty = currentDifficulty;
+				}
+				else
+				{
+					opponentFitness += std::abs(currentDifficulty - previousDifficulty) / 2.0f;
+				}
+			}
+			else
+			{
+				opponentFitness += 0.5f;
+			}
+		}
+	}
+	else
+	{
+
+	}
 	//----------------------------------------------------------------------
 
 	int numSpecialRooms = specialRoomsInCritPath + specialRoomsNotInCritPath;

@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <chrono>
 #include <math.h>
+#include "GeneticAlgorithmUtils.h"
 
 DLLExport int randomNumber(int min, int max)
 {
@@ -730,6 +731,25 @@ DLLExport void graph_addTreasureProduction(Graph & graph, int vertexIndex, Genet
 DLLExport void graph_removeTreasureProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
 {
 
+}
+
+void graph_addOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+	OpponentInfo opponent = ga.DProperties.OpponentTypes[randomNumber(0, ga.DProperties.OpponentTypes.size())];
+	if(graph.vertices[vertexIndex].attributes.Opponents.size() < 4)
+		graph.vertices[vertexIndex].attributes.Opponents.push_back(opponent.Id);
+}
+
+void graph_removeOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
+{
+	std::list<int>& opponentList = graph.vertices[vertexIndex].attributes.Opponents;
+	if (opponentList.size() > 0)
+	{
+		int deleteIndex = randomNumber(0, opponentList.size());
+		auto it = opponentList.begin();
+		std::advance(it, deleteIndex);
+		opponentList.erase(it);
+	}
 }
 
 // TODO mutation rate should not be magic values

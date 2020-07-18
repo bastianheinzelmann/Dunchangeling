@@ -2,7 +2,7 @@
 
 #include "Constants.h"
 
-enum DungeonData{ DDE_Tile = 0, DDE_North = 1, DDE_East = 2, DDE_South = 3, DDE_West = 4};
+enum DungeonData{ DDE_Tile = 0, DDE_North = 1, DDE_East = 2, DDE_South = 3, DDE_West = 4, DDE_Object = 5};
 
 struct DungeonGrid
 {
@@ -15,5 +15,5 @@ struct DungeonGrid
 	int* DungeonArray;
 	int XSize;
 	int YSize;
-	int numData = 5;
+	int numData = 6;
 };
