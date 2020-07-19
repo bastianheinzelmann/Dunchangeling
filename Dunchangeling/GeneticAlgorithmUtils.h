@@ -33,5 +33,6 @@ DLLExport void graph_addTreasureProduction(Graph& graph, int vertexIndex, Geneti
 DLLExport void graph_removeTreasureProduction(Graph& graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport void graph_addOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm& ga);
 DLLExport void graph_removeOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm& ga);
+DLLExport std::list<int> getOpponentList(DungeonProperties& props);
 DLLExport bool integrityCheck(Graph &graph);
 DLLExport void GetDeadends(Graph &graph, std::vector<int> & indices);

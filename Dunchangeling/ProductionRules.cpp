@@ -232,6 +232,14 @@ void ProductionRules::Mutate(Graph & graph, GeneticAlgorithm & ga)
 					graph_addCycleProduction(graph, i, ga);
 
 				}
+				else if (p < pAddVertex1 + pAddVertex2 + pRemoveVertex + pAddCycle + pAddOpponent)
+				{
+					graph_addOpponent(graph, i, ga);
+				}
+				else if (p < pAddVertex1 + pAddVertex2 + pRemoveVertex + pAddCycle + pAddOpponent + pRemoveOpponent)
+				{
+					graph_removeOpponent(graph, i, ga);
+				}
 				else if (p < 100)
 				{
 					graph_addTreasureProduction(graph, i, ga);
@@ -348,7 +356,7 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 
 	//----------------------------Opponents---------------------------------
 	float opponentFitness = 0;
-	if (!ga.DProperties.FlankingRoutes)
+	if (!ga.DProperties.FlankingRoutes && false)
 	{
 		int previousDifficulty = 0;
 		for (int i = 0; i < path.size(); i++)
@@ -398,7 +406,7 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 
 	float roomNumFitness = std::exp(std::abs(ga.DProperties.NumRooms - (int)graph.vertices.size())) - 1.0f;
 
-	fitness = critPathFitness + specialRoomDiffFitness  + FlankingFitness + roomNumFitness;
+	fitness = critPathFitness + specialRoomDiffFitness  + FlankingFitness + roomNumFitness + opponentFitness;
 
 	graph.fitness = fitness;
 }

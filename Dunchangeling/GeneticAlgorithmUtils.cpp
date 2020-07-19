@@ -642,6 +642,9 @@ DLLExport void graph_addVertex1Production(Graph & graph, int vertexIndex , Genet
 
 	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex, false);
 	graph.addEdge(graph.vertices[randomNeighbor].vertexID, newVertex, false);
+
+	bool result;
+	graph.vertices[graph.findVertexIndexInt(newVertex, result)].attributes.Opponents = getOpponentList(ga.DProperties);
 }
 
 DLLExport void graph_addVertex2Production(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
@@ -650,6 +653,9 @@ DLLExport void graph_addVertex2Production(Graph & graph, int vertexIndex, Geneti
 
 	PopId newVertex = ga.requestId();
 	graph.addEdge(graph.vertices[vertexIndex].vertexID, newVertex, false);
+
+	bool result;
+	graph.vertices[graph.findVertexIndexInt(newVertex, result)].attributes.Opponents = getOpponentList(ga.DProperties);
 }
 
 DLLExport void graph_removeVertexProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
@@ -721,6 +727,10 @@ DLLExport void graph_addCycleProduction(Graph & graph, int vertexIndex, GeneticA
 
 	graph.addEdge(graph.vertices[randomNeighbor].vertexID, newVertex1, false);
 	graph.addEdge(graph.vertices[randomNeighbor].vertexID, newVertex2, false);
+
+	bool result;
+	graph.vertices[graph.findVertexIndexInt(newVertex1, result)].attributes.Opponents = getOpponentList(ga.DProperties);
+	graph.vertices[graph.findVertexIndexInt(newVertex2, result)].attributes.Opponents = getOpponentList(ga.DProperties);
 }
 
 DLLExport void graph_addTreasureProduction(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
@@ -735,9 +745,24 @@ DLLExport void graph_removeTreasureProduction(Graph & graph, int vertexIndex, Ge
 
 void graph_addOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
 {
-	OpponentInfo opponent = ga.DProperties.OpponentTypes[randomNumber(0, ga.DProperties.OpponentTypes.size())];
+	OpponentInfo opponent = ga.DProperties.OpponentTypes[randomNumber(0, ga.DProperties.OpponentTypes.size() - 1)];
 	if(graph.vertices[vertexIndex].attributes.Opponents.size() < 4)
 		graph.vertices[vertexIndex].attributes.Opponents.push_back(opponent.Id);
+}
+
+std::list<int> getOpponentList(DungeonProperties & props)
+{
+	std::list<int> opponents;
+	// should be limited by smallest room
+	int numOpponents = randomNumber(0, 4);
+	for (int i = 0; i < numOpponents; i++)
+	{
+		auto it = props.OpponentTypes.begin();
+		std::advance(it, randomNumber(0, props.OpponentTypes.size() - 1));
+		opponents.push_back(it->first);
+	}
+
+	return opponents;
 }
 
 void graph_removeOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
@@ -745,7 +770,7 @@ void graph_removeOpponent(Graph & graph, int vertexIndex, GeneticAlgorithm & ga)
 	std::list<int>& opponentList = graph.vertices[vertexIndex].attributes.Opponents;
 	if (opponentList.size() > 0)
 	{
-		int deleteIndex = randomNumber(0, opponentList.size());
+		int deleteIndex = randomNumber(0, opponentList.size() - 1);
 		auto it = opponentList.begin();
 		std::advance(it, deleteIndex);
 		opponentList.erase(it);

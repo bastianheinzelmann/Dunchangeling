@@ -684,6 +684,12 @@ DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
 							tileType = TILE_FILLED;
 						}
 
+						if (!currentRoom.Attributes.Opponents.empty())
+						{
+							dgrid.Set(worldPosX - lowerXBound, worldPosY - lowerYBound, DungeonData::DDE_Object, currentRoom.Attributes.Opponents.front());
+							currentRoom.Attributes.Opponents.pop_front();
+						}
+
 						unsigned int wallType = 0;
 
 						if (x - 1 < 0 || roomGrid.Get(x - 1, y) == GRID_EMTPY)

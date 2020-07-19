@@ -93,13 +93,11 @@ public:
 	{
 		dgrid = grid;
 
-		if (!enemy01.loadFromFile("C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/Sprites/Creep01.png", sf::IntRect(0, 0, 16, 16)))
+		if (!enemy01.loadFromFile("C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/Sprites/Creep01.png", sf::IntRect(0, 0, 16, 16)) ||
+			!enemy02.loadFromFile("C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/Sprites/Creep02.png", sf::IntRect(0, 0, 16, 16)) ||
+			!enemy03.loadFromFile("C:/Users/Bastian/Documents/MasterStuff/UnityPlugin/Dunchangeling/Sprites/Creep03.png", sf::IntRect(0, 0, 16, 16)))
 		{
 			std::cout << "Error loading texture. \n";
-		}
-		else
-		{
-			creep01.setTexture(enemy01);
 		}
 	}
 
@@ -148,9 +146,9 @@ public:
 					}
 					switch (dgrid.Get(x, y, DDE_Object))
 					{
-					case 1: creep01.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creep01);
-					case 2: creep01.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creep01);
-					case 3: creep01.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creep01);
+					case 1: creepSprite.setTexture(enemy01); creepSprite.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creepSprite); break;
+					case 2: creepSprite.setTexture(enemy02); creepSprite.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creepSprite); break;
+					case 3: creepSprite.setTexture(enemy03); creepSprite.setPosition(sf::Vector2f(x * 16, y * 16)); window.draw(creepSprite); break;
 					}
 				}
 			}
@@ -159,7 +157,9 @@ public:
 
 private:
 	sf::Texture enemy01;
-	sf::Sprite creep01;
+	sf::Texture enemy02;
+	sf::Texture enemy03;
+	sf::Sprite creepSprite;
 
 	DungeonGrid dgrid;
 
