@@ -6,6 +6,7 @@
 #include "../Dunchangeling/GeneticAlgorithmUtils.h"
 #include "../Dunchangeling/GraphToMap.h"
 #include "../Dunchangeling/GeneticAlgorithm.h"
+#include "../Dunchangeling/ProductionRules.h"
 #include "Functions.h"
 
 int addWrapper(int num1, int num2)
@@ -30,6 +31,22 @@ int divideWrapper(int num1, int num2)
 
 int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 {
+	DungeonProperties props;
+	props.NumRooms = 20;
+	props.NumSpecialRooms = 1;
+	props.FlankingRoutes = false;
+	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
+	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
+	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
+
+	ProductionRules * gaFunctions2 = new ProductionRules();
+
+	GeneticAlgorithm ga(100, 200, gaFunctions2, props);
+	ga.InitGA();
+	ga.run();
+	Graph graph = (*ga.CurrentPopBuffer)[0];
+
+
 	unsigned int room[] =
 	{
 		0, 0, 1, 1,
@@ -48,7 +65,7 @@ int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 	{
 		1, 1, 1,
 		1, 1, 1,
-		1, 1, 1,
+		1, 3, 1,
 		1, 1, 1,
 		1, 1, 1
 	};
@@ -56,106 +73,68 @@ int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 	unsigned int room4[] =
 	{
 		1, 1, 1, 1, 1,
-		1, 1, 1, 1, 1,
+		1, 3, 3, 3, 1,
 		1, 1, 1, 1, 1
 	};
 
 	unsigned int room5[] = {
-		0, 0, 0, 1, 1, 0, 0,
-		0, 0, 1, 1, 1, 1, 0,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 1, 1, 1, 1, 1, 1,
-		0, 0, 1, 1, 1, 1, 0,
-		0, 0, 0, 1, 1, 0, 0
+		1, 1, 1, 1,
+		1, 1, 1, 1,
+		0, 0, 1, 1,
+		0, 0, 1, 1
 	};
 
-	//unsigned int room5[] = {
-	//	1, 1, 1, 1,
-	//	1, 0, 0, 1,
-	//	1, 0, 0, 1,
-	//	1, 1, 1, 1
-	//};
+	unsigned int room6[] = {
+		1, 1, 0, 0,
+		1, 1, 0, 0,
+		1, 1, 1, 1,
+		1, 1, 1, 1,
+		1, 1, 0, 0,
+		1, 1, 0, 0
+	};
+
+	unsigned int room7[] = {
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1,
+		1
+	};
+
+	unsigned int room8[] = {
+		1, 1, 1,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 0, 0,
+		1, 1, 1,
+	};
 
 	Grid grid(4, 4, room);
 	Grid grid2(2, 2, room2);
 	Grid grid3(3, 5, room3);
 	Grid grid4(5, 3, room4);
-	Grid grid5(7, 8, room5);
+	Grid grid5(4, 4, room5);
+	Grid grid6(4, 6, room6);
+	Grid grid7(1, 9, room7);
+	Grid grid8(9, 1, room7);
+	Grid grid9(3, 8, room8);
 
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5) };
-
+	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6) };
 	GraphToMap::RoomCollection roomCollection(rooms);
-
-#pragma region MyRegion
-
-	Layout layout(7, 0);
-	layout.LaidOutVertices = { true, true, true, true, false , false, false };
-
-	layout.Rooms[0].Room = roomCollection[1];
-	layout.Rooms[0].VertexID = 0;
-	layout.Rooms[0].PosX = 6;
-	layout.Rooms[0].PosY = 0;
-	layout.Rooms[0].Neighbours = { 1, 2 };
-
-	layout.Rooms[1].Room = roomCollection[1];
-	layout.Rooms[1].VertexID = 1;
-	layout.Rooms[1].PosX = 8;
-	layout.Rooms[1].PosY = 1;
-	layout.Rooms[1].Neighbours = { 0, 3 };
-
-	layout.Rooms[2].Room = roomCollection[0];
-	layout.Rooms[2].VertexID = 2;
-	layout.Rooms[2].PosX = 5;
-	layout.Rooms[2].PosY = -4;
-	layout.Rooms[2].Neighbours = { 0, 3 };
-
-	layout.Rooms[3].Room = roomCollection[1];
-	layout.Rooms[3].VertexID = 3;
-	layout.Rooms[3].PosX = 9;
-	layout.Rooms[3].PosY = -1;
-	layout.Rooms[3].Neighbours = { 1, 2 };
-#pragma endregion
-
-	GeneticAlgorithm ga;
-	Graph graph;
-
-	PopId id1 = ga.requestId();
-	PopId id2 = ga.requestId();
-	PopId id3 = ga.requestId();
-	PopId id4 = ga.requestId();
-	PopId id5 = ga.requestId();
-	PopId id6 = ga.requestId();
-	PopId id7 = ga.requestId();
-	PopId id8 = ga.requestId();
-	PopId id9 = ga.requestId();
-	PopId id10 = ga.requestId();
-	PopId id11 = ga.requestId();
-	PopId id12 = ga.requestId();
-	PopId id13 = ga.requestId();
-
-	graph.addEdge(id1, id2, false);
-	graph.addEdge(id2, id3, false);
-	graph.addEdge(id2, id10, false);
-	graph.addEdge(id3, id4, false);
-	graph.addEdge(id3, id7, false);
-	graph.addEdge(id4, id5, false);
-	graph.addEdge(id4, id5, false);
-	graph.addEdge(id5, id6, false);
-	graph.addEdge(id6, id7, false);
-	graph.addEdge(id7, id8, false);
-	graph.addEdge(id8, id9, false);
-	graph.addEdge(id9, id10, false);
-	graph.addEdge(id9, id11, false);
-	graph.addEdge(id11, id12, false);
-	graph.addEdge(id11, id13, false);
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(graph);
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 
 	GraphToMap::MapGenerator mg(roomCollection, chains, bg);
-	Layout finalLayout = mg.GenerateLayout(bg);
+	std::vector<Layout> layoutHistory;
+	Layout finalLayout = mg.GenerateLayout(bg, layoutHistory);
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 
@@ -164,5 +143,5 @@ int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 	*ySize = griddy.YSize;
 	*numData = griddy.numData;
 
-	return griddy.XSize * griddy.YSize * 5;
+	return griddy.XSize * griddy.YSize * griddy.numData;
 }

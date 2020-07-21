@@ -470,6 +470,8 @@ bool Graph::removeVertex(int vertexIndex)
 		}
 		if (!BreadthFirstSearch(vertices[src].vertexID, vertices[attributes.endIndex].vertexID, pred, dist))
 			return false;
+		if (!BreadthFirstSearch(vertices[src].vertexID, vertices[attributes.entryIndex].vertexID, pred, dist))
+			return false;
 	}
 
 	delete[](pred);

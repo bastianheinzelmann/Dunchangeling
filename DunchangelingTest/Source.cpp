@@ -287,14 +287,14 @@ int main()
 	ProductionRules * gaFunctions2 = new ProductionRules();
 
 	DungeonProperties props;
-	props.NumRooms = 20;
+	props.NumRooms = 15;
 	props.NumSpecialRooms = 1;
 	props.FlankingRoutes = false;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
 	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
 
-	GeneticAlgorithm ga(100, 200, gaFunctions2, props);
+	GeneticAlgorithm ga(100, 400, gaFunctions2, props);
 
 	Graph decompGraph;
 	generateDecompTestGraph2(decompGraph, ga);
@@ -322,14 +322,14 @@ int main()
 	//Graph graphDecomp;
 	//generateDecompTestGraph(graphDecomp, ga);
 
-	//std::cout << graph1 << std::endl;
-	//std::cout << graph2 << std::endl;
+	std::cout << graph1 << std::endl;
+	std::cout << graph2 << std::endl;
 
-	//gaFunctions->CalculateFitness(graph1, ga);
-	//gaFunctions->Crossover(graph1, graph2, ga);
+	gaFunctions2->CalculateFitness(graph1, ga);
+	Graph matedGraph = gaFunctions2->Crossover(graph1, graph2, ga);
 
-	//Graph matedGraph = graph_crossover(graph1, graph2, ga);
-	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
+	std::cout << "Mated Graph\n" << matedGraph << std::endl;
+
 
 	ga.InitGA();
 	ga.run();

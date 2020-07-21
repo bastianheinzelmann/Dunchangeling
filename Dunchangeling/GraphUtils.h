@@ -20,5 +20,6 @@ namespace GeneticAlgorithmUtils
 	DLLExport Chains ChainDecomposition(BoostGraph& graph);
 	DLLExport Chain GetNeighbourCycle(BoostGraph& graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices);
 	DLLExport Chain GetNeighbourPath(BoostGraph& graph, std::vector<bool>& usedVertices);
+	DLLExport Chain GetPathToNextCycle(BoostGraph& graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices);
 	DLLExport void GraphChainsDot(BoostGraph& graph, Chains chains);
 }

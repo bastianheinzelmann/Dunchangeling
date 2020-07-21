@@ -150,6 +150,7 @@ Chains GeneticAlgorithmUtils::ChainDecomposition(BoostGraph & graph)
 
 Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices)
 {
+	Chain chain;
 	int smallestFaceIndex = -1;
 	int smallestFaceSize = INT_MAX;
 
@@ -175,73 +176,138 @@ Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<s
 		}
 	}
 
-	assert(smallestFaceIndex != -1);
-
-	auto smallestFace = faces[smallestFaceIndex];
-	
-	// remove all vertices 
-	smallestFace.erase(std::remove_if(
-		smallestFace.begin(), smallestFace.end(),
-		[usedVertices](const int& x){ return usedVertices[x]; }
-	), smallestFace.end());
-
-	// remove duplicates
-	std::set<int> containedInds;
-	for (int i = 0; i < smallestFace.size(); i++)
+	//assert(smallestFaceIndex != -1);
+	// this means the remaining cycles are dosconnected from the previous ones... make path until a cycle is hit i guess?
+	if (smallestFaceIndex == -1)
 	{
-		int index = smallestFace[i];
-		if (containedInds.find(index) == containedInds.end())
+		std::cout << "Get path to next cycle. \n";
+		chain = GetPathToNextCycle(graph, faces, usedVertices);
+	}
+	else
+	{
+		auto smallestFace = faces[smallestFaceIndex];
+
+		// remove all vertices that are already in a chain
+		smallestFace.erase(std::remove_if(
+			smallestFace.begin(), smallestFace.end(),
+			[usedVertices](const int& x) { return usedVertices[x]; }
+		), smallestFace.end());
+
+		// remove duplicates
+		std::set<int> containedInds;
+		for (int i = 0; i < smallestFace.size(); i++)
 		{
-			containedInds.insert(index);
+			int index = smallestFace[i];
+			if (containedInds.find(index) == containedInds.end())
+			{
+				containedInds.insert(index);
+			}
+			else
+			{
+				smallestFace.erase(smallestFace.begin() + i);
+			}
 		}
-		else
+
+		faces.erase(faces.begin() + smallestFaceIndex);
+		int firstVertexIndex = -1;
+
+		if (smallestFace.empty())
 		{
-			smallestFace.erase(smallestFace.begin() + i);
+			return chain;
+		}
+
+		for (int i = 0; i < smallestFace.size(); i++)
+		{
+			int vertexIndex = smallestFace[i];
+
+			auto neighbours = boost::adjacent_vertices(vertexIndex, graph);
+
+			if (std::any_of(neighbours.first, neighbours.second, [usedVertices](int v) { return usedVertices[v]; }))
+			{
+				firstVertexIndex = i;
+				break;
+			}
+		}
+
+		assert(firstVertexIndex != -1);
+
+		for (int i = firstVertexIndex; i < smallestFace.size(); i++)
+		{
+			int vertexIndex = smallestFace[i];
+
+			assert(!usedVertices[vertexIndex]);
+
+			usedVertices[vertexIndex] = true;
+			chain.push_back(vertexIndex);
+		}
+
+		for (int i = 0; i < firstVertexIndex; i++)
+		{
+			int vertexIndex = smallestFace[i];
+
+			assert(!usedVertices[vertexIndex]);
+
+			usedVertices[vertexIndex] = true;
+			chain.push_back(vertexIndex);
 		}
 	}
 
-	faces.erase(faces.begin() + smallestFaceIndex);
-	int firstVertexIndex = -1;
+	return chain;
+}
+
+Chain GeneticAlgorithmUtils::GetPathToNextCycle(BoostGraph & graph, std::vector<std::vector<int>>& faces, std::vector<bool>& usedVertices)
+{
 	Chain chain;
+	int firstVertexIndex;
+	bool foundOne = false;
 
-	if (smallestFace.empty())
+	for (int i = 0; i < boost::num_vertices(graph); i++)
 	{
-		return chain;
+		if (!usedVertices[i])
+		{
+			auto neighbours = boost::adjacent_vertices(i, graph);
+			if (std::any_of(neighbours.first, neighbours.second, [usedVertices](int v) { return usedVertices[v]; }))
+			{
+				firstVertexIndex = i;
+				foundOne = true;
+				break;
+			}
+		}
 	}
 
-	for (int i = 0; i < smallestFace.size(); i++)
+	assert(foundOne);
+
+	chain.push_back(firstVertexIndex);
+	usedVertices[firstVertexIndex] = true;
+
+	while (true)
 	{
-		int vertexIndex = smallestFace[i];
+		int lastIndex = chain.back();
+		auto neighbours = boost::adjacent_vertices(lastIndex, graph);
 
-		auto neighbours = boost::adjacent_vertices(vertexIndex, graph);
-
-		if (std::any_of(neighbours.first, neighbours.second, [usedVertices](int v) { return usedVertices[v]; }))
+		int nextVertexIndex = -1;
+		for (; neighbours.first != neighbours.second; neighbours.first++)
 		{
-			firstVertexIndex = i;
+			int nIndex = *neighbours.first;
+			if (std::any_of(faces.begin(), faces.end(), [nIndex](std::vector<int> face) 
+			{ return std::any_of(face.begin(), face.end(), [nIndex](int cycleVertex) 
+			{ return nIndex == cycleVertex; }); }))
+			{
+				break;
+			}
+			if (!usedVertices[*neighbours.first])
+			{
+				nextVertexIndex = *neighbours.first;
+			}
+		}
+
+		if (nextVertexIndex == -1)
+		{
 			break;
 		}
-	}
 
-	assert(firstVertexIndex != -1);
-
-	for (int i = firstVertexIndex; i < smallestFace.size(); i++)
-	{
-		int vertexIndex = smallestFace[i];
-
-		assert(!usedVertices[vertexIndex]);
-
-		usedVertices[vertexIndex] = true;
-		chain.push_back(vertexIndex);
-	}
-
-	for (int i = 0; i < firstVertexIndex; i++)
-	{
-		int vertexIndex = smallestFace[i];
-
-		assert(!usedVertices[vertexIndex]);
-
-		usedVertices[vertexIndex] = true;
-		chain.push_back(vertexIndex);
+		chain.push_back(nextVertexIndex);
+		usedVertices[nextVertexIndex] = true;
 	}
 
 	return chain;

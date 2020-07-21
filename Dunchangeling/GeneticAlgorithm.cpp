@@ -183,11 +183,6 @@ void GeneticAlgorithm::run()
 			}
 		}
 
-		if (currentGeneration == 55)
-		{
-			std::cout << "Hii" << std::endl;
-		}
-
 		for (int i = elitismRatio; i < populationSize; i++)
 		{
 			if (currentGeneration & 1 == 1)

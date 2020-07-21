@@ -3,15 +3,13 @@
 
 Graph ProductionRules::Crossover(Graph & parent1, Graph & parent2, GeneticAlgorithm & ga)
 {
+
 	int cutPosition = (parent1.vertices.size() + 1) / 2;
 	Graph entryGraph, endGraph, fusedGraph;
 
 	SplitGraph(parent1, cutPosition, parent1.attributes.entryIndex, entryGraph, ga);
 	cutPosition = (parent2.vertices.size() + 1) / 2;
 	SplitGraph(parent2, cutPosition, parent2.attributes.endIndex, endGraph, ga);
-
-	//std::cout << "Entry graph: " << entryGraph << std::endl;
-	//std::cout << "End graph: " << endGraph << std::endl;
 
 	std::vector<int> brokenEdgesEntry = entryGraph.getAllBrokenEdges();
 	std::vector<int> brokenEdgesEnd = endGraph.getAllBrokenEdges();
@@ -244,9 +242,9 @@ void ProductionRules::Mutate(Graph & graph, GeneticAlgorithm & ga)
 				{
 					graph_addTreasureProduction(graph, i, ga);
 				}
-			}
 
-			assert(integrityCheck(graph));
+				assert(integrityCheck(graph));
+			}
 		}
 	}
 
@@ -344,7 +342,7 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	// dead ends: special rooms are dead ends and the end room is a dead end
 	for (int i = 0; i < graph.vertices.size(); i++)
 	{
-		if (graph.vertices[i].attributes.isEndRoom || graph.vertices[i].attributes.treasureRoom)
+		if (graph.vertices[i].attributes.treasureRoom)
 		{
 			++numDeadEnds;
 			if (graph.vertices[i].neighbours.size() > 1)
@@ -401,12 +399,12 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	float specialRoomDiffFitness = std::exp(specialRoomDifference * 5.0f) - 1.0f;
 	specialRoomDiffFitness = specialRoomDifference;
 
-	float deadEndFitness = std::exp((float)numBrokenDeadends) - 1.0f;
+	float deadEndFitness = numBrokenDeadends;
 	deadEndFitness = numBrokenDeadends;
 
 	float roomNumFitness = std::exp(std::abs(ga.DProperties.NumRooms - (int)graph.vertices.size())) - 1.0f;
 
-	fitness = critPathFitness + specialRoomDiffFitness  + FlankingFitness + roomNumFitness + opponentFitness;
+	fitness = critPathFitness + specialRoomDiffFitness  + FlankingFitness + roomNumFitness + opponentFitness + deadEndFitness;
 
 	graph.fitness = fitness;
 }
