@@ -48,18 +48,18 @@ VertexName GeneticAlgorithm::requestVertexName()
 	return currentVertexName++;
 }
 
-GeneticAlgorithm::GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions, DungeonProperties props)
+GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithmProperties gaProps, IGAFunctions * functions, DungeonProperties props)
 {
 	gaFunctions = functions;
-	populationSize = popSize;
-	this->maxGenerations = maxGens;
-	PopBuffer1 = std::vector<Graph>(popSize);
-	PopBuffer2 = std::vector<Graph>(popSize);
-	BrokenPopulation = std::vector<Graph>(popSize);
+	populationSize = gaProps.populationSize;
+	this->maxGenerations = gaProps.maxGenerations;
+	doCrossover = gaProps.doCrossover;
+	PopBuffer1 = std::vector<Graph>(gaProps.populationSize);
+	PopBuffer2 = std::vector<Graph>(gaProps.populationSize);
 	DProperties = props;
 }
 
-void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsigned int edgesNum, unsigned int edgesTolerance)
+void GeneticAlgorithm::generateInitialPopulation(InitMode initMode)
 {
 	if (populationSize <= 0)
 	{
@@ -69,8 +69,12 @@ void GeneticAlgorithm::generateInitialPopulation(unsigned int verticesNum, unsig
 
 	for (int i = 0; i < populationSize; i++)
 	{
-		//PopBuffer1[i] = graph_generateRandomGraphWilson(verticesNum, randomNumber(edgesNum, edgesNum + edgesTolerance), *this);
-		PopBuffer1[i] = graph_generateStartGraph(3, *this);
+		switch (initMode)
+		{
+		case EIM_PATH: PopBuffer1[i] = graph_generateStartGraph(DProperties.NumRooms, *this); break;
+		case EIM_PATH_THREE: PopBuffer1[i] = graph_generateStartGraph(3, *this); break;
+		case EIM_RANDOM: PopBuffer1[i] = graph_generateRandomGraphWilson(DProperties.NumRooms, randomNumber(DProperties.NumRooms + 2, DProperties.NumRooms + 5), *this); break;
+		}
 	}
 
 	CurrentPopBuffer = &PopBuffer1;
@@ -91,12 +95,6 @@ void GeneticAlgorithm::currentGenerationToFile(const char * directory)
 		i.writeToFile(file.c_str());
 		j++;
 	}
-}
-
-void GeneticAlgorithm::InitGA()
-{
-	int edges = this->DProperties.NumRooms + 2;
-	generateInitialPopulation(DProperties.NumRooms, edges, 3);
 }
 
 Graph & GeneticAlgorithm::TournamentSelection(int k)

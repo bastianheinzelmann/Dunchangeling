@@ -267,43 +267,28 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	{
 		auto paths = graph.GetAllPaths(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
 
-		float bestFitness = graph.vertices.size() - 2;
-		std::pair<int, int> bestPaths;
+		FlankingFitness = graph.vertices.size() - 2;
 
-		int pathSurplus = 0;
-
-		if (paths.size() > 2)
+		if (paths.size() > 1)
 		{
-			pathSurplus = paths.size() - ga.DProperties.NumFlankingRoutes;
+			std::sort(paths.begin(), paths.end(), [](const std::vector<unsigned int> & a, const std::vector<unsigned int> & b) { return a.size() < b.size(); });
 
-			for (int i = 0; i < paths.size(); i++)
-			{
-				for (int k = i + 1; k < paths.size(); k++)
-				{
-					float currentFitness = CalculateFlankingFitness(paths[i], paths[k]);
-					if (currentFitness < bestFitness)
-					{
-						bestFitness = currentFitness;
-						bestPaths.first = i;
-						bestPaths.second = k;
-					}
-				}
-			}
+			// get the two shortest paths, as they are kinda the critical paths
+			std::vector<unsigned int> & path1 = paths[0];
+			std::vector<unsigned int> & path2 = paths[1];
 
-			path = std::vector<unsigned int>(paths[bestPaths.first]);
-			for (int i = 0; i < paths[bestPaths.second].size(); i++)
+			path = std::vector<unsigned int>(path1);
+			for (int i = 0; i < path2.size(); i++)
 			{
-				int vertex = paths[bestPaths.second][i];
+				int vertex = path2[i];
 				if (!std::any_of(path.begin(), path.end(), [vertex](int j) { return j == vertex; }))
 				{
 					path.push_back(vertex);
 				}
 			}
+
+			FlankingFitness = CalculateFlankingFitness(path1, path2);
 		}
-
-
-		FlankingFitness = std::exp(bestFitness);
-		FlankingFitness = bestFitness;
 	}
 
 
@@ -391,11 +376,10 @@ void ProductionRules::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	int numSpecialRooms = specialRoomsInCritPath + specialRoomsNotInCritPath;
 
 	// between 0 - 10 currently
-	int outsideCritPath = graph.vertices.size() - path.size() - specialRoomsNotInCritPath;
+	int outsideCritPath = (graph.vertices.size() * (1.0f - ga.DProperties.branchingFactor)) - path.size() - specialRoomsNotInCritPath;
 	int specialRoomDifference = std::abs(ga.DProperties.NumSpecialRooms - (specialRoomsInCritPath + specialRoomsNotInCritPath));
 
-	float critPathFitness = std::exp((float)outsideCritPath) - 1.0f;
-	critPathFitness = outsideCritPath;
+	float critPathFitness = outsideCritPath;
 	float specialRoomDiffFitness = std::exp(specialRoomDifference * 5.0f) - 1.0f;
 	specialRoomDiffFitness = specialRoomDifference;
 

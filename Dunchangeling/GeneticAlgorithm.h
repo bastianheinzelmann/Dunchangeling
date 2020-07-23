@@ -10,12 +10,15 @@
 #include <math.h>
 #include "IGAFunctions.h"
 #include "DungeonProperties.h"
+#include "GeneticAlgorithmProperties.h"
+
+enum InitMode { EIM_PATH_THREE = 0, EIM_PATH = 1, EIM_RANDOM = 2};
 
 class GeneticAlgorithm
 {
 public:
 	GeneticAlgorithm() {};
-	DLLExport GeneticAlgorithm(unsigned int popSize, unsigned int maxGens, IGAFunctions * functions, DungeonProperties props);
+	DLLExport GeneticAlgorithm(GeneticAlgorithmProperties gaProps, IGAFunctions * functions, DungeonProperties props);
 
 	std::vector<Graph>* CurrentPopBuffer;
 
@@ -25,10 +28,8 @@ public:
 	DLLExport PopId requestId();
 	DLLExport VertexName requestVertexName();
 
-	DLLExport void generateInitialPopulation(unsigned int verticesNum, unsigned int edgesNum, unsigned int edgesTolerance);
+	DLLExport void generateInitialPopulation(InitMode initMode);
 	DLLExport void currentGenerationToFile(const char* directory);
-
-	DLLExport void InitGA();
 
 	DLLExport void run();	
 
@@ -47,9 +48,7 @@ private:
 
 	float highestFitness;
 	unsigned int nothingChangedCount = 0;
-	unsigned int convergenceBorder = 20;
-
-	std::vector<Graph> BrokenPopulation;
+	unsigned int convergenceBorder = 10;
 
 	const unsigned int generationBits = GENERATION_BITS;
 	PopId currentPopId = 0;

@@ -241,9 +241,9 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	float fitness;
 
 	//-------------Critical Path-----------------------------
-	std::vector<unsigned int> path; 
-	
-	if(!ga.DProperties.FlankingRoutes)
+	std::vector<unsigned int> path;
+
+	if (!ga.DProperties.FlankingRoutes)
 		path = graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
 
 	//-------------Flanking Routes-----------------------------
@@ -252,45 +252,31 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	if (ga.DProperties.FlankingRoutes)
 	{
 		auto paths = graph.GetAllPaths(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID);
-		
-		float bestFitness = graph.vertices.size() - 2;
-		std::pair<int, int> bestPaths;
 
-		int pathSurplus = 0;
+		FlankingFitness = graph.vertices.size() - 2;
 
-		if (paths.size() > 2)
+		if (paths.size() > 1)
 		{
-			pathSurplus = paths.size() - ga.DProperties.NumFlankingRoutes;
+			std::sort(paths.begin(), paths.end(), [](const std::vector<unsigned int> & a, const std::vector<unsigned int> & b) { return a.size() < b.size(); });
 
-			for (int i = 0; i < paths.size(); i++)
-			{
-				for (int k = i + 1; k < paths.size(); k++)
-				{
-					float currentFitness = CalculateFlankingFitness(paths[i], paths[k]);
-					if (currentFitness < bestFitness)
-					{
-						bestFitness = currentFitness;
-						bestPaths.first = i;
-						bestPaths.second = k;
-					}
-				}
-			}
+			// get the two shortest paths, as they are kinda the critical paths
+			std::vector<unsigned int> & path1 = paths[0];
+			std::vector<unsigned int> & path2 = paths[1];
 
-			path = std::vector<unsigned int>(paths[bestPaths.first]);
-			for (int i = 0; i < paths[bestPaths.second].size(); i++)
+			path = std::vector<unsigned int>(path1);
+			for (int i = 0; i < path2.size(); i++)
 			{
-				int vertex = paths[bestPaths.second][i];
+				int vertex = path2[i];
 				if (!std::any_of(path.begin(), path.end(), [vertex](int j) { return j == vertex; }))
 				{
 					path.push_back(vertex);
 				}
 			}
+
+			FlankingFitness = CalculateFlankingFitness(path1, path2);
 		}
-
-
-		FlankingFitness = std::exp(bestFitness);
 	}
-	
+
 
 	//-----------SPECIAL ROOMS STUFF---------------------------
 
@@ -327,7 +313,7 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 	// dead ends: special rooms are dead ends and the end room is a dead end
 	for (int i = 0; i < graph.vertices.size(); i++)
 	{
-		if (graph.vertices[i].attributes.isEndRoom || graph.vertices[i].attributes.treasureRoom)
+		if (graph.vertices[i].attributes.treasureRoom)
 		{
 			++numDeadEnds;
 			if (graph.vertices[i].neighbours.size() > 1)
@@ -337,20 +323,58 @@ void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 		}
 	}
 
+	//----------------------------Opponents---------------------------------
+	float opponentFitness = 0;
+	if (!ga.DProperties.FlankingRoutes && false)
+	{
+		int previousDifficulty = 0;
+		for (int i = 0; i < path.size(); i++)
+		{
+			int currentDifficulty = 0;
+			if (!graph.vertices[path[i]].attributes.Opponents.empty())
+			{
+				for (auto opponentId : graph.vertices[i].attributes.Opponents)
+				{
+					// we have the id of our object and look up the difficulty rating
+					currentDifficulty += ga.DProperties.OpponentTypes[opponentId].Difficulty;
+				}
+				if (currentDifficulty >= previousDifficulty)
+				{
+					previousDifficulty = currentDifficulty;
+				}
+				else
+				{
+					opponentFitness += std::abs(currentDifficulty - previousDifficulty) / 2.0f;
+				}
+			}
+			else
+			{
+				opponentFitness += 0.5f;
+			}
+		}
+	}
+	else
+	{
+
+	}
 	//----------------------------------------------------------------------
 
 	int numSpecialRooms = specialRoomsInCritPath + specialRoomsNotInCritPath;
 
 	// between 0 - 10 currently
-	int outsideCritPath = graph.vertices.size() - path.size() - specialRoomsNotInCritPath;
+	int outsideCritPath = (graph.vertices.size() * (1.0f - ga.DProperties.branchingFactor)) - path.size() - specialRoomsNotInCritPath;
 	int specialRoomDifference = std::abs(ga.DProperties.NumSpecialRooms - (specialRoomsInCritPath + specialRoomsNotInCritPath));
 
-	float critPathFitness = std::exp((float)outsideCritPath) - 1.0f;
+	float critPathFitness = outsideCritPath;
 	float specialRoomDiffFitness = std::exp(specialRoomDifference * 5.0f) - 1.0f;
+	specialRoomDiffFitness = specialRoomDifference;
 
-	float deadEndFitness = std::exp((float)numBrokenDeadends) - 1.0f;
+	float deadEndFitness = numBrokenDeadends;
+	deadEndFitness = numBrokenDeadends;
 
-	fitness = critPathFitness + specialRoomDiffFitness + deadEndFitness + FlankingFitness;
+	float roomNumFitness = std::exp(std::abs(ga.DProperties.NumRooms - (int)graph.vertices.size())) - 1.0f;
+
+	fitness = critPathFitness + specialRoomDiffFitness + FlankingFitness + roomNumFitness + opponentFitness + deadEndFitness;
 
 	graph.fitness = fitness;
 }

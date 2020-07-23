@@ -189,25 +189,6 @@ void generateDecompTestGraph2(Graph& graph, GeneticAlgorithm& ga)
 	graph.attributes.entryIndex = start;
 }
 
-void PlanarityCheck()
-{
-	GeneticAlgorithm ga;
-	Graph graph1, graph2;
-	generateNonPlanarGraph(graph1, ga);
-
-
-	bool test = graph1.IsPlanar();
-
-	if (test)
-	{
-		std::cout << "This is planar.\n";
-	}
-	else
-	{
-		std::cout << "Not planar.\n";
-	}
-}
-
 void testGraphSplit()
 {
 	GeneticAlgorithm ga;
@@ -287,17 +268,15 @@ int main()
 	ProductionRules * gaFunctions2 = new ProductionRules();
 
 	DungeonProperties props;
-	props.NumRooms = 15;
+	props.NumRooms = 20;
 	props.NumSpecialRooms = 1;
-	props.FlankingRoutes = false;
+	props.FlankingRoutes = true;
+	props.branchingFactor = 0.f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
 	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
 
-	GeneticAlgorithm ga(100, 400, gaFunctions2, props);
-
-	Graph decompGraph;
-	generateDecompTestGraph2(decompGraph, ga);
+	GeneticAlgorithm ga(GeneticAlgorithmProperties(), gaFunctions, props);
 
 	bool result;
 
@@ -316,22 +295,22 @@ int main()
 
 
 
-	Graph graph1 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
-	Graph graph2 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
+	//Graph graph1 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
+	//Graph graph2 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
 
 	//Graph graphDecomp;
 	//generateDecompTestGraph(graphDecomp, ga);
 
-	std::cout << graph1 << std::endl;
-	std::cout << graph2 << std::endl;
+	//std::cout << graph1 << std::endl;
+	//std::cout << graph2 << std::endl;
 
-	gaFunctions2->CalculateFitness(graph1, ga);
-	Graph matedGraph = gaFunctions2->Crossover(graph1, graph2, ga);
+	//gaFunctions2->CalculateFitness(graph1, ga);
+	//Graph matedGraph = gaFunctions2->Crossover(graph1, graph2, ga);
 
-	std::cout << "Mated Graph\n" << matedGraph << std::endl;
+	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 
-	ga.InitGA();
+	ga.generateInitialPopulation(InitMode::EIM_RANDOM);
 	ga.run();
 	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
 	//std::cout << gaGraph;
@@ -340,7 +319,7 @@ int main()
 	//generateFuckGraph(gaGraph, ga);
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
-	GraphToDot(bg);
+	//GraphToDot(bg);
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
 
@@ -448,16 +427,17 @@ int main()
 	//Layout testLayout;
 	//generateTestLayout(testLayout, roomCollection);
 
+	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML works!");
+
 	for (auto i : layoutHistory)
 	{
 		DungeonGrid dgrid = GraphToMap::LayoutToSingleGrid(i);
-		finalGrids.push_back(FinalGrid(dgrid));
+		finalGrids.push_back(FinalGrid(dgrid, window));
 	}
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
-	FinalGrid* finalGrid = new FinalGrid(griddy);
+	FinalGrid* finalGrid = new FinalGrid(griddy, window);
 
-	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML works!");
 
 	int currentGrid = 0;
 	bool switchForward = false;

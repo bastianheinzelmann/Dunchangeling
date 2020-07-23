@@ -76,11 +76,11 @@ bool integrityCheck(Graph & graph)
 		}
 	}
 
-	if (graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID).empty())
-	{
-		std::cout << "Entry and end are not connected. \n";
-		return false;
-	}
+	//if (graph.shortestPath(graph.vertices[graph.attributes.entryIndex].vertexID, graph.vertices[graph.attributes.endIndex].vertexID).empty())
+	//{
+	//	std::cout << "Entry and end are not connected. \n";
+	//	return false;
+	//}
 
 	return true;
 }

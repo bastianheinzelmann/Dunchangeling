@@ -12,6 +12,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DunchangelingUnity", "Proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DunchangelingTest", "DunchangelingTest\DunchangelingTest.vcxproj", "{26C4A07A-A796-4728-BAED-E88062903EEA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Experiments", "Experiments\Experiments.vcxproj", "{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C375E417-E9CA-40BD-A282-511B9551A252} = {C375E417-E9CA-40BD-A282-511B9551A252}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -44,6 +49,14 @@ Global
 		{26C4A07A-A796-4728-BAED-E88062903EEA}.Release|x64.Build.0 = Release|x64
 		{26C4A07A-A796-4728-BAED-E88062903EEA}.Release|x86.ActiveCfg = Release|Win32
 		{26C4A07A-A796-4728-BAED-E88062903EEA}.Release|x86.Build.0 = Release|Win32
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Debug|x64.ActiveCfg = Debug|x64
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Debug|x64.Build.0 = Debug|x64
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Debug|x86.ActiveCfg = Debug|Win32
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Debug|x86.Build.0 = Debug|Win32
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Release|x64.ActiveCfg = Release|x64
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Release|x64.Build.0 = Release|x64
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Release|x86.ActiveCfg = Release|Win32
+		{4E1CC9F1-63DC-4012-8EBF-1BB86FC5331D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

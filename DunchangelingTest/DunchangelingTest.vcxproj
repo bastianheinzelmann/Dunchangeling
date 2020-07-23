@@ -132,6 +132,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DrawGrid.h" />
+    <ClInclude Include="Experiments.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

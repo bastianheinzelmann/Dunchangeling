@@ -89,7 +89,7 @@ struct DungeonPart
 class FinalGrid
 {
 public:
-	FinalGrid(DungeonGrid & grid)
+	FinalGrid(DungeonGrid & grid, sf::RenderWindow & window)
 	{
 		dgrid = grid;
 
