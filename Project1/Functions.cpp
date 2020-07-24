@@ -41,8 +41,8 @@ int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 
 	ProductionRules * gaFunctions2 = new ProductionRules();
 
-	GeneticAlgorithm ga(100, 200, gaFunctions2, props);
-	ga.InitGA();
+	GeneticAlgorithm ga(GeneticAlgorithmProperties(), gaFunctions2, props);
+	ga.generateInitialPopulation(InitMode::EIM_PATH_THREE);
 	ga.run();
 	Graph graph = (*ga.CurrentPopBuffer)[0];
 

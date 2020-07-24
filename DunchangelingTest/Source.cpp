@@ -15,8 +15,6 @@
 #include "DrawGrid.h"
 #include <SFML/Graphics.hpp>
 
-//#include <SFML/Graphics.hpp>
-
 using namespace GeneticAlgorithmUtils;
 
 void generateTestGraphs(Graph& graph1, Graph& graph2, GeneticAlgorithm& ga)

@@ -48,7 +48,7 @@ VertexName GeneticAlgorithm::requestVertexName()
 	return currentVertexName++;
 }
 
-GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithmProperties gaProps, IGAFunctions * functions, DungeonProperties props)
+DLLExport GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithmProperties gaProps, IGAFunctions * functions, DungeonProperties props)
 {
 	gaFunctions = functions;
 	populationSize = gaProps.populationSize;

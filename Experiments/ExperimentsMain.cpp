@@ -16,6 +16,8 @@
 #include <functional>
 #include <numeric>
 
+using namespace GeneticAlgorithmUtils;
+
 void RunExperiments(int samples)
 {
 	using namespace std::chrono;
@@ -60,6 +62,8 @@ void RunExperiments(int samples)
 
 int main()
 {
+	std::cout << "Run!\n";
+
 	RunExperiments(10);
 
 	std::getchar();

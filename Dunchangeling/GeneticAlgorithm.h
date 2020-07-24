@@ -17,7 +17,7 @@ enum InitMode { EIM_PATH_THREE = 0, EIM_PATH = 1, EIM_RANDOM = 2};
 class GeneticAlgorithm
 {
 public:
-	GeneticAlgorithm() {};
+	DLLExport GeneticAlgorithm() {};
 	DLLExport GeneticAlgorithm(GeneticAlgorithmProperties gaProps, IGAFunctions * functions, DungeonProperties props);
 
 	std::vector<Graph>* CurrentPopBuffer;

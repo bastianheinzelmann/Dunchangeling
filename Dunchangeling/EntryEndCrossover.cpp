@@ -1,7 +1,7 @@
 #include "EntryEndCrossover.h"
 #include "GeneticAlgorithmUtils.h"
 
-Graph EntryEndCrossover::Crossover(Graph & parent1, Graph & parent2, GeneticAlgorithm & ga)
+DLLExport Graph EntryEndCrossover::Crossover(Graph & parent1, Graph & parent2, GeneticAlgorithm & ga)
 {
 	int cutPosition = randomNumber(1, parent1.vertices.size() - 2);
 	Graph entryGraph, endGraph, fusedGraph;
@@ -107,7 +107,7 @@ Graph EntryEndCrossover::Crossover(Graph & parent1, Graph & parent2, GeneticAlgo
 	return fusedGraph;
 }
 
-void EntryEndCrossover::SplitGraph(Graph graph, int cutPosition, int sourceIndex, Graph & splittedGraph, GeneticAlgorithm & ga)
+DLLExport void EntryEndCrossover::SplitGraph(Graph graph, int cutPosition, int sourceIndex, Graph & splittedGraph, GeneticAlgorithm & ga)
 {
 	assert(splittedGraph.vertices.size() == 0);
 
@@ -180,7 +180,7 @@ void EntryEndCrossover::SplitGraph(Graph graph, int cutPosition, int sourceIndex
 	delete[](visited);
 }
 
-void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
+DLLExport void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 {
 	int numMutations = randomNumber(1, graph.vertices.size() - 1);
 
@@ -218,7 +218,7 @@ void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 	assert(integrityCheck(graph));
 }
 
-float EntryEndCrossover::CalculateFlankingFitness(std::vector<unsigned int>& path1, std::vector<unsigned int>& path2)
+DLLExport float EntryEndCrossover::CalculateFlankingFitness(std::vector<unsigned int>& path1, std::vector<unsigned int>& path2)
 {
 	// start and end are always duplicates
 	int duplicates = -2;
@@ -236,7 +236,7 @@ float EntryEndCrossover::CalculateFlankingFitness(std::vector<unsigned int>& pat
 	return difference + duplicates;
 }
 
-void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
+DLLExport void EntryEndCrossover::CalculateFitness(Graph & graph, GeneticAlgorithm & ga)
 {
 	float fitness;
 
