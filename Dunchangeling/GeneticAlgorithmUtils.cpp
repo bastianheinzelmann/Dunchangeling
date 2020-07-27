@@ -8,8 +8,9 @@
 
 DLLExport int randomNumber(int min, int max)
 {
-	static std::default_random_engine re{};
-	re.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	unsigned int seed = std::chrono::system_clock::now().time_since_epoch().count();
+	static std::default_random_engine re{seed};
+	//re.seed(std::chrono::system_clock::now().time_since_epoch().count());
 	using Dist = std::uniform_int_distribution<int>;
 	static Dist uid{};
 	return uid(re, Dist::param_type{ min, max });
@@ -87,8 +88,9 @@ bool integrityCheck(Graph & graph)
 
 DLLExport float randomFloatNumber(float min, float max)
 {
+	unsigned int seed = std::chrono::system_clock::now().time_since_epoch().count();
 	static std::default_random_engine re{};
-	re.seed(std::chrono::system_clock::now().time_since_epoch().count());
+	//re.seed(std::chrono::system_clock::now().time_since_epoch().count());
 	using Dist = std::uniform_real_distribution<>;
 	static Dist ufd{};
 	return ufd(re, Dist::param_type{ min, max });
@@ -486,7 +488,7 @@ DLLExport Graph graph_generateStartGraph(int verticesNum, GeneticAlgorithm & ga)
 
 	graph.addEdge(start, currentVertex, false);
 
-	for (int i = 0; i < verticesNum - 1; i++)
+	for (int i = 0; i < verticesNum - 3; i++)
 	{
 		PopId newVertex = ga.requestId();
 		graph.addEdge(currentVertex, newVertex, false);

@@ -267,7 +267,7 @@ int main()
 
 	DungeonProperties props;
 	props.NumRooms = 20;
-	props.NumSpecialRooms = 1;
+	props.NumSpecialRooms = 3;
 	props.FlankingRoutes = true;
 	props.branchingFactor = 0.f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
@@ -308,7 +308,7 @@ int main()
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 
-	ga.generateInitialPopulation(InitMode::EIM_RANDOM);
+	ga.generateInitialPopulation(InitMode::EIM_PATH);
 	ga.run();
 	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
 	//std::cout << gaGraph;

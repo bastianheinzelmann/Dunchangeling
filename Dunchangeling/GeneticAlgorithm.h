@@ -35,6 +35,8 @@ public:
 
 	DungeonProperties DProperties;
 
+	unsigned int currentGeneration = 0;
+
 private:
 	
 	Graph& TournamentSelection(int k);
@@ -53,7 +55,6 @@ private:
 	const unsigned int generationBits = GENERATION_BITS;
 	PopId currentPopId = 0;
 	VertexName currentVertexName = 0;
-	unsigned int currentGeneration = 0;
 
 	IGAFunctions * gaFunctions;
 };

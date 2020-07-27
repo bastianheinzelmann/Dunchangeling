@@ -184,32 +184,53 @@ DLLExport void EntryEndCrossover::Mutate(Graph & graph, GeneticAlgorithm & ga)
 {
 	int numMutations = randomNumber(1, graph.vertices.size() - 1);
 
+	int numEdges = 0;
+	for (auto i : graph.vertices)
+	{
+		numEdges += i.neighbours.size();
+	}
+	numEdges /= 2;
+	if (numEdges > graph.vertices.size() * 1.5f)
+	{
+		pRemoveEdge = 40;
+		pAddEdge = 0;
+	}
+	else
+	{
+		pRemoveEdge = 17;
+		pAddEdge = 17;
+		pSwapEnd = 10;
+		pSwapEntry = 17;
+		pAddTreasure = 17;
+		pRemoveTreasure = 17;
+	}
+
 	for (int i = 0; i < numMutations; i++)
 	{
 		int p = randomNumber(0, 100);
 		int vertexIndex = randomNumber(0, graph.vertices.size() - 1);
 
-		if (p < 17)
+		if (p < pRemoveEdge)
 		{
 			graph_removeEdgeMutation(graph, graph.vertices[vertexIndex]);
 		}
-		else if (p < 34)
+		else if (p < pRemoveEdge + pAddEdge)
 		{
 			graph_addEdgeMutation(graph, graph.vertices[vertexIndex]);
 		}
-		else if (p < 21)
+		else if (p < pRemoveEdge + pAddEdge + pSwapEnd)
 		{
 			graph_swapEndMutation(graph, ga);
 		}
-		else if (p < 51)
+		else if (p < pRemoveEdge + pAddEdge + pSwapEnd + pSwapEntry)
 		{
 			graph_swapEntryMutation(graph, ga);
 		}
-		else if (p < 68)
+		else if (p < pRemoveEdge + pAddEdge + pSwapEnd + pSwapEntry + pAddTreasure)
 		{
 			graph_addTreasure(graph, ga);
 		}
-		else if (p < 85)
+		else if (p < pRemoveEdge + pAddEdge + pSwapEnd + pSwapEntry + pAddTreasure + pRemoveTreasure)
 		{
 			graph_removeTreasure(graph, ga);
 		}

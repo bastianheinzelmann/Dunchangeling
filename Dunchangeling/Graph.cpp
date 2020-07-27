@@ -283,6 +283,7 @@ bool Graph::BreadthFirstSearch(int src, int dest, int predecessorsList[], int di
 	else
 	{
 		std::cout << "Could not find vertex index" << std::endl;
+		delete[](visited);
 		return false;
 	}
 
@@ -333,6 +334,7 @@ bool Graph::BreadthFirstSearch(int src, Graph& graph)
 		sourceIndex = index - vertices.begin();
 	else
 	{
+		delete[](visited);
 		std::cout << "Could not find vertex index" << std::endl;
 		return false;
 	}
@@ -396,7 +398,9 @@ std::vector<unsigned int> Graph::shortestPath(PopId src, PopId dest)
 
 	if (!BreadthFirstSearch(src, dest, pred, dist))
 	{
-		std::cout << "Source and dest are not connected!" << std::endl;
+		//std::cout << "Source and dest are not connected!" << std::endl;
+		delete[](pred);
+		delete[](dist);
 		return pathIndices;
 	}
 

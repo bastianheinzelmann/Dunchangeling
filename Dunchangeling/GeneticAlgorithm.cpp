@@ -52,6 +52,7 @@ DLLExport GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithmProperties gaProps,
 {
 	gaFunctions = functions;
 	populationSize = gaProps.populationSize;
+	convergenceBorder = gaProps.convergenceBorder;
 	this->maxGenerations = gaProps.maxGenerations;
 	doCrossover = gaProps.doCrossover;
 	PopBuffer1 = std::vector<Graph>(gaProps.populationSize);
@@ -225,7 +226,7 @@ void GeneticAlgorithm::run()
 		currentGeneration++;
 		//currentPopId = 0;
 
-		std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << " Gen: " << currentGeneration << std::endl;
+		//std::cout << "Current best fitness: " << (*CurrentPopBuffer)[0].fitness << " Gen: " << currentGeneration << std::endl;
 		//if (currentGeneration == 10 || currentGeneration == 11)
 		//{
 		//	currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff/Test");
