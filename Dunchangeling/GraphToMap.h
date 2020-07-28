@@ -6,6 +6,7 @@
 #include "Layout.h"
 #include "GraphUtils.h"
 #include "DungeonGrid.h"
+#include "IntersectionResult.h"
 
 namespace GraphToMap
 {
@@ -51,7 +52,7 @@ namespace GraphToMap
 		BoostGraph Graph;
 	};
 
-	std::vector<std::pair<int, int>> getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom& room);
+	std::vector<IntersectionResult> getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom& room);
 	void calculateConfigSpaces(RoomCollection& roomCollection);
 	void GetAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& adjacentRooms);
 	void GetNonAdjacentRooms(LayoutRoom& layoutRoom, Layout& layout, std::vector<LayoutRoom>& nonAdjacentRooms);

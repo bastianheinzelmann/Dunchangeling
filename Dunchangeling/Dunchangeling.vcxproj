@@ -158,6 +158,7 @@
     <ClInclude Include="GraphUtils.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Individual.h" />
+    <ClInclude Include="IntersectionResult.h" />
     <ClInclude Include="Layout.h" />
     <ClInclude Include="LayoutFunctions.h" />
     <ClInclude Include="LayoutRoom.h" />

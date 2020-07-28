@@ -55,7 +55,8 @@ int Layout::GetDistances()
 	{
 		if (LaidOutVertices[i])
 		{
-			for (auto j : Rooms[i].Neighbours)
+			//for (auto j : Rooms[i].Neighbours)
+			for(auto j : Rooms[i].RoomsNotConnected)
 			{
 				if (!distancesCalculated[j] && Rooms[j].VertexID != -1)
 				{

@@ -266,8 +266,8 @@ int main()
 	ProductionRules * gaFunctions2 = new ProductionRules();
 
 	DungeonProperties props;
-	props.NumRooms = 10;
-	props.NumSpecialRooms = 2;
+	props.NumRooms = 20;
+	props.NumSpecialRooms = 3;
 	props.FlankingRoutes = true;
 	props.branchingFactor = 0.f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));

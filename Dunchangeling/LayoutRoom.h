@@ -14,4 +14,5 @@ struct LayoutRoom
 	VertexAttributes Attributes;
 
 	std::vector<int> Neighbours;
+	std::vector<int> RoomsNotConnected;
 };

@@ -6,6 +6,7 @@
 #include "Vector2.h"
 #include "Door.h"
 #include "DungeonGrid.h"
+#include "IntersectionResult.h"
 
 GraphToMap::RoomCollection::RoomCollection(std::vector<Room> rooms)
 {
@@ -259,12 +260,13 @@ void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain, s
 	{
 		randomIntersection = randomNumber(0, intersectionPositions.size() - 1);
 		auto intersection = intersectionPositions[randomIntersection];
-		room.PosX = intersection.first;
-		room.PosY = intersection.second;
+		room.PosX = intersection.XPos;
+		room.PosY = intersection.YPos;
+		room.RoomsNotConnected = intersection.RoomsNotConnected;
 	}
 
 	action.append("Vertex: ").append(std::to_string(randVertexIndex)).append(" Intersection Index ").append(std::to_string(randomIntersection));
-	assert(CheckLayoutIntegrity(layout));
+	//assert(CheckLayoutIntegrity(layout));
 	//std::cout << "Perturbed position of vertex: " << randVertexIndex << " \n";
 }
 
@@ -281,10 +283,16 @@ bool GraphToMap::MapGenerator::IsLayoutValid(Layout & layout)
 			std::vector<LayoutRoom> nonAdjacentRooms;
 			GetNonAdjacentRooms(currentRoom, layout, nonAdjacentRooms);
 
+			if (currentRoom.RoomsNotConnected.size() > 0)
+			{
+				isValid = false;
+				break;
+			}
+
 			int pivotX = currentRoom.PosX - currentRoom.Room.RoomGrid.PivotX;
 			int pivotY = currentRoom.PosY - currentRoom.Room.RoomGrid.PivotY;
 
-			// go through each adjacent room
+			// go through each non-adjacent room
 			for (int j = 0; j < nonAdjacentRooms.size(); j++)
 			{
 				int intersectionAreaSize = 0;
@@ -502,8 +510,9 @@ bool GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 
 		for (int i = 0; i < intersectionPositions.size(); i++)
 		{
-			newRoom.PosX = intersectionPositions[i].first;
-			newRoom.PosY = intersectionPositions[i].second;
+			newRoom.PosX = intersectionPositions[i].XPos;
+			newRoom.PosY = intersectionPositions[i].YPos;
+			newRoom.RoomsNotConnected = intersectionPositions[i].RoomsNotConnected;
 			layout.Rooms[newRoom.VertexID] = newRoom;
 
 			float currentEnergy = layout.GetEnergy();
@@ -521,8 +530,9 @@ bool GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 			return false;
 		}
 
-		newRoom.PosX = intersectionPositions[bestEnergyIndex].first;
-		newRoom.PosY = intersectionPositions[bestEnergyIndex].second;
+		newRoom.PosX = intersectionPositions[bestEnergyIndex].XPos;
+		newRoom.PosY = intersectionPositions[bestEnergyIndex].YPos;
+		newRoom.RoomsNotConnected = intersectionPositions[bestEnergyIndex].RoomsNotConnected;
 		layout.Rooms[newRoom.VertexID] = newRoom;
 		layout.LaidOutVertices[newRoom.VertexID] = true;
 	}
@@ -544,14 +554,16 @@ bool GraphToMap::MapGenerator::PlaceRoom(Layout & layout, LayoutRoom newRoom)
 		layout.LaidOutVertices[newRoom.VertexID] = true;
 	}
 
-	assert(CheckLayoutIntegrity(layout));
+	//assert(CheckLayoutIntegrity(layout));
 
 	return true;
 }
 
-std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom & room)
+std::vector<IntersectionResult> GraphToMap::getIntersections(std::vector<LayoutRoom>& adjacentRooms, LayoutRoom & room)
 {
+	int minRoomsNotConnected = INT_MAX;
 	std::vector<std::pair<int, int>> positions;
+	std::vector<IntersectionResult> intersectionResults;
 
 	int roomId = room.Room.RoomID;
 
@@ -559,7 +571,7 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 	int pivotWorldX = adjacentRooms[0].PosX - firstConfigGrid.PivotX;
 	int pivotWorldY = adjacentRooms[0].PosY - firstConfigGrid.PivotY;
 
-	// now the real interseciton check begins
+	// now the real intersection check begins
 	for (int y = 0; y < firstConfigGrid.YSize; y++)
 	{
 		for (int x = 0; x < firstConfigGrid.XSize; x++)
@@ -570,6 +582,7 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 				int worldY = y + pivotWorldY;
 
 				bool isIntersecting = true;
+				IntersectionResult iresult;
 
 				for (int i = 1; i < adjacentRooms.size(); i++)
 				{
@@ -582,22 +595,47 @@ std::vector<std::pair<int, int>> GraphToMap::getIntersections(std::vector<Layout
 					if (localX < 0 || localY < 0 || localX >= currentGrid.XSize || localY >= currentGrid.YSize)
 					{
 						isIntersecting = false;
+						iresult.RoomsNotConnected.push_back(adjacentRooms[i].VertexID);
 					}
 					else if (!((currentGrid.Get(localX, localY) & GRID_CONFIG_SPACE) == GRID_CONFIG_SPACE))
 					{
 						isIntersecting = false;
+						iresult.RoomsNotConnected.push_back(adjacentRooms[i].VertexID);
 					}
 				}
 
-				if (isIntersecting)
+				//if (iresult.RoomsNotConnected.size() == 0)
+				//{
+				//	iresult.XPos = worldX;
+				//	iresult.YPos = worldY;
+				//	intersectionResults.push_back(iresult);
+				//}
+
+				if (iresult.RoomsNotConnected.size() < minRoomsNotConnected)
 				{
-					positions.push_back(std::pair<int, int>(worldX, worldY));
+					minRoomsNotConnected = iresult.RoomsNotConnected.size();
+					iresult.XPos = worldX;
+					iresult.YPos = worldY;
+					intersectionResults.clear();
+					intersectionResults.push_back(iresult);
 				}
+				else if(iresult.RoomsNotConnected.size() == minRoomsNotConnected){
+					iresult.XPos = worldX;
+					iresult.YPos = worldY;
+					intersectionResults.push_back(iresult);
+				}
+
+				//if (isIntersecting)
+				//{
+				//	positions.push_back(std::pair<int, int>(worldX, worldY));
+				//}
 			}
 		}
 	}
 
-	return positions;
+	return intersectionResults;
+
+	//return positions;
 }
 
 DLLExport DungeonGrid GraphToMap::LayoutToSingleGrid(Layout & layout)
