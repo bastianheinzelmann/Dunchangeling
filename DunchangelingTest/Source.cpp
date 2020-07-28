@@ -311,7 +311,7 @@ int main()
 	ga.generateInitialPopulation(InitMode::EIM_PATH);
 	ga.run();
 	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
-	//std::cout << gaGraph;
+	std::cout << gaGraph;
 
 	//Graph gaGraph;
 	//generateFuckGraph(gaGraph, ga);

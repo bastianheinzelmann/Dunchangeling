@@ -55,6 +55,7 @@ DLLExport GeneticAlgorithm::GeneticAlgorithm(GeneticAlgorithmProperties gaProps,
 	convergenceBorder = gaProps.convergenceBorder;
 	this->maxGenerations = gaProps.maxGenerations;
 	doCrossover = gaProps.doCrossover;
+	elitismRate = gaProps.elitismRate;
 	PopBuffer1 = std::vector<Graph>(gaProps.populationSize);
 	PopBuffer2 = std::vector<Graph>(gaProps.populationSize);
 	DProperties = props;

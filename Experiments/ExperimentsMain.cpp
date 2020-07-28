@@ -109,6 +109,7 @@ void RunExperiments(int samples, int maxVertices, IGAFunctions* gaFunction, Init
 
 	GeneticAlgorithmProperties gaProps;
 	gaProps.convergenceBorder = 20;
+	gaProps.elitismRate = 1;
 	gaProps.doCrossover = crossover;
 
 	high_resolution_clock::time_point t0;
@@ -219,10 +220,10 @@ int main()
 	// RunExperiments(20, 50, edgeBased, InitMode::EIM_RANDOM, true, true);
 
 	// Edge based, path graph Initialization, no flanks, crossover
-	//RunExperiments(20, 50, edgeBased, InitMode::EIM_PATH, false, true);
+	// RunExperiments(20, 50, edgeBased, InitMode::EIM_PATH, false, true);
 
 	// Edge based, path graph Initialization, flanks, no crossover
-	// RunExperiments(20, 30, edgeBased, InitMode::EIM_PATH, true, false);
+	 RunExperiments(20, 30, edgeBased, InitMode::EIM_PATH, true, false);
 	// Edge based, path graph Initialization, flanks, crossover
 	// RunExperiments(20, 50, edgeBased, InitMode::EIM_PATH, true, true);
 
@@ -230,7 +231,7 @@ int main()
 	// RunExperiments(20, 50, productions, InitMode::EIM_PATH_THREE, true, true);
 
 	// production based, random, flanks, crossover
-	 RunExperiments(20, 50, productions, InitMode::EIM_RANDOM, true, true);
+	// RunExperiments(20, 50, productions, InitMode::EIM_RANDOM, true, true);
 	
 	// production based, path graph Initialization, no flanks, no crossover
 	// RunExperiments(20, 40, productions, InitMode::EIM_PATH_THREE, false, false);
