@@ -425,6 +425,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 			{
 				queue.push_back(chainVertexIndex);
 				chain.erase(chain.begin() + i);
+				break;
 			}
 		}
 	}
