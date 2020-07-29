@@ -222,13 +222,14 @@ void GraphToMap::MapGenerator::PerturbShape(Layout & layout, Chain & chain)
 		//std::cout << "Actually found a roomshape that fits! Vertex: " << randVertexIndex << "\n";
 		Room randRoom = validRooms[randomNumber(0, validRooms.size() - 1)];
 		layout.Rooms[randVertexIndex].Room = randRoom;
+		//layout.Rooms[randVertexIndex].RoomsNotConnected = randRoom.RoomsNotConnected;
 	}
 	else
 	{
 		//std::cout << "No suitable shape found \n";
 	}
 
-	assert(CheckLayoutIntegrity(layout));
+	//assert(CheckLayoutIntegrity(layout));
 }
 
 void GraphToMap::MapGenerator::PerturbPosition(Layout & layout, Chain & chain, std::string & action)
@@ -338,6 +339,7 @@ bool GraphToMap::MapGenerator::IsLayoutValid(Layout & layout)
 
 std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layout & layout)
 {
+	std::vector<RoomshapesResult> roomResults;
 	std::vector<Room> validRooms;
 	LayoutRoom& lroom = layout.Rooms[vertexIndex];
 	int currentRoomID = lroom.Room.RoomID;
@@ -351,6 +353,8 @@ std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layou
 	for (int i = 0; i < Rooms.Rooms.size(); i++)
 	{
 		bool isValid = false;
+		int minRoomsNotConnected = INT_MAX;
+		RoomshapesResult roomResult;
 		Room currentRoom = Rooms[i];
 
 		if (i != currentRoomID)
@@ -371,16 +375,37 @@ std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layou
 					if (!((configGrid.Get(localX, localY) & GRID_CONFIG_SPACE) == GRID_CONFIG_SPACE))
 					{
 						isValid = false;
+						//roomResult.RoomsNotConnected.push_back(adjacentRooms[j].VertexID);
 						break;
 					}
 				}
 				else
 				{
 					isValid = false;
+					//roomResult.RoomsNotConnected.push_back(adjacentRooms[j].VertexID);
 					break;
 				}
 			}
 		}
+
+		//if (roomResult.RoomsNotConnected.size() == 0)
+		//{
+		//	roomResult.Shape = currentRoom;
+		//	roomResults.push_back(roomResult);
+		//}
+
+		//if (roomResult.RoomsNotConnected.size() < minRoomsNotConnected)
+		//{
+		//	minRoomsNotConnected = roomResult.RoomsNotConnected.size();
+		//	roomResults.clear();
+		//	roomResult.Shape = currentRoom;
+		//	roomResults.push_back(roomResult);
+		//}
+		//else if (roomResult.RoomsNotConnected.size() == minRoomsNotConnected)
+		//{
+		//	roomResult.Shape = currentRoom;
+		//	roomResults.push_back(roomResult);
+		//}
 
 		if (isValid)
 		{
@@ -388,6 +413,7 @@ std::vector<Room> GraphToMap::MapGenerator::GetValidRooms(int vertexIndex, Layou
 		}
 	}
 
+	// return roomResults;
 	return validRooms;
 }
 
@@ -417,6 +443,7 @@ void GraphToMap::GetNonAdjacentRooms(LayoutRoom & layoutRoom, Layout & layout, s
 Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, BoostGraph& graph, bool & success)
 {
 	std::list<int> queue;
+	std::list<int> debugqueue;
 
 	int firstIndex = -1;
 	success = true;
@@ -432,6 +459,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 			if (std::any_of(neighbours.first, neighbours.second, [layout](int v) { return layout.LaidOutVertices[v]; }))
 			{
 				queue.push_back(chainVertexIndex);
+				debugqueue.push_back(chainVertexIndex);
 				chain.erase(chain.begin() + i);
 				break;
 			}
@@ -440,6 +468,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 	else
 	{
 		queue.push_back(chain[0]);
+		debugqueue.push_back(chain[0]);
 		chain.erase(chain.begin());
 	}
 	
@@ -467,6 +496,7 @@ Layout GraphToMap::MapGenerator::GetInitialLayout(Layout & layout, Chain chain, 
 				if (chain[i] == *neighbours.first)
 				{
 					queue.push_back(chain[i]);
+					debugqueue.push_back(chain[i]);
 					chain.erase(chain.begin() + i);
 				}
 			}

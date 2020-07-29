@@ -231,25 +231,51 @@ Chain GeneticAlgorithmUtils::GetNeighbourCycle(BoostGraph & graph, std::vector<s
 
 		assert(firstVertexIndex != -1);
 
-		for (int i = firstVertexIndex; i < smallestFace.size(); i++)
+		// breadth first search?
+		std::list<int> queue;
+		queue.push_back(firstVertexIndex);
+
+		while (!queue.empty())
 		{
-			int vertexIndex = smallestFace[i];
+			int u = queue.front();
+			queue.pop_front();
+			chain.push_back(u);
+			usedVertices[u] = true;
 
-			assert(!usedVertices[vertexIndex]);
-
-			usedVertices[vertexIndex] = true;
-			chain.push_back(vertexIndex);
+			auto neighbors = boost::adjacent_vertices(u, graph);
+			for (; neighbors.first != neighbors.second; neighbors.first++)
+			{
+				int currentN = *neighbors.first;
+				if (!usedVertices[currentN])
+				{
+					if (std::any_of(smallestFace.begin(), smallestFace.end(), [currentN](const int& i) { return i == currentN; }))
+					{
+						queue.push_back(currentN);
+					}
+				}
+			}
 		}
 
-		for (int i = 0; i < firstVertexIndex; i++)
-		{
-			int vertexIndex = smallestFace[i];
 
-			assert(!usedVertices[vertexIndex]);
+		//for (int i = firstVertexIndex; i < smallestFace.size(); i++)
+		//{
+		//	int vertexIndex = smallestFace[i];
 
-			usedVertices[vertexIndex] = true;
-			chain.push_back(vertexIndex);
-		}
+		//	assert(!usedVertices[vertexIndex]);
+
+		//	usedVertices[vertexIndex] = true;
+		//	chain.push_back(vertexIndex);
+		//}
+
+		//for (int i = 0; i < firstVertexIndex; i++)
+		//{
+		//	int vertexIndex = smallestFace[i];
+
+		//	assert(!usedVertices[vertexIndex]);
+
+		//	usedVertices[vertexIndex] = true;
+		//	chain.push_back(vertexIndex);
+		//}
 	}
 
 	return chain;

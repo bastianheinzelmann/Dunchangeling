@@ -166,6 +166,7 @@
     <ClInclude Include="ProductionRules.h" />
     <ClInclude Include="RNG.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="RoomShapesResult.h" />
     <ClInclude Include="TestDLL.h" />
     <ClInclude Include="TreeNode.h" />
     <ClInclude Include="Utils.h" />

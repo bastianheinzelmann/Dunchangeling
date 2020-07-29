@@ -266,9 +266,9 @@ int main()
 	ProductionRules * gaFunctions2 = new ProductionRules();
 
 	DungeonProperties props;
-	props.NumRooms = 20;
+	props.NumRooms = 30;
 	props.NumSpecialRooms = 3;
-	props.FlankingRoutes = true;
+	props.FlankingRoutes = false;
 	props.branchingFactor = 0.f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
@@ -311,15 +311,25 @@ int main()
 	ga.generateInitialPopulation(InitMode::EIM_PATH);
 	ga.run();
 	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
+	std::cout << "Fitness: " << gaGraph.fitness << std::endl;
 	std::cout << gaGraph;
 
 	//Graph gaGraph;
 	//generateFuckGraph(gaGraph, ga);
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
-	//GraphToDot(bg);
+	GraphToDot(bg);
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 	GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
+
+	for (auto chain : chains)
+	{
+		for (auto c : chain)
+		{
+			std::cout << c << " ";
+		}
+		std::cout << std::endl;
+	}
 
 	unsigned int room[] = 
 	{ 

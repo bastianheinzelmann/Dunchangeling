@@ -146,6 +146,9 @@
     <ClInclude Include="IntersectionResult.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RoomShapesResult.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

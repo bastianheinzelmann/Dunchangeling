@@ -7,6 +7,7 @@
 #include "GraphUtils.h"
 #include "DungeonGrid.h"
 #include "IntersectionResult.h"
+#include "RoomShapesResult.h"
 
 namespace GraphToMap
 {
