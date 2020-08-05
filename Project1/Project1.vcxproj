@@ -119,9 +119,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Functions.h" />
+    <ClInclude Include="UGeneticAlgorithmProperties.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Functions.cpp" />
+    <ClCompile Include="UDungeonProperties.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dunchangeling\Dunchangeling.vcxproj">

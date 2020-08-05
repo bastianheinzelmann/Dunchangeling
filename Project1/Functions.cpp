@@ -7,126 +7,102 @@
 #include "../Dunchangeling/GraphToMap.h"
 #include "../Dunchangeling/GeneticAlgorithm.h"
 #include "../Dunchangeling/ProductionRules.h"
+#include "../Dunchangeling/EntryEndCrossover.h"
 #include "Functions.h"
 
-int addWrapper(int num1, int num2)
+std::vector<Room> readConcatArray(int concatArray[])
 {
-	return add(num1, num2);
+	std::vector<Room> rooms;
+
+	int currentIndex = 0;
+	int size = concatArray[currentIndex];
+
+	++currentIndex;
+
+	while (currentIndex < size)
+	{
+		int width;
+		int height;
+
+		width = concatArray[currentIndex];
+		++currentIndex;
+		height = concatArray[currentIndex];
+
+		++currentIndex;
+		unsigned int * roomArray = new unsigned int[width * height];
+
+		int roomEnd = currentIndex + width * height;
+		for (int i = 0; currentIndex < roomEnd; currentIndex++)
+		{
+			roomArray[i] = concatArray[currentIndex];
+			++i;
+		}
+
+		Grid grid(width, height, roomArray);
+		rooms.push_back(Room(grid));
+	}
+
+	return rooms;
 }
 
-int multiplyWrapper(int num1, int num2)
-{
-	return multiply(num1, num2);
-}
-
-int substractWrapper(int num1, int num2)
-{
-	return substract(num1, num2);
-}
-
-int divideWrapper(int num1, int num2)
-{
-	return divide(num1, num2);
-}
-
-int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
+int generateLayout(int ** data, int* xSize, int* ySize, int* numData, UDungeonProperties dprops, int concatenatedRoomArray[], UGeneticAlgorithmProperties uGaProps)
 {
 	DungeonProperties props;
-	props.NumRooms = 20;
-	props.NumSpecialRooms = 1;
-	props.FlankingRoutes = false;
+	props.NumRooms = dprops.NumRooms;
+	props.NumSpecialRooms = dprops.NumSpecialRooms;
+	props.FlankingRoutes = dprops.FlankingRoutes;
+	props.branchingFactor = dprops.branchingFactor;
+	props.SpecialIsDeadEnd = dprops.SpecialIsDeadEnd;
+	props.EndroomDeadEnd = dprops.EndRoomDeadEnd;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
 	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
 
-	ProductionRules * gaFunctions2 = new ProductionRules();
+	GeneticAlgorithmProperties gaProps;
+	gaProps.convergenceBorder = uGaProps.convergenceBorder;
+	gaProps.crossoverRate = uGaProps.crossoverRate;
+	gaProps.doCrossover = uGaProps.doCrossover;
+	gaProps.elitismRate = uGaProps.elitismRate;
+	gaProps.populationSize = uGaProps.populationSize;
+	gaProps.maxGenerations = uGaProps.populationSize;
 
-	GeneticAlgorithm ga(GeneticAlgorithmProperties(), gaFunctions2, props);
-	ga.generateInitialPopulation(InitMode::EIM_PATH_THREE);
+	IGAFunctions * gaFunctions = nullptr;
+
+	if (uGaProps.mutationType == EDGE_MUTATIONS)
+	{
+		gaFunctions = new EntryEndCrossover();
+	}
+	else if (uGaProps.mutationType == PRODUCTION_MUTATIONS)
+	{
+		gaFunctions = new ProductionRules();
+	}
+	else
+	{
+		assert("no valid mutation type");
+	}
+
+	GeneticAlgorithm ga(gaProps, gaFunctions, props);
+
+	InitMode initMode;
+
+	if (uGaProps.initMode == INIT_PATH)
+	{
+		initMode = InitMode::EIM_PATH;
+	}
+	else if (uGaProps.initMode == INIT_RANDOM)
+	{
+		initMode = InitMode::EIM_RANDOM;
+	}
+
+	ga.generateInitialPopulation(initMode);
+
+
 	ga.run();
 	Graph graph = (*ga.CurrentPopBuffer)[0];
 
+	auto rooms = readConcatArray(concatenatedRoomArray);
+	assert(rooms.size() > 0);
 
-	unsigned int room[] =
-	{
-		0, 0, 1, 1,
-		0, 0, 1, 1,
-		1, 1, 1, 1,
-		1, 1, 1, 1
-	};
-
-	unsigned int room2[] =
-	{
-		1, 1,
-		1, 1
-	};
-
-	unsigned int room3[] =
-	{
-		1, 1, 1,
-		1, 1, 1,
-		1, 3, 1,
-		1, 1, 1,
-		1, 1, 1
-	};
-
-	unsigned int room4[] =
-	{
-		1, 1, 1, 1, 1,
-		1, 3, 3, 3, 1,
-		1, 1, 1, 1, 1
-	};
-
-	unsigned int room5[] = {
-		1, 1, 1, 1,
-		1, 1, 1, 1,
-		0, 0, 1, 1,
-		0, 0, 1, 1
-	};
-
-	unsigned int room6[] = {
-		1, 1, 0, 0,
-		1, 1, 0, 0,
-		1, 1, 1, 1,
-		1, 1, 1, 1,
-		1, 1, 0, 0,
-		1, 1, 0, 0
-	};
-
-	unsigned int room7[] = {
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1,
-		1
-	};
-
-	unsigned int room8[] = {
-		1, 1, 1,
-		1, 0, 0,
-		1, 0, 0,
-		1, 0, 0,
-		1, 0, 0,
-		1, 0, 0,
-		1, 0, 0,
-		1, 1, 1,
-	};
-
-	Grid grid(4, 4, room);
-	Grid grid2(2, 2, room2);
-	Grid grid3(3, 5, room3);
-	Grid grid4(5, 3, room4);
-	Grid grid5(4, 4, room5);
-	Grid grid6(4, 6, room6);
-	Grid grid7(1, 9, room7);
-	Grid grid8(9, 1, room7);
-	Grid grid9(3, 8, room8);
-
-	std::vector<Room> rooms = { Room(grid), Room(grid2), Room(grid3), Room(grid4), Room(grid5), Room(grid6) };
 	GraphToMap::RoomCollection roomCollection(rooms);
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(graph);
@@ -137,6 +113,14 @@ int generateLayout(int ** data, int* xSize, int* ySize, int* numData)
 	Layout finalLayout = mg.GenerateLayout(bg, layoutHistory);
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
+
+	// delete roomgrids
+	for (auto i : roomCollection.Rooms)
+	{
+		delete[] i.RoomGrid.gridArray;
+	}
+
+	delete gaFunctions;
 
 	*data = griddy.DungeonArray;
 	*xSize = griddy.XSize;

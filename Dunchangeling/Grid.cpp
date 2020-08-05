@@ -19,7 +19,7 @@ Grid::Grid(unsigned int xSize, unsigned int ySize, int pivotX, int pivotY)
 	}
 }
 
-Grid::Grid(unsigned int xSize, unsigned int ySize, unsigned int grid[], int pivotX, int pivotY)
+Grid::Grid(unsigned int xSize, unsigned int ySize, unsigned int * grid, int pivotX, int pivotY)
 {
 	XSize = xSize;
 	YSize = ySize;

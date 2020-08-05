@@ -11,6 +11,8 @@
 #include "../Dunchangeling/GraphToMap.h"
 #include "../Dunchangeling/EntryEndCrossover.h"
 #include "../Dunchangeling/ProductionRules.h"
+#include <array>
+
 
 #include "DrawGrid.h"
 #include <SFML/Graphics.hpp>
@@ -249,6 +251,8 @@ void generateTestLayout(Layout & layout, GraphToMap::RoomCollection & roomCollec
 
 int main()
 {
+	//int testarray[] = { 102,4,4,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,3,5,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,5,3,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,4,4,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,4,6,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0,0 };
+
 	//Graph g1, g2, g3;
 	//GeneticAlgorithm ga;
 
@@ -266,8 +270,8 @@ int main()
 	ProductionRules * gaFunctions2 = new ProductionRules();
 
 	DungeonProperties props;
-	props.NumRooms = 30;
-	props.NumSpecialRooms = 3;
+	props.NumRooms = 6;
+	props.NumSpecialRooms = 1;
 	props.FlankingRoutes = false;
 	props.branchingFactor = 0.f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
@@ -338,6 +342,9 @@ int main()
 		1, 1, 1, 1,
 		1, 1, 1, 1
 	};
+
+	//unsigned int * room = new unsigned int[4 * 4];
+	//for(int i = 0)
 
 	unsigned int room2[] = 
 	{
@@ -446,6 +453,10 @@ int main()
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy, window);
 
+	//for (auto i : roomsCool)
+	//{
+	//	delete[] i.RoomGrid.gridArray;
+	//}
 
 	int currentGrid = 0;
 	bool switchForward = false;
