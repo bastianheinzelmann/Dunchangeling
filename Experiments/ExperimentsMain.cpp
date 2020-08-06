@@ -235,6 +235,7 @@ void RunLayoutExperiments(int numrooms, int numSpecialRooms, IGAFunctions* gaFun
 	std::cout << "Ga is done: " << time << std::endl;
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
+	GraphToDot(bg);
 	//GraphToDot(bg);
 	Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
 	//GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
@@ -388,7 +389,7 @@ int main()
 	// RunExperiments(20, 50, productions, InitMode::EIM_PATH_THREE, false, true);
 
 	for(int i = 0; i < 20; i++)
-		RunLayoutExperiments(30, 5, edgeBased);
+		RunLayoutExperiments(8, 1, edgeBased);
 
 	std::cout << "Press key to terminate: ";
 	std::getchar();
