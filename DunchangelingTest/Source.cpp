@@ -236,6 +236,7 @@ int main()
 
 
 	// set dungeon properties
+
 	DungeonProperties props;
 	props.NumRooms = 10;
 	props.NumSpecialRooms = 3;
@@ -245,6 +246,7 @@ int main()
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
 	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
 
+	// set genetic algorithm params
 	GeneticAlgorithm ga(GeneticAlgorithmProperties(), edgeMutations, props);
 
 	bool result;
