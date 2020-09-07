@@ -527,8 +527,17 @@ DLLExport void graph_removeEdgeMutation(Graph& graph, Vertex& vertex)
 			i++;
 		}
 
-		if(graph.vertices[edgeToRemoveIndex].neighbours.size() > 1)
-			graph.removeEdgeByName(vertex.vertexID, graph.vertices[edgeToRemoveIndex].vertexID);
+		if (graph.vertices[edgeToRemoveIndex].neighbours.size() > 1)
+		{
+			Graph dummyGraph = graph;			
+			dummyGraph.removeEdgeByName(vertex.vertexID, graph.vertices[edgeToRemoveIndex].vertexID);
+			bool foundIndex;
+			bool isConnected = dummyGraph.IsNodeConnected(dummyGraph.findVertexIndexInt(vertex.vertexID, foundIndex)) && dummyGraph.IsNodeConnected(edgeToRemoveIndex);
+			if (isConnected)
+			{
+				graph.removeEdgeByName(vertex.vertexID, graph.vertices[edgeToRemoveIndex].vertexID);
+			}
+		}
 
 		//std::cout << "Remove edge " << graph.vertices[edgeToRemoveIndex].vertexName << " from " << vertex.vertexName << std::endl;
 	}
@@ -702,7 +711,7 @@ DLLExport void graph_removeVertexProduction(Graph & graph, int vertexIndex, Gene
 		}
 		copy.removeEdge(vertexIndex, randomNeighbor2);
 		copy.addEdge(copy.vertices[randomNeighbor1].vertexID, copy.vertices[randomNeighbor2].vertexID, false);
-		if (copy.removeVertex(vertexIndex))
+		if (copy.RemoveVertex(vertexIndex))
 		{
 			graph = copy;
 		}

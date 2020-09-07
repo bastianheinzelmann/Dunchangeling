@@ -132,11 +132,6 @@ void Graph::addEdgeIndices(unsigned int index1, unsigned int index2, bool direct
 	}
 }
 
-void Graph::removeVertex()
-{
-	// TODO
-}
-
 std::vector<int> Graph::getAllBrokenEdges() const
 {
 	std::vector<int> brokenEdges;
@@ -197,66 +192,6 @@ std::string Graph::printAsDot() const
 			connections.append("\n");
 		result.append(connections);
 	}
-
-	result.append("}");
-	return result;
-}
-
-std::string Graph::printAsDotPlus()
-{
-	std::list<int> queue;
-	bool* visited = new bool[vertices.size()];
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		visited[i] = false;
-	}
-
-	// starting point of breadth first search
-	visited[0] = true;
-	queue.push_back(0);
-
-	std::string result = "digraph {\n";
-
-	while (!queue.empty())
-	{
-		int u = queue.front();
-		queue.pop_front();
-
-		// mark broken edges
-		if (vertices[u].NumBrokenEdges > 0)
-		{
-			result.append(std::to_string(vertices[u].vertexID));
-			result.append(" [style=filled, fillcolor=red]\n");
-		}
-
-		for (int v : vertices[u].neighbours)
-		{
-			if (visited[v] == false)
-			{
-				visited[v] = true;
-				queue.push_back(v);
-
-				if (vertices[v].neighbours.end() != vertices[v].neighbours.find(u))
-				{
-					result.append(std::to_string(vertices[u].vertexID));
-					result.append("->");
-					result.append(std::to_string(vertices[v].vertexID));
-					result.append(" [dir=both]\n");
-				}
-				else
-				{
-					// ist nicht bidrection
-					result.append(std::to_string(vertices[u].vertexID));
-					result.append("->");
-					result.append(std::to_string(vertices[v].vertexID));
-					result.append("\n");
-				}
-			}
-		}
-	}
-
-	delete[](visited);
 
 	result.append("}");
 	return result;
@@ -422,7 +357,23 @@ std::vector<unsigned int> Graph::shortestPath(PopId src, PopId dest)
 	return pathIndices;
 }
 
-bool Graph::removeVertex(int vertexIndex)
+bool Graph::IsNodeConnected(int vertexIndex)
+{
+	int *pred = new int[vertices.size()];
+	int *dist = new int[vertices.size()];
+
+	if (!BreadthFirstSearch(vertices[vertexIndex].vertexID, vertices[attributes.endIndex].vertexID, pred, dist))
+		return false;
+	if (!BreadthFirstSearch(vertices[vertexIndex].vertexID, vertices[attributes.entryIndex].vertexID, pred, dist))
+		return false;
+
+	delete[](pred);
+	delete[](dist);
+
+	return true;
+}
+
+bool Graph::RemoveVertex(int vertexIndex)
 {
 	std::list<int> deletedEdges;
 

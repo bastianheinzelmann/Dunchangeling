@@ -90,29 +90,6 @@ void generateNonPlanarGraph(Graph& graph, GeneticAlgorithm& ga)
 	std::cout << graph << std::endl;
 }
 
-void generateFuckGraph(Graph& graph, GeneticAlgorithm& ga)
-{
-	PopId id0 = ga.requestId();
-	PopId id1 = ga.requestId();
-	PopId id2 = ga.requestId();
-	PopId id3 = ga.requestId();
-	PopId id4 = ga.requestId();
-	PopId id5 = ga.requestId();
-	PopId id6 = ga.requestId();
-	PopId id7 = ga.requestId();
-
-	graph.addEdge(id0, id1, false);
-	graph.addEdge(id0, id2, false);
-	graph.addEdge(id1, id3, false);
-	graph.addEdge(id1, id2, false);
-	graph.addEdge(id2, id6, false);
-	graph.addEdge(id3, id4, false);
-	graph.addEdge(id3, id5, false);
-	graph.addEdge(id4, id5, false);
-	graph.addEdge(id4, id6, false);
-	graph.addEdge(id5, id7, false);
-}
-
 void generateDecompTestGraph(Graph& graph, GeneticAlgorithm& ga)
 {
 	PopId id1 = ga.requestId();
@@ -273,14 +250,14 @@ int main()
 
 	DungeonProperties props;
 	props.NumRooms = 10;
-	props.NumSpecialRooms = 1;
-	props.FlankingRoutes = true;
-	props.branchingFactor = 0.f;
+	props.NumSpecialRooms = 3;
+	props.FlankingRoutes = false;
+	props.branchingFactor = 0.2f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
 	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
 
-	GeneticAlgorithm ga(GeneticAlgorithmProperties(), gaFunctions2, props);
+	GeneticAlgorithm ga(GeneticAlgorithmProperties(), gaFunctions, props);
 
 	bool result;
 
@@ -314,14 +291,12 @@ int main()
 	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 
-	//ga.generateInitialPopulation(InitMode::EIM_PATH);
-	//ga.run();
-	//Graph gaGraph = (*ga.CurrentPopBuffer)[0];
-	//std::cout << "Fitness: " << gaGraph.fitness << std::endl;
-	//std::cout << gaGraph;
+	ga.generateInitialPopulation(InitMode::EIM_PATH);
+	ga.run();
+	Graph gaGraph = (*ga.CurrentPopBuffer)[0];
+	std::cout << "Fitness: " << gaGraph.fitness << std::endl;
+	std::cout << gaGraph;
 
-	Graph gaGraph;
-	generateFuckGraph(gaGraph, ga);
 
 	BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(gaGraph);
 	GraphToDot(bg);

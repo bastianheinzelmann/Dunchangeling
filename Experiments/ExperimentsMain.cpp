@@ -389,7 +389,7 @@ int main()
 	// RunExperiments(20, 50, productions, InitMode::EIM_PATH_THREE, false, true);
 
 	for(int i = 0; i < 20; i++)
-		RunLayoutExperiments(8, 1, edgeBased);
+		RunLayoutExperiments(20, 3, edgeBased);
 
 	std::cout << "Press key to terminate: ";
 	std::getchar();
