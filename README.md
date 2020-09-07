@@ -6,8 +6,11 @@ A dungeon generator based on a genetic algorithm, that produces graphs, which ar
 ## Installation
 
 ProjectDir\Libs\SFML contains six DLLs, that need to be copied to ProjectDir\x64\Debug
+The project DunchangelingTest should be set up as Start Project. 
 
-The project DunchangelingTest should be set up as Start Project. The application is pretty barebone and changes can only be made directly in code.
+## Usage
+
+The application is pretty barebone and changes can only be made directly in code.
 When started use left and right arrow to switch between partial layouts. 
 
 1. Yellow rooms are special rooms
