@@ -230,65 +230,24 @@ void generateTestLayout(Layout & layout, GraphToMap::RoomCollection & roomCollec
 
 int main()
 {
-	//int testarray[] = { 102,4,4,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,3,5,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,5,3,1,1,1,1,1,1,3,3,3,1,1,1,1,1,1,4,4,1,1,1,1,1,1,1,1,0,0,1,1,0,0,1,1,4,6,1,1,0,0,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,0,0 };
 
-	//Graph g1, g2, g3;
-	//GeneticAlgorithm ga;
+	EntryEndCrossover * edgeMutations = new EntryEndCrossover();
+	ProductionRules * productionMutations = new ProductionRules();
 
 
-	//std::cout << g1 << "\n";
-
-	//BoostGraph bg = GeneticAlgorithmUtils::ConvertToBoostGraph(g1);
-
-	//GraphUtils::GraphToDot(bg);
-	//GeneticAlgorithmUtils::GetGraphFaces(bg);
-	//Chains chains = GeneticAlgorithmUtils::ChainDecomposition(bg);
-	//GeneticAlgorithmUtils::GraphChainsDot(bg, chains);
-
-	EntryEndCrossover * gaFunctions = new EntryEndCrossover();
-	ProductionRules * gaFunctions2 = new ProductionRules();
-
+	// set dungeon properties
 	DungeonProperties props;
 	props.NumRooms = 10;
 	props.NumSpecialRooms = 3;
-	props.FlankingRoutes = false;
+	props.FlankingRoutes = true;
 	props.branchingFactor = 0.2f;
 	props.OpponentTypes.emplace(1, OpponentInfo(1, 1));
 	props.OpponentTypes.emplace(2, OpponentInfo(2, 2));
 	props.OpponentTypes.emplace(3, OpponentInfo(3, 3));
 
-	GeneticAlgorithm ga(GeneticAlgorithmProperties(), gaFunctions, props);
+	GeneticAlgorithm ga(GeneticAlgorithmProperties(), edgeMutations, props);
 
 	bool result;
-
-	//std::cout << decompGraph << std::endl;
-	//graph_removeVertexProduction(decompGraph, decompGraph.findVertexIndexInt(7, result), ga);
-	//graph_addVertex2Production(decompGraph, 9, ga);
-	//std::cout << decompGraph << std::endl;
-
-
-
-	//BoostGraph boost = GeneticAlgorithmUtils::ConvertToBoostGraph(decompGraph);
-
-	//GeneticAlgorithmUtils::GraphToDot(boost);
-	//Chains testchains = GeneticAlgorithmUtils::ChainDecomposition(boost);
-	//GeneticAlgorithmUtils::GraphChainsDot(boost, testchains);
-
-
-
-	//Graph graph1 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
-	//Graph graph2 = graph_generateRandomGraphWilson(8, randomNumber(8, 10), ga);
-
-	//Graph graphDecomp;
-	//generateDecompTestGraph(graphDecomp, ga);
-
-	//std::cout << graph1 << std::endl;
-	//std::cout << graph2 << std::endl;
-
-	//gaFunctions2->CalculateFitness(graph1, ga);
-	//Graph matedGraph = gaFunctions2->Crossover(graph1, graph2, ga);
-
-	//std::cout << "Mated Graph\n" << matedGraph << std::endl;
 
 
 	ga.generateInitialPopulation(InitMode::EIM_PATH);
@@ -319,9 +278,6 @@ int main()
 		1, 1, 1, 1,
 		1, 1, 1, 1
 	};
-
-	//unsigned int * room = new unsigned int[4 * 4];
-	//for(int i = 0)
 
 	unsigned int room2[] = 
 	{
@@ -416,8 +372,6 @@ int main()
 
 	std::vector<FinalGrid> finalGrids;
 
-	//Layout testLayout;
-	//generateTestLayout(testLayout, roomCollection);
 
 	sf::RenderWindow window(sf::VideoMode(1280, 720), "SFML works!");
 
@@ -429,11 +383,6 @@ int main()
 
 	DungeonGrid griddy = GraphToMap::LayoutToSingleGrid(finalLayout);
 	FinalGrid* finalGrid = new FinalGrid(griddy, window);
-
-	//for (auto i : roomsCool)
-	//{
-	//	delete[] i.RoomGrid.gridArray;
-	//}
 
 	int currentGrid = 0;
 	bool switchForward = false;
@@ -467,22 +416,6 @@ int main()
 		finalGrids[currentGrid].Draw(window);
 		window.display();
 	}
-
-	//PlanarityCheck();
-
-	//ga.currentGenerationToFile("C:/Users/Bastian/Documents/MasterStuff");
-
-	//Graph graph1 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
-	//Graph graph2 = graph_generateRandomGraphWilson(10, randomNumber(9, 14), ga);
-
-	//std::cout << graph1 << std::endl;
-
-	//Graph matedGraph = graph_crossover(graph1, graph2);
-	//matedGraph.generateGraphImage();
-
-	//matedGraph.writeToFile();
-
-	//std::cout << "Rand2: \n" << matedGraph << std::endl;
 
 	getchar();
 	return 0;
